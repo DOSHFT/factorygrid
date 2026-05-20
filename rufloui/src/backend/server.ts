@@ -3188,9 +3188,10 @@ async function createWebhookTask(
 }
 
 
-app.get(['/factory', '/factory/*'], (_req, res) => {
+app.get(['/', '/factory', '/factory/*'], (_req, res) => {
   const frontendPort = process.env.RUFLOUI_VITE_PORT || '28588'
-  res.redirect(302, `http://localhost:${frontendPort}${_req.originalUrl}`)
+  const path = _req.originalUrl === '/' ? '/factory' : _req.originalUrl
+  res.redirect(302, `http://localhost:${frontendPort}${path}`)
 })
 
 app.use('/api/webhooks', githubWebhookRoutes(
