@@ -35,6 +35,7 @@ These must not be included in GitHub or customer exports:
 - Qdrant runtime database: `qdrant_storage/**`.
 - Logs: `logs/**`, `*.log`.
 - DR snapshots: `workspace/dr/**`.
+- Generated restore metadata: `_restore/**`.
 - Temporary/cache folders: `workspace/tmp/**`, `workspace/cache/**`, `.cache/**`, `__pycache__/**`, `.pytest_cache/**`.
 - Dependency folders: `node_modules/**`, nested `**/node_modules/**`, `.venv/**`, `venv/**`.
 - Generated frontend/backend builds: `dist/**`, `build/**`, `rufloui/tsconfig.tsbuildinfo`.
