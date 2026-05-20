@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "context:index": "python3 ../scripts/context_ingest.py --root .. --out artifacts/context-index.jsonl",
+    "factory:protected": "../bin/check-protected-edits.sh --status-only"
+  },
+  "dependencies": {
+    "ruflo": "^3.7.0-alpha.44"
+  },
+  "devDependencies": {
+    "agentic-flow": "^2.0.11",
+    "typescript": "^6.0.3"
+  }
+}

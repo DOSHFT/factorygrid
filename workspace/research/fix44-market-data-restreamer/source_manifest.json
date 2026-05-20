@@ -1,0 +1,36 @@
+{
+  "run_id": "fix44-market-data-restreamer",
+  "generated_at": "2026-05-18T16:48:57.646529Z",
+  "sources": [
+    {
+      "name": "SAGE: A Self-Evolving Agentic Graph-Memory Engine",
+      "url": "https://arxiv.org/abs/2605.12061",
+      "use": "Memory architecture and writer-reader feedback loop"
+    },
+    {
+      "name": "cTrader FIX API Specification",
+      "url": "https://help.ctrader.com/fix/specification/",
+      "use": "Downstream FIX 4.4 acceptor protocol shape and market data messages"
+    },
+    {
+      "name": "Artio FIX Engine",
+      "url": "https://github.com/artiofix/artio",
+      "use": "FIX engine implementation target"
+    },
+    {
+      "name": "Aeron",
+      "url": "https://github.com/aeron-io/aeron",
+      "use": "Low-latency messaging and IPC patterns"
+    },
+    {
+      "name": "Agrona",
+      "url": "https://github.com/aeron-io/agrona",
+      "use": "Direct buffers and low-allocation Java utilities"
+    },
+    {
+      "name": "Attached implementation docs",
+      "url": "C:/Users/Setup User/Downloads/*.md",
+      "use": "Initial user-provided architecture and setup notes"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "agent": "queen",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve queen capabilities for orchestration, task routing, mode gates, and multi-agent operating discipline.",
+  "sources": [
+    {
+      "name": "github/spec-kit",
+      "url": "https://github.com/github/spec-kit",
+      "reason": "Spec-driven development workflow and living implementation contracts"
+    },
+    {
+      "name": "ruvnet/ruflo",
+      "url": "https://github.com/ruvnet/ruflo",
+      "reason": "MCP-first orchestration and graph-oriented agent UX"
+    },
+    {
+      "name": "ruvnet/sparc-ide",
+      "url": "https://github.com/ruvnet/sparc-ide",
+      "reason": "Artifact-centric software-factory workflow patterns"
+    },
+    {
+      "name": "All-Hands-AI/OpenHands",
+      "url": "https://github.com/All-Hands-AI/OpenHands",
+      "reason": "Autonomous coding runtime and sandbox execution model"
+    },
+    {
+      "name": "openai/openai-agents-python",
+      "url": "https://github.com/openai/openai-agents-python",
+      "reason": "Agent handoff, tools, tracing, and guardrail patterns"
+    },
+    {
+      "name": "microsoft/autogen",
+      "url": "https://github.com/microsoft/autogen",
+      "reason": "Conversable multi-agent orchestration patterns"
+    },
+    {
+      "name": "crewAIInc/crewAI",
+      "url": "https://github.com/crewAIInc/crewAI",
+      "reason": "Role-based crew/task orchestration patterns"
+    },
+    {
+      "name": "langchain-ai/langgraph",
+      "url": "https://github.com/langchain-ai/langgraph",
+      "reason": "Stateful agent graph execution patterns"
+    },
+    {
+      "name": "modelcontextprotocol/modelcontextprotocol",
+      "url": "https://github.com/modelcontextprotocol/modelcontextprotocol",
+      "reason": "Tool interoperability protocol foundation"
+    },
+    {
+      "name": "ruvnet/federated-mcp",
+      "url": "https://github.com/ruvnet/federated-mcp",
+      "reason": "Future tool federation and multi-node MCP routing"
+    }
+  ]
+}

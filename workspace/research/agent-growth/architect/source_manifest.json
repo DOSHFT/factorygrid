@@ -1,0 +1,57 @@
+{
+  "agent": "architect",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve architect capabilities for bounded topology, interface contracts, dependency maps, and path safety.",
+  "sources": [
+    {
+      "name": "github/spec-kit",
+      "url": "https://github.com/github/spec-kit",
+      "reason": "Spec-to-plan architecture boundary model"
+    },
+    {
+      "name": "C4-PlantUML/C4-PlantUML",
+      "url": "https://github.com/C4-PlantUML/C4-PlantUML",
+      "reason": "Architecture diagram notation and component boundaries"
+    },
+    {
+      "name": "plantuml/plantuml",
+      "url": "https://github.com/plantuml/plantuml",
+      "reason": "Durable architecture diagrams"
+    },
+    {
+      "name": "mermaid-js/mermaid",
+      "url": "https://github.com/mermaid-js/mermaid",
+      "reason": "Readable graph output for operator review"
+    },
+    {
+      "name": "openapi-ts/openapi-typescript",
+      "url": "https://github.com/openapi-ts/openapi-typescript",
+      "reason": "Typed API contract generation"
+    },
+    {
+      "name": "asyncapi/spec",
+      "url": "https://github.com/asyncapi/spec",
+      "reason": "Event-driven interface specification"
+    },
+    {
+      "name": "TNG/ArchUnit",
+      "url": "https://github.com/TNG/ArchUnit",
+      "reason": "Architecture rule testing patterns"
+    },
+    {
+      "name": "infracost/infracost",
+      "url": "https://github.com/infracost/infracost",
+      "reason": "Infrastructure impact modeling"
+    },
+    {
+      "name": "aquasecurity/trivy",
+      "url": "https://github.com/aquasecurity/trivy",
+      "reason": "Config and dependency risk scanning"
+    },
+    {
+      "name": "tenable/terrascan",
+      "url": "https://github.com/tenable/terrascan",
+      "reason": "IaC policy and guardrail examples"
+    }
+  ]
+}

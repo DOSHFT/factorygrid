@@ -1,0 +1,87 @@
+{
+  "allowed_write_paths": [
+    "FIXReaper/BOM.md",
+    "FIXReaper/bin/fix44_connector_harness.py",
+    "FIXReaper/config/**",
+    "FIXReaper/docs/**",
+    "FIXReaper/protocols/**",
+    "FIXReaper/runtime/metrics/**",
+    "TARGET_REPO/build.gradle or TARGET_REPO/pom.xml",
+    "TARGET_REPO/docs/**",
+    "TARGET_REPO/src/jmh/java/**",
+    "TARGET_REPO/src/main/java/**",
+    "TARGET_REPO/src/main/resources/application.example.yaml",
+    "TARGET_REPO/src/test/java/**",
+    "TARGET_REPO/src/test/resources/fix/**"
+  ],
+  "credential_manifest": "workspace/research/fix44-market-data-restreamer/credential_manifest.json",
+  "gates": {
+    "architecture": "server/hooks/gate_architecture.py workspace/architecture/fix44-market-data-restreamer_architecture_blueprint.json",
+    "connector_harness": "workspace/testing/fix44-market-data-restreamer_connector_harness_plan.md must be implemented before DEV",
+    "product_docs": "server/hooks/gate_product_docs.py FIXReaper",
+    "technology_choice": "server/hooks/gate_technology_choice.py workspace/research/fix44-market-data-restreamer/technology_tradeoff_matrix.md"
+  },
+  "interface_definitions": {
+    "ConnectorHarness": "Runs one upstream simulator, the restreamer initiator, restreamer acceptors, and ten downstream customer initiators to measure latency and reject behavior.",
+    "DownstreamAcceptorGateway": "Accepts up to 10 FIX 4.4 customer sessions and rejects non-market-data messages.",
+    "FanoutEngine": "Routes book events to subscribed sessions with low allocation and backpressure handling.",
+    "MarketDataBookStore": "Stores latest in-memory book state per instrument without persistence.",
+    "SubscriptionRegistry": "Maps downstream session IDs to requested instruments and all-symbol subscriptions.",
+    "UpstreamMarketDataGateway": "Connects as one FIX 4.4 initiator and normalizes PrimeXM market-data messages into in-memory book events."
+  },
+  "monitoring_requirements": {
+    "performance": [
+      "delivered count",
+      "throughput",
+      "p50/p95/max latency"
+    ],
+    "receiving_normalization": [
+      "upstream received count",
+      "normalized count",
+      "normalization map such as XAUUSD# -> XAUUSD"
+    ],
+    "session_management": [
+      "logon count",
+      "disconnect count",
+      "active/tracked session states",
+      "heartbeat policy from cfg"
+    ],
+    "subscriptions": [
+      "raw requested symbol",
+      "normalized symbol",
+      "all-symbol wildcard",
+      "per-session registry"
+    ],
+    "user_management": [
+      "SenderCompID/user alias tracking",
+      "per-user subscriptions",
+      "per-user deliveries"
+    ]
+  },
+  "product_root": "FIXReaper",
+  "protected_paths_flagged": [
+    ".env",
+    "docker-compose.yml",
+    "PrimeXM credentials",
+    "customer credential files",
+    "production endpoint configuration"
+  ],
+  "required_inputs_before_dev": [
+    "Connector performance harness",
+    "GitHub risk report",
+    "PrimeXM dictionary.xml",
+    "PrimeXM market-data rules of engagement",
+    "PrimeXM/cTrader production rules of engagement beyond working defaults",
+    "Target repository path for Artio/Aeron/Agrona implementation",
+    "Technology tradeoff matrix passing gate_technology_choice.py",
+    "cTrader FIX44 dictionary copied to target repo resources",
+    "cTrader downstream dictionary/rules"
+  ],
+  "run_id": "fix44-market-data-restreamer",
+  "status": "PLAN_READY_CREDENTIAL_DEFAULTS_FOUND_TARGET_REPO_BLOCKED",
+  "strategic_footer": {
+    "artifact": "./workspace/architecture/fix44-market-data-restreamer_architecture_blueprint.json",
+    "next_node": "Researcher/Architect",
+    "state": "SPEC"
+  }
+}

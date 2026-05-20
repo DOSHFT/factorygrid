@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "@claude-flow/claims": "^3.0.0-alpha.8",
+    "@claude-flow/embeddings": "^3.0.0-alpha.18",
+    "@claude-flow/neural": "^3.0.0-alpha.9",
+    "@claude-flow/performance": "^3.0.0-alpha.1",
+    "@claude-flow/plugin-agentic-qe": "^3.0.0-alpha.5",
+    "@claude-flow/plugin-code-intelligence": "^3.0.0-alpha.3",
+    "@claude-flow/plugin-cognitive-kernel": "^3.0.0-alpha.1",
+    "@claude-flow/plugin-financial-risk": "^3.0.0-alpha.1",
+    "@claude-flow/plugin-gastown-bridge": "^0.1.4",
+    "@claude-flow/plugin-healthcare-clinical": "^3.0.0-alpha.2",
+    "@claude-flow/plugin-hyperbolic-reasoning": "^3.0.0-alpha.1",
+    "@claude-flow/plugin-legal-contracts": "^3.0.0-alpha.2",
+    "@claude-flow/plugin-perf-optimizer": "^3.0.0-alpha.2",
+    "@claude-flow/plugin-prime-radiant": "^0.1.5",
+    "@claude-flow/plugin-quantum-optimizer": "^3.0.0-alpha.1",
+    "@claude-flow/plugin-test-intelligence": "^3.0.0-alpha.1",
+    "@claude-flow/plugins": "^3.0.0-alpha.1",
+    "@claude-flow/security": "^3.0.0-alpha.8",
+    "@claude-flow/teammate-plugin": "^1.0.0-alpha.1"
+  }
+}

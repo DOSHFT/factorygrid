@@ -1,0 +1,57 @@
+{
+  "agent": "blue-team-cell",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve blue-team-cell capabilities for defensive cellular security, 5G/O-RAN lab validation, and legacy GSM risk mapping.",
+  "sources": [
+    {
+      "name": "open5gs/open5gs",
+      "url": "https://github.com/open5gs/open5gs",
+      "reason": "5G/LTE core network lab foundation"
+    },
+    {
+      "name": "aligungr/UERANSIM",
+      "url": "https://github.com/aligungr/UERANSIM",
+      "reason": "5G UE/RAN simulator for defensive lab validation"
+    },
+    {
+      "name": "OPENAIRINTERFACE/openairinterface5g",
+      "url": "https://github.com/OPENAIRINTERFACE/openairinterface5g",
+      "reason": "Open-source 5G RAN and core research stack"
+    },
+    {
+      "name": "srsran/srsRAN_Project",
+      "url": "https://github.com/srsran/srsRAN_Project",
+      "reason": "5G RAN lab and monitoring foundation"
+    },
+    {
+      "name": "srsran/srsRAN_4G",
+      "url": "https://github.com/srsran/srsRAN_4G",
+      "reason": "LTE/4G lab interoperability reference"
+    },
+    {
+      "name": "osmocom/osmo-bsc",
+      "url": "https://github.com/osmocom/osmo-bsc",
+      "reason": "GSM BSC reference for legacy defensive modeling"
+    },
+    {
+      "name": "osmocom/osmo-msc",
+      "url": "https://github.com/osmocom/osmo-msc",
+      "reason": "GSM MSC reference for legacy defensive modeling"
+    },
+    {
+      "name": "osmocom/gr-gsm",
+      "url": "https://github.com/osmocom/gr-gsm",
+      "reason": "GSM signal analysis reference for lab-only detection work"
+    },
+    {
+      "name": "Orange-OpenSource/towards5gs-helm",
+      "url": "https://github.com/Orange-OpenSource/towards5gs-helm",
+      "reason": "Kubernetes 5G lab deployment patterns"
+    },
+    {
+      "name": "free5gc/free5gc",
+      "url": "https://github.com/free5gc/free5gc",
+      "reason": "5G core network research and defensive validation"
+    }
+  ]
+}

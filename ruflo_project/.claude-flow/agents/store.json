@@ -1,0 +1,19 @@
+{
+  "agents": {
+    "agent-1779010672740-k4eo92": {
+      "agentId": "agent-1779010672740-k4eo92",
+      "agentType": "architect",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {
+        "provider": "openai",
+        "baseUrl": "http://litellm:4000/v1"
+      },
+      "createdAt": "2026-05-17T09:37:52.740Z",
+      "model": "qwen-coder-14b",
+      "modelRoutedBy": "revelation-litellm"
+    }
+  },
+  "version": "3.0.0"
+}

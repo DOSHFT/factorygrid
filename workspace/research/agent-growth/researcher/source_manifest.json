@@ -1,0 +1,57 @@
+{
+  "agent": "researcher",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve researcher capabilities for current-source research, evidence capture, web ingestion, and context distillation.",
+  "sources": [
+    {
+      "name": "firecrawl/firecrawl",
+      "url": "https://github.com/firecrawl/firecrawl",
+      "reason": "Web crawling and content extraction for research briefs"
+    },
+    {
+      "name": "scrapy/scrapy",
+      "url": "https://github.com/scrapy/scrapy",
+      "reason": "Mature crawler architecture and extraction patterns"
+    },
+    {
+      "name": "tavily-ai/tavily-python",
+      "url": "https://github.com/tavily-ai/tavily-python",
+      "reason": "Search API client patterns for agent research"
+    },
+    {
+      "name": "jina-ai/reader",
+      "url": "https://github.com/jina-ai/reader",
+      "reason": "Reader-style web extraction and grounding"
+    },
+    {
+      "name": "run-llama/llama_index",
+      "url": "https://github.com/run-llama/llama_index",
+      "reason": "Document ingestion and retrieval workflows"
+    },
+    {
+      "name": "deepset-ai/haystack",
+      "url": "https://github.com/deepset-ai/haystack",
+      "reason": "Search and retrieval application patterns"
+    },
+    {
+      "name": "qdrant/qdrant",
+      "url": "https://github.com/qdrant/qdrant",
+      "reason": "Vector memory search and HNSW operational behavior"
+    },
+    {
+      "name": "microsoft/markitdown",
+      "url": "https://github.com/microsoft/markitdown",
+      "reason": "Office/PDF/HTML to markdown conversion"
+    },
+    {
+      "name": "browserbase/stagehand",
+      "url": "https://github.com/browserbase/stagehand",
+      "reason": "Browser automation for structured research"
+    },
+    {
+      "name": "unclecode/crawl4ai",
+      "url": "https://github.com/unclecode/crawl4ai",
+      "reason": "LLM-friendly crawling and extraction patterns"
+    }
+  ]
+}

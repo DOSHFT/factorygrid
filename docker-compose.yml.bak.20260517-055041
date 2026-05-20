@@ -1,0 +1,90 @@
+networks:
+  factory_net:
+    driver: bridge
+
+services:
+  # --- INFRASTRUCTURE: VECTOR DATABASE ---
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: factory_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    networks:
+      - factory_net
+    restart: unless-stopped
+
+  # --- GATEWAY ROUTER: LITELLM ---
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: factory_litellm
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml
+    command: [ "--config", "/app/config.yaml", "--port", "4000" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - factory_net
+    restart: unless-stopped
+    depends_on:
+      - qdrant
+
+  # --- SWARM ORCHESTRATOR: RUFLO QUEEN ---
+  ruflo_orchestrator:
+    image: node:20-slim
+    container_name: factory_ruflo
+    volumes:
+      - ./ruflo_project:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    environment:
+      - OPENAI_API_BASE=http://docker.internal
+      - OPENAI_API_KEY=factory-secret-key
+    command: sh -c "npm install -g ruflo@latest && npx ruflo@latest start"
+    networks:
+      - factory_net
+    restart: unless-stopped
+    depends_on:
+      - litellm
+
+  # --- AGENT WORKER INFRASTRUCTURE: DETACHED RUNTIMES ---
+  qwen_code_worker:
+    image: node:20-slim
+    container_name: agent_qwen_code
+    volumes:
+      - ./workspace:/workspace
+    working_dir: /workspace
+    environment:
+      - OPENAI_API_BASE=http://docker.internal
+    command: tail -f /dev/null
+    networks:
+      - factory_net
+    restart: unless-stopped
+
+  # --- AUTONOMOUS AGENT WORKER ---
+  openhands_engineer:
+    image: ghcr.io/all-hands-ai/openhands:latest
+    container_name: agent_openhands
+    pull_policy: always
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./workspace:/opt/workspace_base
+    environment:
+      - LLM_PROVIDER=openai
+      - LLM_MODEL=openai/qwen-coder-14b
+      - LLM_BASE_URL=http://docker.internal
+      - LLM_API_KEY=factory-secret-key
+      - TAVILY_API_KEY=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
+      - SANDBOX_USER_ID=0
+      - SANDBOX_TIMEOUT=120
+    networks:
+      - factory_net
+    restart: unless-stopped

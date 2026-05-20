@@ -1,0 +1,57 @@
+{
+  "agent": "reviewer",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve reviewer capabilities for security review, diff policing, dependency risk, and regression gates.",
+  "sources": [
+    {
+      "name": "semgrep/semgrep",
+      "url": "https://github.com/semgrep/semgrep",
+      "reason": "Static analysis rules and custom policy checks"
+    },
+    {
+      "name": "github/codeql",
+      "url": "https://github.com/github/codeql",
+      "reason": "Semantic code analysis and query packs"
+    },
+    {
+      "name": "aquasecurity/trivy",
+      "url": "https://github.com/aquasecurity/trivy",
+      "reason": "Container, dependency, and config vulnerability scanning"
+    },
+    {
+      "name": "gitleaks/gitleaks",
+      "url": "https://github.com/gitleaks/gitleaks",
+      "reason": "Secret scanning"
+    },
+    {
+      "name": "trufflesecurity/trufflehog",
+      "url": "https://github.com/trufflesecurity/trufflehog",
+      "reason": "Secret discovery and verification"
+    },
+    {
+      "name": "OWASP/Dependency-Check",
+      "url": "https://github.com/OWASP/Dependency-Check",
+      "reason": "Dependency vulnerability analysis"
+    },
+    {
+      "name": "owasp-dep-scan/dep-scan",
+      "url": "https://github.com/owasp-dep-scan/dep-scan",
+      "reason": "Software composition analysis"
+    },
+    {
+      "name": "zaproxy/zaproxy",
+      "url": "https://github.com/zaproxy/zaproxy",
+      "reason": "Web app dynamic security testing"
+    },
+    {
+      "name": "sonarsource/sonarqube",
+      "url": "https://github.com/sonarsource/sonarqube",
+      "reason": "Code quality and security gate patterns"
+    },
+    {
+      "name": "pmd/pmd",
+      "url": "https://github.com/pmd/pmd",
+      "reason": "Static code rule engine examples"
+    }
+  ]
+}

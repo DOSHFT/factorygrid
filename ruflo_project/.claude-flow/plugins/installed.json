@@ -1,0 +1,206 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-05-17T06:19:39.597Z",
+  "plugins": {
+    "@claude-flow/claims": {
+      "name": "@claude-flow/claims",
+      "version": "3.0.0-alpha.8",
+      "installedAt": "2026-05-17T06:19:39.591Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/claims",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/embeddings": {
+      "name": "@claude-flow/embeddings",
+      "version": "3.0.0-alpha.18",
+      "installedAt": "2026-05-17T05:57:50.653Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/embeddings",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/memory": {
+      "name": "@claude-flow/memory",
+      "version": "3.0.0-alpha.17",
+      "installedAt": "2026-05-17T06:19:39.593Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/memory",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/neural": {
+      "name": "@claude-flow/neural",
+      "version": "3.0.0-alpha.9",
+      "installedAt": "2026-05-17T06:19:39.593Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/neural",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/performance": {
+      "name": "@claude-flow/performance",
+      "version": "3.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.593Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/performance",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-agentic-qe": {
+      "name": "@claude-flow/plugin-agentic-qe",
+      "version": "3.0.0-alpha.5",
+      "installedAt": "2026-05-17T05:58:06.207Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-agentic-qe",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-code-intelligence": {
+      "name": "@claude-flow/plugin-code-intelligence",
+      "version": "3.0.0-alpha.3",
+      "installedAt": "2026-05-17T06:19:39.594Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-code-intelligence",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-cognitive-kernel": {
+      "name": "@claude-flow/plugin-cognitive-kernel",
+      "version": "3.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.594Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-cognitive-kernel",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-financial-risk": {
+      "name": "@claude-flow/plugin-financial-risk",
+      "version": "3.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.595Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-financial-risk",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-gastown-bridge": {
+      "name": "@claude-flow/plugin-gastown-bridge",
+      "version": "0.1.4",
+      "installedAt": "2026-05-17T06:19:39.595Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-gastown-bridge",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-healthcare-clinical": {
+      "name": "@claude-flow/plugin-healthcare-clinical",
+      "version": "3.0.0-alpha.2",
+      "installedAt": "2026-05-17T06:19:39.595Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-healthcare-clinical",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-hyperbolic-reasoning": {
+      "name": "@claude-flow/plugin-hyperbolic-reasoning",
+      "version": "3.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.595Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-hyperbolic-reasoning",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-legal-contracts": {
+      "name": "@claude-flow/plugin-legal-contracts",
+      "version": "3.0.0-alpha.2",
+      "installedAt": "2026-05-17T06:19:39.595Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-legal-contracts",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-perf-optimizer": {
+      "name": "@claude-flow/plugin-perf-optimizer",
+      "version": "3.0.0-alpha.2",
+      "installedAt": "2026-05-17T06:19:39.596Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-perf-optimizer",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-prime-radiant": {
+      "name": "@claude-flow/plugin-prime-radiant",
+      "version": "0.1.5",
+      "installedAt": "2026-05-17T05:58:11.946Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-prime-radiant",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-quantum-optimizer": {
+      "name": "@claude-flow/plugin-quantum-optimizer",
+      "version": "3.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.596Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-quantum-optimizer",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugin-test-intelligence": {
+      "name": "@claude-flow/plugin-test-intelligence",
+      "version": "3.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.596Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugin-test-intelligence",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/plugins": {
+      "name": "@claude-flow/plugins",
+      "version": "3.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.597Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/plugins",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/security": {
+      "name": "@claude-flow/security",
+      "version": "3.0.0-alpha.8",
+      "installedAt": "2026-05-17T05:57:56.280Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/security",
+      "commands": [],
+      "hooks": []
+    },
+    "@claude-flow/teammate-plugin": {
+      "name": "@claude-flow/teammate-plugin",
+      "version": "1.0.0-alpha.1",
+      "installedAt": "2026-05-17T06:19:39.597Z",
+      "enabled": true,
+      "source": "npm",
+      "path": "/app/.claude-flow/plugins/node_modules/@claude-flow/teammate-plugin",
+      "commands": [],
+      "hooks": []
+    }
+  }
+}

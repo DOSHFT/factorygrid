@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+export VLLM_WORKER_MULTIPROC_METHOD=${VLLM_WORKER_MULTIPROC_METHOD:-spawn}
+export PYTORCH_CUDA_ALLOC_CONF=${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}
+export TMPDIR=${TMPDIR:-/tmp}
+export TEMP=${TEMP:-/tmp}
+export TMP=${TMP:-/tmp}
+
+MODEL=${MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
+HOST=${HOST:-0.0.0.0}
+PORT=${PORT:-8000}
+GPU_MEM=${GPU_MEM:-0.86}
+MAX_MODEL_LEN=${MAX_MODEL_LEN:-32768}
+MAX_NUM_SEQS=${MAX_NUM_SEQS:-4}
+MAX_BATCHED_TOKENS=${MAX_BATCHED_TOKENS:-32768}
+SWAP_SPACE_GB=${SWAP_SPACE_GB:-4}
+LOG_LEVEL=${VLLM_LOGGING_LEVEL:-info}
+
+echo "Starting FactoryGrid vLLM"
+echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB"
+
+exec /home/revelation/vllm-env/bin/vllm serve "$MODEL" \
+  --host "$HOST" \
+  --port "$PORT" \
+  --dtype auto \
+  --quantization awq_marlin \
+  --gpu-memory-utilization "$GPU_MEM" \
+  --max-model-len "$MAX_MODEL_LEN" \
+  --max-num-seqs "$MAX_NUM_SEQS" \
+  --max-num-batched-tokens "$MAX_BATCHED_TOKENS" \
+  --swap-space "$SWAP_SPACE_GB" \
+  --uvicorn-log-level "$LOG_LEVEL" \
+  --enable-prefix-caching \
+  --disable-log-requests

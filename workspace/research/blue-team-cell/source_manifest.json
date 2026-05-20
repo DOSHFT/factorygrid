@@ -1,0 +1,57 @@
+{
+  "run_id": "blue-team-cell-seed-20260518",
+  "generated_at": "2026-05-18T12:30:00Z",
+  "scope": "Defensive cellular security research from 2G/GSM through 5G/O-RAN and early 6G tracking",
+  "safety": "LAB_ONLY_DEFENSIVE_NO_LIVE_NETWORK_INTERCEPTION",
+  "sources": [
+    {
+      "name": "NIST 5G Open-Source Testbed Automation Tool",
+      "url": "https://www.nist.gov/services-resources/software/nist-5g-open-source-testbed-automation-tool",
+      "type": "government_testbed",
+      "last_seen": "2026-05-18",
+      "notes": "Version 1.7, updated 2026-05-06; deploys O-RAN testbed components, UE, gNodeB, 5G Core, RIC, xApps, slicing, handover, metrics, Grafana."
+    },
+    {
+      "name": "ENISA 5G Threat Landscape",
+      "url": "https://www.enisa.europa.eu/news/enisa-news/updated-enisa-5g-threat-landscape-report-to-enhance-5g-security",
+      "type": "government_threat_landscape",
+      "last_seen": "2026-05-18",
+      "notes": "Threats, vulnerabilities, assets, and controls for 5G components and migration paths."
+    },
+    {
+      "name": "Open5GS",
+      "url": "https://github.com/open5gs/open5gs",
+      "type": "open_source_core",
+      "last_seen": "2026-05-18",
+      "notes": "Open-source 5G Core and EPC implementation, Release-17 noted in repository metadata."
+    },
+    {
+      "name": "UERANSIM",
+      "url": "https://github.com/aligungr/UERANSIM",
+      "type": "open_source_ue_ran_simulator",
+      "last_seen": "2026-05-18",
+      "notes": "Open-source 5G UE and RAN gNodeB implementation for lab simulation."
+    },
+    {
+      "name": "OpenAirInterface 5G",
+      "url": "https://github.com/openairinterface/openairinterface5g",
+      "type": "open_source_ran_core_stack",
+      "last_seen": "2026-05-18",
+      "notes": "Read-only GitHub mirror of the OAI GitLab project. Useful as a lab reference, not authoritative upstream."
+    },
+    {
+      "name": "5GBaseChecker",
+      "url": "https://github.com/SyNSec-den/5GBaseChecker",
+      "type": "research_security_testing",
+      "last_seen": "2026-05-18",
+      "notes": "Differential testing framework associated with USENIX Security 2024 and Black Hat 2024 research."
+    },
+    {
+      "name": "Osmocom CNI / gr-gsm",
+      "url": "https://github.com/osmocom/gr-gsm",
+      "type": "legacy_gsm_lab_tooling",
+      "last_seen": "2026-05-18",
+      "notes": "Use only for lawful lab and passive defensive education; legacy 2G risks remain relevant for downgrade and IoT threat modeling."
+    }
+  ]
+}

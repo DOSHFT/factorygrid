@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "seededAt": "2026-05-18T15:53:54.378Z",
+  "agents": [
+    "queen",
+    "researcher",
+    "architect",
+    "coder",
+    "tester",
+    "reviewer",
+    "documenter",
+    "blue-team-cell"
+  ]
+}

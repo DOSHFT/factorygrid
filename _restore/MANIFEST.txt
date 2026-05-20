@@ -1,0 +1,6 @@
+FactoryGrid UAT portable copy
+source=/home/revelation/factorygrid
+dest=/mnt/d/UAT/factorygrid
+created_at=2026-05-20T16:48:51+02:00
+host=BlackBeast
+git_head=690faf8daeb93417299c093c0ec8d53dcd6dd7c5

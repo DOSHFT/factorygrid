@@ -1,0 +1,194 @@
+networks:
+  factory_net:
+    driver: bridge
+
+services:
+  # --- INFRASTRUCTURE: VECTOR DATABASE ---
+  qdrant:
+    image: ${QDRANT_IMAGE:-qdrant/qdrant@sha256:b3063c673f3973877c038eeecc392bad5011f072ee7892b56c9a8e204a3bdea9}
+    container_name: factory_qdrant
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    networks:
+      - factory_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -ec '</dev/tcp/127.0.0.1/6333'"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # --- GATEWAY ROUTER: LITELLM ---
+  litellm:
+    image: ${LITELLM_IMAGE:-ghcr.io/berriai/litellm@sha256:7c311546c25e7bb6e8cafede9fcd3d0d622ac636b5c9418befaa32e85dfb0186}
+    container_name: factory_litellm
+    ports:
+      - "127.0.0.1:4000:4000"
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml
+    command: [ "--config", "/app/config.yaml", "--port", "4000" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - factory_net
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/v1/models', timeout=3).read()\""]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # --- SWARM ORCHESTRATOR: RUFLO QUEEN ---
+  ruflo_orchestrator:
+    build:
+      context: ./docker/ruflo
+      args:
+        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0}
+        RUFLO_VERSION: ${RUFLO_VERSION:-3.7.0-alpha.44}
+    image: factorygrid/ruflo:${RUFLO_VERSION:-3.7.0-alpha.44}
+    container_name: factory_ruflo
+    volumes:
+      - ./ruflo_project:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    env_file:
+      - .env
+    environment:
+      OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      OPENAI_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      RUFLO_MCP_PORT: ${RUFLO_MCP_PORT:-3010}
+    ports:
+      - "127.0.0.1:${RUFLO_MCP_PORT:-3010}:3010"
+    networks:
+      - factory_net
+    restart: unless-stopped
+    depends_on:
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "ruflo mcp health >/dev/null 2>&1 || ruflo status >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 5s
+      retries: 12
+      start_period: 180s
+
+  # --- RUFLO AGENT DASHBOARD: WEB UI ---
+  rufloui:
+    build:
+      context: ./docker/rufloui
+      args:
+        NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0}
+    image: factorygrid/rufloui:0.3.45-local
+    container_name: factory_rufloui
+    volumes:
+      - ./rufloui:/ui
+      - ./ruflo_project:/ruflo-project
+      - ./workspace:/workspace
+      - .:/factorygrid
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    working_dir: /ui
+    env_file:
+      - .env
+    environment:
+      PORT: ${RUFLOUI_API_PORT:-28580}
+      DAEMON_PORT: 28581
+      RUFLO_CLI: /ui/node_modules/.bin/ruflo
+      RUFLO_CWD: /ruflo-project
+      RUFLO_WORKSPACE_ROOT: /workspace
+      RUFLO_PERSIST_DIR: /ruflo-project/.rufloui
+      RUFLO_CLI_TIMEOUT: ${RUFLO_CLI_TIMEOUT:-120000}
+      RUFLO_OUTPUT_BUFFER_SIZE: ${RUFLO_OUTPUT_BUFFER_SIZE:-1000}
+      RUFLOUI_SKIP_PERMISSIONS: ${RUFLOUI_SKIP_PERMISSIONS:-true}
+      RUFLOUI_CORS_ORIGIN: ${RUFLOUI_CORS_ORIGIN:-http://localhost:28588}
+      OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      OPENAI_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      FACTORYGRID_ROOT: /factorygrid
+    ports:
+      - "127.0.0.1:${RUFLOUI_VITE_PORT:-28588}:28588"
+      - "127.0.0.1:${RUFLOUI_API_PORT:-28580}:28580"
+    networks:
+      - factory_net
+    restart: unless-stopped
+    depends_on:
+      ruflo_orchestrator:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:28580/api/system/info >/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 12
+      start_period: 180s
+
+  # --- AGENT WORKER INFRASTRUCTURE: DETACHED RUNTIMES ---
+  qwen_code_worker:
+    image: ${NODE_BASE_IMAGE:-node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0}
+    container_name: agent_qwen_code
+    volumes:
+      - ./workspace:/workspace
+    working_dir: /workspace
+    env_file:
+      - .env
+    environment:
+      OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      OPENAI_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      FACTORY_WORKER_ROLE: qwen-code-idle
+    command: tail -f /dev/null
+    networks:
+      - factory_net
+    restart: unless-stopped
+    depends_on:
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"process.exit(0)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # --- AUTONOMOUS AGENT WORKER ---
+  openhands_engineer:
+    image: ${OPENHANDS_IMAGE:-ghcr.io/all-hands-ai/openhands@sha256:00968de77a7b36546413e1f3b5c6b4e2c387d19ade54de7926e10f5b3d265fa6}
+    container_name: agent_openhands
+    pull_policy: if_not_present
+    ports:
+      - "127.0.0.1:${OPENHANDS_PORT:-3000}:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./workspace:/opt/workspace_base
+      - ./openhands_state:/.openhands
+      - ./logs/openhands:/var/log/openhands
+    env_file:
+      - .env
+    environment:
+      LLM_PROVIDER: openai
+      LLM_MODEL: openai/qwen-coder-14b
+      LLM_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      LLM_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      SANDBOX_USER_ID: 0
+      SANDBOX_TIMEOUT: 120
+    networks:
+      - factory_net
+    restart: unless-stopped
+    depends_on:
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/api/settings', timeout=3).read()\""]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 60s

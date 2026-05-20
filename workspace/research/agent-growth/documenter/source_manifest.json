@@ -1,0 +1,57 @@
+{
+  "agent": "documenter",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve documenter capabilities for handoff summaries, memory triplets, docs drift control, and operator runbooks.",
+  "sources": [
+    {
+      "name": "mkdocs/mkdocs",
+      "url": "https://github.com/mkdocs/mkdocs",
+      "reason": "Static technical documentation"
+    },
+    {
+      "name": "squidfunk/mkdocs-material",
+      "url": "https://github.com/squidfunk/mkdocs-material",
+      "reason": "Readable engineering docs UX"
+    },
+    {
+      "name": "facebook/docusaurus",
+      "url": "https://github.com/facebook/docusaurus",
+      "reason": "Versioned docs and knowledge sites"
+    },
+    {
+      "name": "mintlify/starter",
+      "url": "https://github.com/mintlify/starter",
+      "reason": "API/docs authoring patterns"
+    },
+    {
+      "name": "microsoft/markitdown",
+      "url": "https://github.com/microsoft/markitdown",
+      "reason": "Artifact to markdown conversion"
+    },
+    {
+      "name": "mermaid-js/mermaid",
+      "url": "https://github.com/mermaid-js/mermaid",
+      "reason": "Docs-native workflow diagrams"
+    },
+    {
+      "name": "plantuml/plantuml",
+      "url": "https://github.com/plantuml/plantuml",
+      "reason": "Architecture diagrams in docs"
+    },
+    {
+      "name": "quarto-dev/quarto-cli",
+      "url": "https://github.com/quarto-dev/quarto-cli",
+      "reason": "Research report generation"
+    },
+    {
+      "name": "docmost/docmost",
+      "url": "https://github.com/docmost/docmost",
+      "reason": "Self-hosted knowledge-base patterns"
+    },
+    {
+      "name": "outline/outline",
+      "url": "https://github.com/outline/outline",
+      "reason": "Team knowledge management patterns"
+    }
+  ]
+}

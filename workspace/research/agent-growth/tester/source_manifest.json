@@ -1,0 +1,57 @@
+{
+  "agent": "tester",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve tester capabilities for empirical validation, regression detection, benchmark discipline, and logs.",
+  "sources": [
+    {
+      "name": "microsoft/playwright",
+      "url": "https://github.com/microsoft/playwright",
+      "reason": "Browser and UI integration testing"
+    },
+    {
+      "name": "vitest-dev/vitest",
+      "url": "https://github.com/vitest-dev/vitest",
+      "reason": "Fast TS/JS unit testing"
+    },
+    {
+      "name": "pytest-dev/pytest",
+      "url": "https://github.com/pytest-dev/pytest",
+      "reason": "Python test orchestration"
+    },
+    {
+      "name": "SeleniumHQ/selenium",
+      "url": "https://github.com/SeleniumHQ/selenium",
+      "reason": "Cross-browser test automation"
+    },
+    {
+      "name": "grafana/k6",
+      "url": "https://github.com/grafana/k6",
+      "reason": "Load and performance testing"
+    },
+    {
+      "name": "locustio/locust",
+      "url": "https://github.com/locustio/locust",
+      "reason": "Python load-test scenarios"
+    },
+    {
+      "name": "junit-team/junit5",
+      "url": "https://github.com/junit-team/junit5",
+      "reason": "Java test conventions and reporting"
+    },
+    {
+      "name": "getsentry/sentry",
+      "url": "https://github.com/getsentry/sentry",
+      "reason": "Runtime error capture patterns"
+    },
+    {
+      "name": "allure-framework/allure2",
+      "url": "https://github.com/allure-framework/allure2",
+      "reason": "Test reporting and evidence formatting"
+    },
+    {
+      "name": "testcontainers/testcontainers-node",
+      "url": "https://github.com/testcontainers/testcontainers-node",
+      "reason": "Container-scoped integration testing"
+    }
+  ]
+}

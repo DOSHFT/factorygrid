@@ -1,0 +1,118 @@
+{
+  "generated_at": "2026-05-19T14:00:30.046293Z",
+  "repos": [
+    "artiofix/artio",
+    "aeron-io/aeron",
+    "aeron-io/agrona",
+    "fix8/fix8",
+    "quickfix-j/quickfixj",
+    "quickfix/quickfix"
+  ],
+  "terms": [
+    "dictionary FIX44",
+    "acceptor initiator",
+    "market data",
+    "sequence reset",
+    "reconnect",
+    "latency"
+  ],
+  "items": [
+    {
+      "repo": "artiofix/artio",
+      "term": "dictionary FIX44",
+      "title": "lastFixDictionary in session_id_buffer can be corrupted, causing engine launch failure",
+      "state": "closed",
+      "url": "https://github.com/artiofix/artio/issues/393",
+      "created_at": "2020-08-05T13:15:11Z",
+      "updated_at": "2020-08-06T14:51:36Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "acceptor initiator",
+      "title": "CatchupReplayer doesn't close subscriptions when requesting an inbound replay",
+      "state": "closed",
+      "url": "https://github.com/artiofix/artio/issues/568",
+      "created_at": "2026-03-13T11:59:58Z",
+      "updated_at": "2026-03-30T16:51:36Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "acceptor initiator",
+      "title": "Acceptor wrongly updates initiator's sequence when rejecting connection",
+      "state": "closed",
+      "url": "https://github.com/artiofix/artio/issues/295",
+      "created_at": "2019-08-26T07:53:30Z",
+      "updated_at": "2020-02-07T17:59:10Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "market data",
+      "title": "Use same timestamp as SendingTime in outbound FIX and FixMessage.timestamp",
+      "state": "closed",
+      "url": "https://github.com/artiofix/artio/pull/550",
+      "created_at": "2025-06-06T09:19:46Z",
+      "updated_at": "2025-07-30T09:02:35Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "sequence reset",
+      "title": "Support unsigned 64-bit integers for sequence numbers ",
+      "state": "open",
+      "url": "https://github.com/artiofix/artio/issues/480",
+      "created_at": "2023-04-13T03:36:43Z",
+      "updated_at": "2023-07-11T11:34:48Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "sequence reset",
+      "title": "Artio Hangs Until Own Heartbeat After Resend Request",
+      "state": "open",
+      "url": "https://github.com/artiofix/artio/issues/545",
+      "created_at": "2025-02-05T17:01:55Z",
+      "updated_at": "2025-02-05T17:01:55Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "reconnect",
+      "title": "SessionScheduler doesn't scheduleStart() after end of day",
+      "state": "open",
+      "url": "https://github.com/artiofix/artio/issues/418",
+      "created_at": "2021-01-18T17:46:36Z",
+      "updated_at": "2021-01-18T17:46:36Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "reconnect",
+      "title": "Session accumulate in pendingInitiatorSessions when logon fails",
+      "state": "open",
+      "url": "https://github.com/artiofix/artio/issues/515",
+      "created_at": "2024-07-23T14:40:07Z",
+      "updated_at": "2024-07-23T14:50:36Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "latency",
+      "title": "FIXP + SOFH + SBE API support",
+      "state": "closed",
+      "url": "https://github.com/artiofix/artio/issues/400",
+      "created_at": "2020-08-27T15:51:50Z",
+      "updated_at": "2020-08-28T10:32:38Z"
+    },
+    {
+      "repo": "artiofix/artio",
+      "term": "latency",
+      "title": "Should we do time validation?",
+      "state": "closed",
+      "url": "https://github.com/artiofix/artio/issues/3",
+      "created_at": "2015-04-07T20:17:21Z",
+      "updated_at": "2020-04-23T15:51:09Z"
+    }
+  ],
+  "errors": [
+    "aeron-io/aeron: HTTP Error 403: rate limit exceeded",
+    "aeron-io/agrona: HTTP Error 403: rate limit exceeded",
+    "fix8/fix8: HTTP Error 403: rate limit exceeded",
+    "quickfix-j/quickfixj: HTTP Error 403: rate limit exceeded",
+    "quickfix/quickfix: HTTP Error 403: rate limit exceeded"
+  ]
+}

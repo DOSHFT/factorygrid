@@ -1,0 +1,57 @@
+{
+  "agent": "coder",
+  "generatedAt": "2026-05-18T15:53:54.378Z",
+  "task": "Research and improve coder capabilities for scoped implementation, idiomatic code synthesis, and local runtime fixes.",
+  "sources": [
+    {
+      "name": "All-Hands-AI/OpenHands",
+      "url": "https://github.com/All-Hands-AI/OpenHands",
+      "reason": "Autonomous code execution environment"
+    },
+    {
+      "name": "QwenLM/Qwen2.5-Coder",
+      "url": "https://github.com/QwenLM/Qwen2.5-Coder",
+      "reason": "Stable local coding model family"
+    },
+    {
+      "name": "QwenLM/qwen-code",
+      "url": "https://github.com/QwenLM/qwen-code",
+      "reason": "Qwen-oriented code-agent CLI patterns"
+    },
+    {
+      "name": "Aider-AI/aider",
+      "url": "https://github.com/Aider-AI/aider",
+      "reason": "Repo-aware pair programming and patch workflow"
+    },
+    {
+      "name": "continuedev/continue",
+      "url": "https://github.com/continuedev/continue",
+      "reason": "Local coding assistant integration patterns"
+    },
+    {
+      "name": "cline/cline",
+      "url": "https://github.com/cline/cline",
+      "reason": "Tool-using coding agent UX and safety model"
+    },
+    {
+      "name": "RooVetGit/Roo-Code",
+      "url": "https://github.com/RooVetGit/Roo-Code",
+      "reason": "Agent coding workflow patterns"
+    },
+    {
+      "name": "openai/codex",
+      "url": "https://github.com/openai/codex",
+      "reason": "Codex CLI and local automation workflow patterns"
+    },
+    {
+      "name": "sst/opencode",
+      "url": "https://github.com/sst/opencode",
+      "reason": "Terminal-native coding agent ergonomics"
+    },
+    {
+      "name": "sourcegraph/cody",
+      "url": "https://github.com/sourcegraph/cody",
+      "reason": "Codebase context and agentic coding references"
+    }
+  ]
+}
