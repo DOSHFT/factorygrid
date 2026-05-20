@@ -74,6 +74,16 @@ git push origin main
 ```
 
 
+
+## BlackBeast PowerShell Push
+From Windows PowerShell on BlackBeast:
+
+```powershell
+D:\UAT\factorygrid\bin\factory-windows-push.ps1 "sync factory changes"
+```
+
+That wrapper runs the WSL secure backup, refreshes `D:\UAT\factorygrid`, then pushes the portable repo to `https://github.com/DOSHFT/factorygrid`.
+
 ## Full Portable GitHub Push
 For a single private GitHub repo that contains the entire portable factory, attach the GitHub remote inside the UAT copy, not the live repo with nested gitlinks:
 

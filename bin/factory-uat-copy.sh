@@ -5,9 +5,6 @@ DEST=${1:-/mnt/d/UAT/factorygrid}
 STAMP=$(date +%Y%m%d-%H%M%S)
 MANIFEST_DIR="$DEST/_restore"
 mkdir -p "$(dirname "$DEST")"
-if [ -e "$DEST" ]; then
-  mv "$DEST" "${DEST}.bak.${STAMP}"
-fi
 mkdir -p "$DEST"
 rsync -a --delete \
   --exclude='.git/' \
