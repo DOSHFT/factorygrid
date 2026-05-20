@@ -71,3 +71,5 @@ ruflo_project/agentdb.rvf
 ruflo_project/agentdb.rvf.lock
 workspace/.openhands/
 rufloui/tsconfig.tsbuildinfo
+
+_restore/
