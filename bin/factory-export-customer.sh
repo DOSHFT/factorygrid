@@ -9,6 +9,7 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$OUT_DIR"
 cd "$ROOT"
+"$ROOT/server/hooks/gate_export_coverage.py"
 "$ROOT/bin/factory-uat-copy.sh" "$UAT_COPY"
 PKG="$WORK/$NAME"
 mkdir -p "$PKG/factorygrid"

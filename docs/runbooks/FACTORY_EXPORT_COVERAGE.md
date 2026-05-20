@@ -43,6 +43,16 @@ These must not be included in GitHub or customer exports:
 - Secrets or credential files by name: `*secret*`, `*secrets*`, `*credential*`, `*credentials*`, `*.token`, `*.jwt`, `*.pem`, `*.key`, `*.p12`, `*.pfx`.
 - Large model/data blobs: `*.safetensors`, `*.gguf`, `*.pt`, `*.pth`, `*.onnx`, `*.bin`, `*.parquet`, `*.arrow`.
 
+
+## Production Chain Enforcement
+RuFlo must treat this as a production-chain gate. For any UAT or PROD environment update, the Queen/Documenter handoff must include:
+
+- `server/hooks/gate_export_coverage.py` passed.
+- `bin/factory-secure-backup.sh` completed.
+- If a customer handoff changed, `bin/factory-export-customer.sh /mnt/d/UAT/releases` completed and the generated `.run` smoke-tested.
+
+The active RuFlo config key is `safety.exportCoverageGate` in `ruflo_project/ruflo.config.js`.
+
 ## Add-New-File Checklist
 When adding a new path, do this before backup/export:
 

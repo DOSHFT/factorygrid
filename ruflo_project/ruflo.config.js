@@ -16,6 +16,8 @@ module.exports = {
     diffScopeGate: "/home/revelation/factorygrid/server/hooks/gate_diff_scope.py",
     validationGate: "/home/revelation/factorygrid/server/hooks/gate_validation.py",
     reviewGate: "/home/revelation/factorygrid/server/hooks/gate_review.py",
+    exportCoverageGate: "/home/revelation/factorygrid/server/hooks/gate_export_coverage.py",
+    productionUpdateRequiresExportCoverage: true,
     protectedFileGate: true,
     protectedFileCheck: "/home/revelation/factorygrid/bin/check-protected-edits.sh",
     maxCorrectionCycles: 3,
@@ -45,7 +47,7 @@ module.exports = {
       name: "Queen",
       role: "Orchestrator",
       contract: "/home/revelation/factorygrid/server/agents/queen",
-      system: "Own the task state machine. Convert rough user goals into task_manifest.json, assign worker nodes, require artifacts at every state transition, and never write code directly."
+      system: "Own the task state machine. Convert rough user goals into task_manifest.json, assign worker nodes, require artifacts at every state transition, and never write code directly. For UAT/PROD environment updates, require gate_export_coverage.py and factory-secure-backup.sh before declaring production-ready."
     },
     {
       name: "Architect",
@@ -86,7 +88,7 @@ module.exports = {
       name: "Documenter",
       role: "Durable Documentation",
       contract: "/home/revelation/factorygrid/server/agents/documenter",
-      system: "Write handoff_summary.md and update durable docs when runtime contracts change. Store only provenance-rich memories.",
+      system: "Write handoff_summary.md and update durable docs when runtime contracts change. Store only provenance-rich memories. When files, products, hooks, scripts, runtime paths, or deployment artifacts change, update docs/runbooks/FACTORY_EXPORT_COVERAGE.md and verify gate_export_coverage.py.",
       model: "qwen-coder-14b"
     },
 

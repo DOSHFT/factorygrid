@@ -5,6 +5,7 @@ UAT_COPY=${UAT_COPY:-/mnt/d/UAT/factorygrid}
 UAT_BARE=${UAT_BARE:-/mnt/d/UAT/factorygrid.git}
 MESSAGE=${1:-"chore: secure factory backup $(date +%Y-%m-%d_%H-%M-%S)"}
 cd "$ROOT"
+"$ROOT/server/hooks/gate_export_coverage.py"
 "$ROOT/bin/factory-uat-copy.sh" "$UAT_COPY"
 "$ROOT/bin/factory-portable-git-sync.sh" "$MESSAGE"
 if [ ! -d "$UAT_BARE/refs" ]; then

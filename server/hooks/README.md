@@ -30,3 +30,9 @@ This is a dev environment. Agents may proceed without per-step approval after `p
    - Required for productized work.
    - Requires `BOM.md`, `docs/Architecture.md`, and `docs/fix_lessons-learned.md` under the product root.
    - Blocks product-specific scripts from becoming undocumented factory-global tools.
+
+
+8. `gate_export_coverage.py`
+   - Required for UAT/PROD environment updates and customer/export changes.
+   - Requires `docs/runbooks/FACTORY_EXPORT_COVERAGE.md`, export scripts, exclusion coverage, and no staged secret/runtime paths.
+   - Must pass before `factory-secure-backup.sh` or `factory-export-customer.sh` completes.
