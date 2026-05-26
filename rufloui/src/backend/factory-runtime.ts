@@ -98,6 +98,22 @@ async function checkEndpoint(name: string, url: string): Promise<FactoryEndpoint
   }
 }
 
+async function checkEndpointCandidates(name: string, urls: string[]): Promise<FactoryEndpoint> {
+  const results: FactoryEndpoint[] = []
+  for (const url of urls) {
+    const result = await checkEndpoint(name, url)
+    if (result.status === 'ok') return result
+    results.push(result)
+  }
+  const detail = results.map((result) => `${result.url}: ${result.detail}`).join(' | ')
+  return {
+    name,
+    url: urls[0] || '',
+    status: 'fail',
+    detail,
+  }
+}
+
 async function readGpuMetrics(): Promise<GpuMetrics | null> {
   try {
     const { stdout } = await execFileAsync('nvidia-smi', [
@@ -111,11 +127,30 @@ async function readGpuMetrics(): Promise<GpuMetrics | null> {
 }
 
 export async function getFactoryRuntimeSnapshot(): Promise<FactoryRuntimeSnapshot> {
+  const vllmUrls = [
+    process.env.VLLM_HOST ? `${process.env.VLLM_HOST.replace(/\/$/, '')}/v1/models` : '',
+    'http://127.0.0.1:8000/v1/models',
+    'http://localhost:8000/v1/models',
+    'http://host.docker.internal:8000/v1/models',
+  ].filter(Boolean)
+
   const endpoints = await Promise.all([
-    checkEndpoint('vLLM', 'http://host.docker.internal:8000/v1/models'),
-    checkEndpoint('LiteLLM', 'http://litellm:4000/v1/models'),
-    checkEndpoint('Qdrant', 'http://qdrant:6333/collections'),
-    checkEndpoint('OpenHands', 'http://agent_openhands:3000/api/settings'),
+    checkEndpointCandidates('vLLM', vllmUrls),
+    checkEndpointCandidates('LiteLLM', [
+      'http://127.0.0.1:4000/v1/models',
+      'http://litellm:4000/v1/models',
+    ]),
+    checkEndpointCandidates('Qdrant', [
+      process.env.QDRANT_URL ? `${process.env.QDRANT_URL.replace(/\/$/, '')}/collections` : '',
+      'http://127.0.0.1:6333/collections',
+      'http://127.0.0.1:16333/collections',
+      'http://qdrant:6333/collections',
+    ].filter(Boolean)),
+    checkEndpointCandidates('OpenHands', [
+      'http://127.0.0.1:3000/api/settings',
+      'http://127.0.0.1:13000/api/settings',
+      'http://agent_openhands:3000/api/settings',
+    ]),
     Promise.resolve({
       name: 'RuFlo orchestrator',
       url: 'docker compose service: ruflo_orchestrator',
