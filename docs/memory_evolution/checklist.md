@@ -4,45 +4,45 @@ Created: 2026-05-26
 
 ## Phase 0 - Backup And Baseline
 
-- [ ] Capture git status before edits.
-- [ ] Create full local backup using the existing FactoryGrid backup path.
-- [ ] Commit and push current memory evolution docs.
-- [ ] Record current memory state: Factory Brain files, Qdrant collections, RuFlo config, and RuFloUI memory API.
-- [ ] Keep Qdrant and Markdown as the production fallback during the transition.
+- [x] Capture git status before edits.
+- [x] Create full local backup using the existing FactoryGrid backup path.
+- [x] Commit and push current memory evolution docs.
+- [x] Record current memory state: Factory Brain files, Qdrant collections, RuFlo config, and RuFloUI memory API.
+- [x] Keep Qdrant and Markdown as the production fallback during the transition.
 
 ## Phase 1 - Docker And Configuration
 
-- [ ] Add Neo4j service to `docker-compose.yml` on existing `factory_net`.
-- [ ] Add Neo4j named volumes for data, logs, and imports.
-- [ ] Add `.env.example` entries for Neo4j and Graphiti without committing real secrets.
-- [ ] Add healthcheck for Neo4j Bolt or HTTP readiness.
-- [ ] Verify `docker compose config` passes.
+- [x] Add Neo4j service to `docker-compose.yml` on existing `factory_net`.
+- [x] Add Neo4j named volumes for data, logs, and imports.
+- [x] Add `.env.example` entries for Neo4j and Graphiti without committing real secrets.
+- [x] Add healthcheck for Neo4j Bolt or HTTP readiness.
+- [x] Verify `docker compose config` passes.
 
 ## Phase 2 - Memory Core
 
-- [ ] Create `memory/memory_core.py`.
-- [ ] Implement `UltronMemoryCore` with async methods.
-- [ ] Initialize Graphiti/Neo4j with robust error handling.
-- [ ] Initialize Qdrant fallback without breaking existing memory.
-- [ ] Implement `add_memory` / `add_episode` with provenance metadata.
-- [ ] Implement hybrid `query` over Graphiti first, Qdrant/file fallback second.
-- [ ] Implement structured result merge with source, confidence, and evidence paths.
+- [x] Create `memory/memory_core.py`.
+- [x] Implement `UltronMemoryCore` with async methods.
+- [x] Initialize Graphiti/Neo4j with robust error handling.
+- [x] Initialize Qdrant fallback without breaking existing memory.
+- [x] Implement `add_memory` / `add_episode` with provenance metadata.
+- [x] Implement hybrid `query` over Graphiti first, Qdrant/file fallback second.
+- [x] Implement structured result merge with source, confidence, and evidence paths.
 
 ## Phase 3 - Graph Schema
 
-- [ ] Define entity, episode, artifact, task, run, source, and decision node types.
-- [ ] Implement typed relations: `supports`, `contradicts`, `supersedes`, `derived_from`, `used_in`, `invalidated_by`.
-- [ ] Add temporal fields: `valid_from`, `valid_until`, `observed_at`, `superseded_at`, `reason`.
+- [x] Define entity, episode, artifact, task, run, source, and decision node types.
+- [x] Implement typed relations: `supports`, `contradicts`, `supersedes`, `derived_from`, `used_in`, `invalidated_by`.
+- [x] Add temporal fields: `valid_from`, `valid_until`, `observed_at`, `superseded_at`, `reason`.
 - [ ] Preserve file path and task/run provenance on every node and edge.
 
 ## Phase 4 - Migration
 
-- [ ] Create migration script for Factory Brain Markdown.
-- [ ] Import `workspace/factory-brain/pages/**/*.md` into Graphiti episodes.
-- [ ] Import `workspace/research/**/*.{md,json,jsonl}` as source-backed episodes.
-- [ ] Import existing `workspace/factory-brain/graph/*.jsonl` nodes/edges.
+- [x] Create migration script for Factory Brain Markdown.
+- [x] Import `workspace/factory-brain/pages/**/*.md` into Graphiti episodes.
+- [x] Import `workspace/research/**/*.{md,json,jsonl}` as source-backed episodes.
+- [x] Import existing `workspace/factory-brain/graph/*.jsonl` nodes/edges.
 - [ ] Store Graphiti node IDs back into Qdrant payloads where possible.
-- [ ] Produce migration report with counts and failures.
+- [x] Produce migration report with counts and failures.
 
 ## Phase 5 - RuFlo Agent Integration
 
