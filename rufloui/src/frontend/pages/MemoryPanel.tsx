@@ -57,6 +57,13 @@ const s = {
     borderRadius: 'var(--radius)', background: 'var(--bg-hover)',
     color: 'var(--text-muted)', marginRight: 4,
   } as CSSProperties,
+  badge: (tone: 'ok' | 'warn' | 'muted') => ({
+    display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11,
+    padding: '2px 8px', borderRadius: 'var(--radius)', margin: '2px 4px 2px 0',
+    background: tone === 'ok' ? 'rgba(34,197,94,0.12)' : tone === 'warn' ? 'rgba(245,158,11,0.12)' : 'var(--bg-hover)',
+    color: tone === 'ok' ? 'var(--accent-green)' : tone === 'warn' ? 'var(--accent-yellow)' : 'var(--text-muted)',
+    whiteSpace: 'nowrap',
+  }) as CSSProperties,
   nsTabs: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 } as CSSProperties,
   nsTab: (active: boolean) => ({
     padding: '5px 12px', fontSize: 12, borderRadius: 'var(--radius)',
@@ -99,6 +106,19 @@ const s = {
 
 function truncate(str: string, len = 80): string {
   return str.length > len ? str.slice(0, len) + '...' : str
+}
+
+function memoryBackend(entry: MemoryEntry): string {
+  return entry.backend || (entry.namespace.startsWith('factory-brain') ? 'factory-brain' : 'research-file')
+}
+
+function memoryValidity(entry: MemoryEntry): { label: string; tone: 'ok' | 'warn' | 'muted' } {
+  const text = `${entry.key}\n${entry.value}\n${entry.tags?.join(' ') || ''}`.toLowerCase()
+  if (entry.superseded || text.includes('supersedes') || text.includes('invalidated_by')) {
+    return { label: 'superseded/repair', tone: 'warn' }
+  }
+  if (entry.validUntil) return { label: `valid until ${new Date(entry.validUntil).toLocaleDateString()}`, tone: 'muted' }
+  return { label: 'currently valid', tone: 'ok' }
 }
 
 export default function MemoryPanel() {
@@ -379,6 +399,7 @@ export default function MemoryPanel() {
                   <th style={s.th}>Key</th>
                   <th style={s.th}>Value</th>
                   <th style={s.th}>Namespace</th>
+                  <th style={s.th}>State</th>
                   <th style={s.th}>Tags</th>
                   <th style={s.th}>Created</th>
                   <th style={s.th}>Actions</th>
@@ -397,6 +418,11 @@ export default function MemoryPanel() {
                       ) : truncate(entry.value)}
                     </td>
                     <td style={s.td}>{entry.namespace}</td>
+                    <td style={s.td}>
+                      <span style={s.badge('muted')}>{memoryBackend(entry)}</span>
+                      <span style={s.badge(memoryValidity(entry).tone)}>{memoryValidity(entry).label}</span>
+                      <span style={s.badge('muted')}>{entry.source || entry.key}</span>
+                    </td>
                     <td style={s.td}>
                       {entry.tags?.map((t) => <span key={t} style={s.tag}>{t}</span>)}
                     </td>

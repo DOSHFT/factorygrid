@@ -61,7 +61,7 @@ Created: 2026-05-26
 - [x] Add `/api/memory/repairs`.
 - [x] Add `/api/memory/timeline`.
 - [x] Keep current flat memory list working.
-- [ ] Add UI indicators for source, temporal validity, superseded state, and evidence links.
+- [x] Add UI indicators for source, temporal validity, superseded state, and evidence links.
 
 ## Phase 7 - Validation
 

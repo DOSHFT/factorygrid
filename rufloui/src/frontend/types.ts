@@ -48,6 +48,11 @@ export interface MemoryEntry {
   ttl?: number
   createdAt: string
   updatedAt: string
+  backend?: string
+  validFrom?: string | null
+  validUntil?: string | null
+  superseded?: boolean
+  source?: string
 }
 
 export interface MemoryStats {
