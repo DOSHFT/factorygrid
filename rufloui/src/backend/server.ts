@@ -2377,6 +2377,52 @@ function memoryRoutes(): Router {
   r.post('/migrate', h(async (_req, res) => {
     res.json({ migrated: false, detail: 'FactoryGrid memory is file-backed Factory Brain plus Qdrant recall; migration is not required.' })
   }))
+  r.get('/evidence-chain', h(async (req, res) => {
+    const query = typeof req.query.query === 'string' ? req.query.query : ''
+    const limit = req.query.limit ? Number(req.query.limit) : 10
+    const evidence = searchFactoryMemory(query, undefined, limit).map((entry) => ({
+      source: entry.key,
+      namespace: entry.namespace,
+      summary: entry.value.slice(0, 500),
+      tags: entry.tags,
+      validFrom: entry.createdAt,
+      validUntil: null,
+      backend: 'factory-brain-fallback',
+    }))
+    res.json({ query, mode: 'fallback', evidence, warnings: ['Graphiti evidence-chain backend is not authoritative yet.'] })
+  }))
+  r.get('/contradictions', h(async (_req, res) => {
+    const terms = ['contradicts', 'contradiction', 'invalidated_by', 'invalidated by', 'supersedes']
+    const entries = listFactoryMemoryEntries().filter((entry) => {
+      const text = `${entry.key}\n${entry.value}\n${entry.tags.join(' ')}`.toLowerCase()
+      return terms.some((term) => text.includes(term))
+    })
+    res.json({ mode: 'fallback', count: entries.length, contradictions: entries })
+  }))
+  r.get('/repairs', h(async (_req, res) => {
+    const terms = ['memoryrepairtask', 'memory repair', 'repair_required', 'invalidated_by']
+    const entries = listFactoryMemoryEntries().filter((entry) => {
+      const text = `${entry.key}\n${entry.value}\n${entry.tags.join(' ')}`.toLowerCase()
+      return terms.some((term) => text.includes(term))
+    })
+    res.json({ mode: 'fallback', count: entries.length, repairs: entries })
+  }))
+  r.get('/timeline', h(async (req, res) => {
+    const namespace = typeof req.query.namespace === 'string' ? req.query.namespace : undefined
+    const limit = req.query.limit ? Number(req.query.limit) : 100
+    const entries = listFactoryMemoryEntries()
+      .filter((entry) => !namespace || entry.namespace === namespace)
+      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)))
+      .slice(0, limit)
+      .map((entry) => ({
+        at: entry.updatedAt,
+        source: entry.key,
+        namespace: entry.namespace,
+        title: entry.key.split('/').pop() || entry.key,
+        tags: entry.tags,
+      }))
+    res.json({ mode: 'fallback', timeline: entries })
+  }))
   r.post('/', h(async (req, res) => {
     const { key, value, namespace, tags } = req.body || {}
     const safeNs = String(namespace || 'manual').replace(/[^a-zA-Z0-9_.-]/g, '-')

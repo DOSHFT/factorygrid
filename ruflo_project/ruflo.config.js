@@ -1,7 +1,7 @@
 module.exports = {
   project: "FactoryGrid Software Engine",
   topology: "hierarchical", // Master Queen orchestrating distinct execution branches
-  maxAgents: 11,
+  maxAgents: 14,
   context: {
     maxModelLen: 32768,
     policy: "context-pack-first",
@@ -29,8 +29,16 @@ module.exports = {
     orchestrationMatrix: "/home/revelation/factorygrid/docs/agents/deployment_orchestration.md"
   },
   memory: {
-    provider: "qdrant",
+    provider: "hybrid-temporal",
+    mode: "shadow-graphiti",
+    graph: {
+      provider: "graphiti",
+      neo4jUri: process.env.NEO4J_URI || "bolt://neo4j:7687",
+      fallbackRequired: true
+    },
+    legacyProvider: "qdrant",
     url: process.env.QDRANT_URL || "http://factory_qdrant:6333",
+    core: "/home/revelation/factorygrid/memory/memory_core.py",
     collections: {
       context: "factory_context_index",
       research: "factory_research_sources",
@@ -47,7 +55,7 @@ module.exports = {
       name: "Queen",
       role: "Orchestrator",
       contract: "/home/revelation/factorygrid/server/agents/queen",
-      system: "Own the task state machine. Convert rough user goals into task_manifest.json, assign worker nodes, require artifacts at every state transition, and never write code directly. For UAT/PROD environment updates, require gate_export_coverage.py and factory-secure-backup.sh before declaring production-ready."
+      system: "Own the task state machine. Call MemoryReader before planning, convert rough user goals into task_manifest.json, assign worker nodes, require artifacts at every state transition, and never write code directly. For UAT/PROD environment updates, require gate_export_coverage.py and factory-secure-backup.sh before declaring production-ready."
     },
     {
       name: "Architect",
@@ -88,7 +96,28 @@ module.exports = {
       name: "Documenter",
       role: "Durable Documentation",
       contract: "/home/revelation/factorygrid/server/agents/documenter",
-      system: "Write handoff_summary.md and update durable docs when runtime contracts change. Store only provenance-rich memories. When files, products, hooks, scripts, runtime paths, or deployment artifacts change, update docs/runbooks/FACTORY_EXPORT_COVERAGE.md and verify gate_export_coverage.py.",
+      system: "Write handoff_summary.md and update durable docs when runtime contracts change. Call MemoryWriter for accepted artifacts and store only provenance-rich memories. When files, products, hooks, scripts, runtime paths, or deployment artifacts change, update docs/runbooks/FACTORY_EXPORT_COVERAGE.md and verify gate_export_coverage.py.",
+      model: "qwen-coder-14b"
+    },
+    {
+      name: "MemoryReader",
+      role: "Evidence Retrieval",
+      contract: "/home/revelation/factorygrid/server/agents/memory-reader",
+      system: "Retrieve relevant FactoryGrid memory before planning, architecture, implementation, and review. Prefer Graphiti evidence chains when available; otherwise report fallback mode and cite Factory Brain/Qdrant source paths.",
+      model: "qwen-coder-14b"
+    },
+    {
+      name: "MemoryWriter",
+      role: "Provenance Memory Write",
+      contract: "/home/revelation/factorygrid/server/agents/memory-writer",
+      system: "Write accepted artifacts into UltronMemoryCore with source paths, hashes, run ids, task ids, and timestamps. Never ingest secrets, raw credentials, runtime databases, or unbounded logs.",
+      model: "qwen-coder-14b"
+    },
+    {
+      name: "MemoryChecker",
+      role: "SAGE Memory Validation",
+      contract: "/home/revelation/factorygrid/server/agents/memory-checker",
+      system: "Run after validation and review milestones. Detect contradictions, create MemoryRepairTask records, and request supersedes or invalidated_by relations without deleting old memory.",
       model: "qwen-coder-14b"
     },
 

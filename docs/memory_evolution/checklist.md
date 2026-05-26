@@ -49,24 +49,24 @@ Created: 2026-05-26
 - [x] Add MemoryWriter agent/skill.
 - [x] Add MemoryReader agent/skill.
 - [x] Add MemoryChecker agent/skill.
-- [ ] Update Queen workflow to call MemoryReader before planning.
-- [ ] Update Documenter workflow to call MemoryWriter after accepted artifacts.
-- [ ] Run MemoryChecker after validation/review milestones.
-- [ ] Create MemoryRepairTask when validation contradicts stored memory.
+- [x] Update Queen workflow to call MemoryReader before planning.
+- [x] Update Documenter workflow to call MemoryWriter after accepted artifacts.
+- [x] Run MemoryChecker after validation/review milestones.
+- [x] Create MemoryRepairTask when validation contradicts stored memory.
 
 ## Phase 6 - API And UI
 
-- [ ] Add `/api/memory/evidence-chain`.
-- [ ] Add `/api/memory/contradictions`.
-- [ ] Add `/api/memory/repairs`.
-- [ ] Add `/api/memory/timeline`.
-- [ ] Keep current flat memory list working.
+- [x] Add `/api/memory/evidence-chain`.
+- [x] Add `/api/memory/contradictions`.
+- [x] Add `/api/memory/repairs`.
+- [x] Add `/api/memory/timeline`.
+- [x] Keep current flat memory list working.
 - [ ] Add UI indicators for source, temporal validity, superseded state, and evidence links.
 
 ## Phase 7 - Validation
 
-- [ ] Unit test memory core fallback behavior when Neo4j is offline.
-- [ ] Unit test Qdrant/file fallback behavior.
+- [x] Unit test memory core fallback behavior when Neo4j is offline.
+- [x] Unit test Qdrant/file fallback behavior.
 - [ ] Integration test Neo4j + Graphiti episode write/read.
 - [ ] Integration test migration idempotency.
 - [ ] Verify RuFloUI still reports nonzero memory entries.
@@ -75,7 +75,7 @@ Created: 2026-05-26
 
 ## Phase 8 - Cutover Rules
 
-- [ ] Run Graphiti in shadow mode first.
-- [ ] Do not remove Qdrant primary paths until Graphiti migration is verified.
+- [x] Run Graphiti in shadow mode first.
+- [x] Do not remove Qdrant primary paths until Graphiti migration is verified.
 - [ ] Require a rollback note before making Graphiti authoritative.
 - [ ] Update `Architecture.md`, `README.md`, and runbooks only after implementation matches docs.
