@@ -46,9 +46,9 @@ Created: 2026-05-26
 
 ## Phase 5 - RuFlo Agent Integration
 
-- [ ] Add MemoryWriter agent/skill.
-- [ ] Add MemoryReader agent/skill.
-- [ ] Add MemoryChecker agent/skill.
+- [x] Add MemoryWriter agent/skill.
+- [x] Add MemoryReader agent/skill.
+- [x] Add MemoryChecker agent/skill.
 - [ ] Update Queen workflow to call MemoryReader before planning.
 - [ ] Update Documenter workflow to call MemoryWriter after accepted artifacts.
 - [ ] Run MemoryChecker after validation/review milestones.

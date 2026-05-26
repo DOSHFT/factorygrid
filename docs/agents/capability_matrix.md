@@ -17,6 +17,9 @@ This is a development factory. Agents operate in YOLO mode after a DR snapshot e
 | Tester | Runtime validation | run commands, capture exit codes, stack traces | guessed results, success claims without output | code diff and blueprint | validation report |
 | Reviewer | Safety and compliance | diff review, CodeRabbit when available, static/security review | approving out-of-scope diffs, ignoring failed tests | blueprint and validation report | review log |
 | Documenter | Durable memory and handoff | handoff docs, changelog updates, memory prep | raw secret/log ingestion, vague summaries | review log | handoff summary |
+| MemoryReader | Evidence retrieval | Graphiti/Qdrant/Factory Brain lookup, evidence-chain summaries | uncited recall, mixing superseded facts silently | operator request or task context | evidence chain + stale-memory warnings |
+| MemoryWriter | Provenance-rich memory write | Graphiti episode write, Qdrant/file fallback, source hash capture | raw secret/log ingestion, untraceable summaries | accepted artifact or handoff summary | memory id + source path + content hash |
+| MemoryChecker | SAGE-style validation | contradiction detection, repair-task creation, superseded/invalidated relation requests | deleting old memory, unreviewed automatic truth replacement | task result + validation/review artifacts | contradiction report + repair tasks |
 
 ## Protected Paths
 
