@@ -22,6 +22,7 @@ import {
   FolderGit2,
   Webhook,
   Factory,
+  ServerCog,
 } from 'lucide-react'
 import { useStore } from '@/store'
 import type { ComponentType } from 'react'
@@ -79,6 +80,7 @@ const navGroups: NavGroup[] = [
   {
     title: 'Monitoring',
     items: [
+      { label: 'Fabric', to: '/monitoring/fabric', icon: ServerCog },
       { label: 'Performance', to: '/performance', icon: Gauge },
       { label: 'Config', to: '/config', icon: Settings },
       { label: 'Logs', to: '/logs', icon: Activity },

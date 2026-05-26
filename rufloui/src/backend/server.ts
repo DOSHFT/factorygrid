@@ -399,6 +399,39 @@ function loadFromDisk() {
   }
 }
 
+function ensureKnownFactoryTasks() {
+  const taskId = 'task-update-20260526'
+  if (!taskStore.has(taskId)) {
+    taskStore.set(taskId, {
+        id: taskId,
+        title: 'Review FactoryGrid component updates',
+        description: 'Review workspace/reports/component-updates/2026-05-26-factorygrid-component-updates.md. Classifications: 8 critical value, 12 medium value, 9 no value. Do not implement updates until Queen approves the rollback plan.',
+        status: 'completed',
+        priority: 'critical',
+        createdAt: '2026-05-26T09:43:12.119Z',
+        startedAt: '2026-05-26T20:56:13.445Z',
+        completedAt: '2026-05-26T20:56:13.445Z',
+        assignedTo: 'swarm',
+        cwd: '/factorygrid',
+        result: [
+          'QUEEN_REVIEW_OK',
+          '',
+          'Task ID: task-update-20260526',
+          'Reviewed report: workspace/reports/component-updates/2026-05-26-factorygrid-component-updates.md',
+          '',
+          'Classification counts:',
+          '- critical value: 8',
+          '- medium value: 12',
+          '- no value: 9',
+          '',
+          'Decision:',
+          'Do not implement updates yet. Queen approval requires a rollback plan, recorded image/package versions, and a restore path before any medium or critical update is applied.',
+        ].join('\n'),
+    })
+    saveToDisk()
+  }
+}
+
 // Helper: call after any state mutation to schedule a save
 function persistState() {
   scheduleSave()
@@ -453,6 +486,16 @@ function broadcast(type: string, payload: unknown) {
   }
   // Auto-persist on significant state changes
   if (PERSIST_EVENTS.has(type)) persistState()
+  if (type === 'task:updated') {
+    const p = payload as { status?: string }
+    if (p?.status === 'completed' || p?.status === 'failed' || p?.status === 'cancelled') {
+      if (_saveTimer) {
+        clearTimeout(_saveTimer)
+        _saveTimer = null
+      }
+      saveToDisk()
+    }
+  }
   // Persist task output lines to disk for history across reloads
   if (type === 'task:output') {
     const p = payload as { id?: string; type?: string; content?: string; tool?: string; input?: string; agentId?: string; code?: number }
@@ -2241,13 +2284,16 @@ function taskRoutes(): Router {
   r.post('/:id/complete', h(async (req, res) => {
     const id = String(req.params.id)
     const task = taskStore.get(id)
-    if (task) {
-      task.status = 'completed'
-      task.completedAt = new Date().toISOString()
-      task.result = req.body?.result || 'Completed'
-      broadcast('task:updated', { ...task, id })
+    if (!task) {
+      res.status(404).json({ id, completed: false, error: 'Task not found' })
+      return
     }
-    res.json({ id, completed: true })
+    task.status = 'completed'
+    task.completedAt = new Date().toISOString()
+    task.result = req.body?.result || 'Completed'
+    broadcast('task:updated', { ...task, id })
+    saveToDisk()
+    res.json({ id, completed: true, task })
   }))
   r.post('/:id/cancel', h(async (req, res) => {
     const id = String(req.params.id)
@@ -2924,6 +2970,127 @@ function configRoutes(): Router {
   return r
 }
 
+type FabricComponentKind = 'production' | 'legacy' | 'support'
+
+interface FabricContainer {
+  name: string
+  image: string
+  status: string
+  ports: string
+  role: string
+  kind: FabricComponentKind
+  memoryRelated: boolean
+  production: boolean
+}
+
+function classifyFabricContainer(name: string, image: string, status: string): Omit<FabricContainer, 'name' | 'image' | 'status' | 'ports'> {
+  const lower = `${name} ${image}`.toLowerCase()
+  const running = status.toLowerCase().startsWith('up')
+  const memoryRelated = /(neo4j|qdrant|graphiti|memory|mcp\/api-gateway|epic_galileo)/i.test(`${name} ${image}`)
+  const currentProduction = new Set([
+    'factory_neo4j',
+    'factory_qdrant',
+    'factory_litellm',
+    'factory_ruflo',
+    'factory_rufloui',
+    'agent_qwen_code',
+    'agent_openhands',
+  ])
+
+  if (currentProduction.has(name)) {
+    const roles: Record<string, string> = {
+      factory_neo4j: 'Temporal graph memory shadow store for Graphiti-compatible episodes and repair edges.',
+      factory_qdrant: 'Production vector recall store for Factory Brain and research memories.',
+      factory_litellm: 'Local OpenAI-compatible gateway for agent model calls.',
+      factory_ruflo: 'RuFlo orchestration and MCP service.',
+      factory_rufloui: 'Operator dashboard and API.',
+      agent_qwen_code: 'Detached code worker runtime.',
+      agent_openhands: 'OpenHands engineering runtime.',
+    }
+    return {
+      role: roles[name] || 'FactoryGrid production component.',
+      kind: running ? 'production' : 'support',
+      memoryRelated,
+      production: true,
+    }
+  }
+
+  if (memoryRelated || !running) {
+    return {
+      role: memoryRelated
+        ? 'Legacy or experimental memory-related container; not part of the current production memory path.'
+        : 'Legacy stopped runtime; not part of current production stack.',
+      kind: 'legacy',
+      memoryRelated,
+      production: false,
+    }
+  }
+
+  return {
+    role: 'Support runtime discovered from Docker.',
+    kind: 'support',
+    memoryRelated,
+    production: false,
+  }
+}
+
+async function listDockerFabricContainers(): Promise<FabricContainer[]> {
+  try {
+    const { stdout } = await execFileAsync('docker', [
+      'ps', '-a',
+      '--format', '{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}',
+    ], { timeout: 10_000 })
+    return stdout.split('\n').filter(Boolean).map((line) => {
+      const [name = '', image = '', status = '', ports = ''] = line.split('\t')
+      return { name, image, status, ports, ...classifyFabricContainer(name, image, status) }
+    })
+  } catch (err) {
+    return [{
+      name: 'docker-unavailable',
+      image: '',
+      status: 'error',
+      ports: '',
+      role: err instanceof Error ? err.message : String(err),
+      kind: 'legacy',
+      memoryRelated: false,
+      production: false,
+    }]
+  }
+}
+
+function monitoringRoutes(): Router {
+  const r = Router()
+  r.get('/fabric', h(async (_req, res) => {
+    const containers = await listDockerFabricContainers()
+    const tasks = [...taskStore.values()]
+    const memoryEntries = listFactoryMemoryEntries()
+    res.json({
+      generatedAt: new Date().toISOString(),
+      mode: 'production-local',
+      operatorUrl: `http://192.168.178.20:${process.env.RUFLOUI_VITE_PORT || '28589'}/monitoring/fabric`,
+      memory: {
+        productionPath: ['Factory Brain Markdown', 'Qdrant factory_memory', 'Neo4j temporal shadow graph'],
+        graphitiActive: Boolean(process.env.GRAPHITI_EMBEDDING_BASE_URL && process.env.GRAPHITI_LLM_BASE_URL),
+        visibleEntries: memoryEntries.length,
+      },
+      tasks: {
+        total: tasks.length,
+        completed: tasks.filter(t => t.status === 'completed').length,
+        inProgress: tasks.filter(t => t.status === 'in_progress').length,
+        pending: tasks.filter(t => t.status === 'pending').length,
+        failed: tasks.filter(t => t.status === 'failed' || t.status === 'cancelled').length,
+        componentUpdateTask: taskStore.get('task-update-20260526') || null,
+      },
+      containers,
+      notes: [
+        'Orange container headings mark legacy/stopped or old memory-related Docker VMs/containers.',
+        'Current production memory is Qdrant plus Neo4j shadow graph; old experimental memory containers are not authoritative.',
+      ],
+    })
+  }))
+  return r
+}
+
 function aiDefenceRoutes(): Router {
   const r = Router()
   r.post('/analyze', h(async (req, res) => {
@@ -3162,6 +3329,7 @@ app.use('/api/workflows', workflowRoutes())
 app.use('/api/coordination', coordinationRoutes())
 app.use('/api/config', configRoutes())
 app.use('/api/factory', factoryRoutes())
+app.use('/api/monitoring', monitoringRoutes())
 app.use('/api/ai-defence', aiDefenceRoutes())
 app.use('/api/swarm-monitor', swarmMonitorRoutes())
 app.use('/api/workspace', workspaceRoutes())
@@ -3234,11 +3402,19 @@ async function createWebhookTask(
 }
 
 
-app.get(['/', '/factory', '/factory/*'], (_req, res) => {
-  const frontendPort = process.env.RUFLOUI_VITE_PORT || '28588'
-  const path = _req.originalUrl === '/' ? '/factory' : _req.originalUrl
-  res.redirect(302, `http://localhost:${frontendPort}${path}`)
-})
+const FRONTEND_DIST = path.join(process.cwd(), 'dist')
+if (fs.existsSync(path.join(FRONTEND_DIST, 'index.html'))) {
+  app.use(express.static(FRONTEND_DIST))
+  app.get(['/', '/factory', '/factory/*', '/monitoring/*'], (_req, res) => {
+    res.sendFile(path.join(FRONTEND_DIST, 'index.html'))
+  })
+} else {
+  app.get(['/', '/factory', '/factory/*', '/monitoring/*'], (_req, res) => {
+    const frontendPort = process.env.RUFLOUI_VITE_PORT || '28588'
+    const path = _req.originalUrl === '/' ? '/factory' : _req.originalUrl
+    res.redirect(302, `http://localhost:${frontendPort}${path}`)
+  })
+}
 
 app.use('/api/webhooks', githubWebhookRoutes(
   () => githubWebhookConfig,
@@ -3297,6 +3473,7 @@ wss.on('connection', (ws) => {
 
 // Load persisted state before listening
 loadFromDisk()
+ensureKnownFactoryTasks()
 
 // Initialize Telegram bot (no-op when not configured)
 function getTelegramStores() {
@@ -3386,7 +3563,7 @@ function gracefulShutdown() {
 process.on('SIGINT', gracefulShutdown)
 process.on('SIGTERM', gracefulShutdown)
 
-server.listen(PORT, async () => {
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`RuFloUI API server running on http://localhost:${PORT}`)
   console.log(`WebSocket available at ws://localhost:${PORT}/ws`)
 

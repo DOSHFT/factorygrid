@@ -125,6 +125,38 @@ export interface PerformanceMetrics {
   }>
 }
 
+export interface FabricContainer {
+  name: string
+  image: string
+  status: string
+  ports: string
+  role: string
+  kind: 'production' | 'legacy' | 'support'
+  memoryRelated: boolean
+  production: boolean
+}
+
+export interface FabricSnapshot {
+  generatedAt: string
+  mode: string
+  operatorUrl: string
+  memory: {
+    productionPath: string[]
+    graphitiActive: boolean
+    visibleEntries: number
+  }
+  tasks: {
+    total: number
+    completed: number
+    inProgress: number
+    pending: number
+    failed: number
+    componentUpdateTask?: Task | null
+  }
+  containers: FabricContainer[]
+  notes: string[]
+}
+
 export interface HookConfig {
   name: string
   type: string

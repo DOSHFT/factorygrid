@@ -26,6 +26,7 @@ const SwarmMonitorPanel = React.lazy(() => import('./pages/SwarmMonitorPanel'))
 const WebhooksPanel = React.lazy(() => import('./pages/WebhooksPanel'))
 const WorkspacePanel = React.lazy(() => import('./pages/WorkspacePanel'))
 const FactoryPanel = React.lazy(() => import('./pages/FactoryPanel'))
+const FabricPanel = React.lazy(() => import('./pages/FabricPanel'))
 
 function LoadingSpinner() {
   return (
@@ -465,6 +466,14 @@ export function App() {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <WorkspacePanel />
+            </Suspense>
+          }
+        />
+        <Route
+          path="monitoring/fabric"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <FabricPanel />
             </Suspense>
           }
         />

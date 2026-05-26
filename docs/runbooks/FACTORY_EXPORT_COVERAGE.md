@@ -108,3 +108,4 @@ docker compose up -d
 - `http://localhost:28588/factory` is the primary UI.
 - `http://localhost:28580/` redirects to `http://localhost:28588/factory`; `28580` remains the API/WebSocket server.
 - RuFlo MCP health is verified by `ruflo mcp health` inside the container. Direct raw HTTP curls to port `3010` may reset depending on the MCP transport behavior and should not be used as the authoritative health check.
+- Use `bin/factory-start.sh` as the stack start path. If Windows `netsh interface portproxy` owns FactoryGrid ports, Docker publish can fail or stale dashboards can remain in front of the live service; remove/update those portproxy rules from elevated PowerShell before expecting `http://192.168.178.20:28589/monitoring/fabric` to reflect the current container.
