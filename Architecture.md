@@ -10,7 +10,7 @@ The stack is deliberately split into five layers:
 2. Gateway routing: LiteLLM exposes a stable OpenAI-compatible API.
 3. Factory orchestration: RuFlo decomposes written intent into agent work.
 4. Engineer execution: OpenHands runs coding tasks against the workspace.
-5. Memory and retrieval: Qdrant stores vector memory for recall and context reuse.
+5. Memory and retrieval: Factory Brain stores readable truth, Qdrant stores production recall, and Neo4j stores temporal graph memory in shadow mode.
 
 ## Live Topology
 
@@ -29,6 +29,7 @@ Windows 11 BlackBeast
               +-- agent_openhands   :3000  autonomous engineer UI/runtime
               +-- agent_qwen_code   detached Node worker shell
               +-- factory_qdrant    :6333/:6334 vector memory
+              +-- factory_neo4j     :7474/:7687 temporal graph memory shadow
 ```
 
 Primary directory:

@@ -25,7 +25,9 @@ Start build requests at `/factory`, not in random chat windows. The page creates
 
 ## Memory Rule
 
-Factory Brain is the readable source of truth. Qdrant is recall. Agents should check the brain before making plans or writing code.
+Factory Brain is the readable source of truth. Qdrant is production recall. Neo4j now runs as the temporal graph shadow store for memory evolution, with Graphiti wired for activation when local chat and embedding endpoints are configured. Agents should check memory before making plans or writing code, but Graphiti is not authoritative yet.
+
+Runbook: `docs/runbooks/MEMORY_EVOLUTION_RUNBOOK.md`
 
 ## Principal Agent Readiness
 

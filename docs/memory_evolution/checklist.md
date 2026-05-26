@@ -33,7 +33,7 @@ Created: 2026-05-26
 - [x] Define entity, episode, artifact, task, run, source, and decision node types.
 - [x] Implement typed relations: `supports`, `contradicts`, `supersedes`, `derived_from`, `used_in`, `invalidated_by`.
 - [x] Add temporal fields: `valid_from`, `valid_until`, `observed_at`, `superseded_at`, `reason`.
-- [ ] Preserve file path and task/run provenance on every node and edge.
+- [x] Preserve file path and task/run provenance on every node and edge.
 
 ## Phase 4 - Migration
 
@@ -41,7 +41,7 @@ Created: 2026-05-26
 - [x] Import `workspace/factory-brain/pages/**/*.md` into Graphiti episodes.
 - [x] Import `workspace/research/**/*.{md,json,jsonl}` as source-backed episodes.
 - [x] Import existing `workspace/factory-brain/graph/*.jsonl` nodes/edges.
-- [ ] Store Graphiti node IDs back into Qdrant payloads where possible.
+- [x] Store Graphiti node IDs back into Qdrant payloads where possible.
 - [x] Produce migration report with counts and failures.
 
 ## Phase 5 - RuFlo Agent Integration
@@ -67,7 +67,7 @@ Created: 2026-05-26
 
 - [x] Unit test memory core fallback behavior when Neo4j is offline.
 - [x] Unit test Qdrant/file fallback behavior.
-- [ ] Integration test Neo4j + Graphiti episode write/read.
+- [x] Integration test Neo4j + Graphiti episode write/read.
 - [x] Integration test migration idempotency.
 - [x] Verify RuFloUI still reports nonzero memory entries.
 - [x] Verify Qdrant collection remains intact.
@@ -77,5 +77,5 @@ Created: 2026-05-26
 
 - [x] Run Graphiti in shadow mode first.
 - [x] Do not remove Qdrant primary paths until Graphiti migration is verified.
-- [ ] Require a rollback note before making Graphiti authoritative.
-- [ ] Update `Architecture.md`, `README.md`, and runbooks only after implementation matches docs.
+- [x] Require a rollback note before making Graphiti authoritative.
+- [x] Update `Architecture.md`, `README.md`, and runbooks only after implementation matches docs.

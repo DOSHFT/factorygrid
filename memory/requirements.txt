@@ -1,2 +1,3 @@
 graphiti-core
+neo4j
 qdrant-client

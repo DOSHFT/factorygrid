@@ -1,0 +1,8 @@
+{
+  "root": "D:\\UAT\\factorygrid",
+  "dry_run": false,
+  "graph_ready": false,
+  "qdrant_ready": true,
+  "imported": 43,
+  "failed": []
+}
