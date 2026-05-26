@@ -57,6 +57,15 @@ export FACTORYGRID_ROOT=/home/revelation/factorygrid
 python memory/test_neo4j_shadow.py
 ```
 
+RuFloUI build from the pinned Node 20 lane:
+
+```bash
+cd /home/revelation/factorygrid
+bin/rufloui-build.sh
+```
+
+Use this instead of PowerShell `npm run build` after a Linux/Docker install. Linux-created `node_modules/.bin` entries do not include Windows `.cmd` shims, and the host may have a different Node major version.
+
 Migration dry-run:
 
 ```bash
