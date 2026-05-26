@@ -9,7 +9,10 @@ import json
 from pathlib import Path
 from typing import Iterable
 
-from memory_core import UltronMemoryCore
+try:
+    from .memory_core import UltronMemoryCore
+except ImportError:  # Direct script execution from memory/
+    from memory_core import UltronMemoryCore
 
 
 INCLUDE_SUFFIXES = {".md", ".json", ".jsonl"}

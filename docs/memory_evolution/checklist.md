@@ -68,10 +68,10 @@ Created: 2026-05-26
 - [x] Unit test memory core fallback behavior when Neo4j is offline.
 - [x] Unit test Qdrant/file fallback behavior.
 - [ ] Integration test Neo4j + Graphiti episode write/read.
-- [ ] Integration test migration idempotency.
-- [ ] Verify RuFloUI still reports nonzero memory entries.
-- [ ] Verify Qdrant collection remains intact.
-- [ ] Verify Docker stack starts with Neo4j added.
+- [x] Integration test migration idempotency.
+- [x] Verify RuFloUI still reports nonzero memory entries.
+- [x] Verify Qdrant collection remains intact.
+- [x] Verify Docker stack starts with Neo4j added.
 
 ## Phase 8 - Cutover Rules
 
