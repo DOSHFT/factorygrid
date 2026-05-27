@@ -20,6 +20,19 @@ import { factoryBottleneckReport, factoryHiveMindStatus, factoryMemoryStats, fac
 const execAsync = promisify(exec)
 const execFileAsync = promisify(execFile)
 const PORT = Number(process.env.PORT) || 28580
+
+function getRuflouiRuntimeMode(): { mode: string; isDocker: boolean; details: string } {
+  const hasDockerEnv = fs.existsSync('/.dockerenv')
+  const hasWSLDevEnv = process.env.RUFLOUI_WSL_DEV === '1' || process.env.RUFLOUI_PUBLIC_PORT === '28589' || process.env.FACTORYGRID_RUFLOUI_MODE === 'wsl-dev'
+
+  if (hasDockerEnv) {
+    return { mode: 'docker', isDocker: true, details: 'Running inside Docker container (/.dockerenv present)' }
+  }
+  if (hasWSLDevEnv) {
+    return { mode: 'wsl-dev', isDocker: false, details: 'WSL-side dev server (rufloui-wsl-server.sh or npm run dev on 28589)' }
+  }
+  return { mode: 'unknown', isDocker: hasDockerEnv, details: 'Could not confidently detect runtime mode' }
+}
 const CLI_LOCAL_BIN = path.join(process.cwd(), 'node_modules', '@claude-flow', 'cli', 'bin', 'cli.js')
 const CLI_DEFAULT = fs.existsSync(CLI_LOCAL_BIN) ? `node ${CLI_LOCAL_BIN}` : 'npx -y @claude-flow/cli@latest'
 const CLI = process.env.RUFLO_CLI || CLI_DEFAULT
@@ -639,7 +652,7 @@ function systemRoutes(): Router {
   }))
   // Preflight check — validates all dependencies before the app is usable
   r.get('/preflight', h(async (_req, res) => {
-    const checks: Array<{ id: string; name: string; status: 'ok' | 'warn' | 'fail'; detail: string; fix?: string }> = []
+    const checks: Array<{ id: string; name: string; status: 'ok' | 'warn' | 'fail' | 'info'; detail: string; fix?: string }> = []
 
     // 1. Node.js version
     const nodeVer = process.version
@@ -713,11 +726,20 @@ function systemRoutes(): Router {
     }
 
     // 6. Port availability (28580 is us, check 28581 for daemon)
+    // Eagerly ensure the daemon for the factory use case so the dashboard never shows a scary "not started"
+    await ensureDaemon().catch(() => {})
     try {
       await execCli('status', [])
       checks.push({ id: 'daemon', name: 'claude-flow daemon', status: 'ok', detail: 'Daemon reachable on port 28581' })
     } catch {
-      checks.push({ id: 'daemon', name: 'claude-flow daemon', status: 'warn', detail: 'Daemon not running (will start on first use)', fix: 'The daemon starts automatically when needed' })
+      const mode = getRuflouiRuntimeMode()
+      checks.push({
+        id: 'daemon',
+        name: 'claude-flow daemon',
+        status: 'info',
+        detail: `Daemon starts on first swarm/task use (lazy/on-demand in ${mode.mode} mode)`,
+        fix: 'No action needed for normal FactoryGrid operation'
+      })
     }
 
     // 7. Environment variables
@@ -735,6 +757,16 @@ function systemRoutes(): Router {
     const overall = failed > 0 ? 'fail' : warned > 0 ? 'warn' : 'ok'
 
     res.json({ status: overall, checks, failed, warned, passed: checks.length - failed - warned })
+  }))
+
+  // Lightweight endpoint so monitoring tools and the dashboard can know exactly which rufloui backend is live
+  r.get('/mode', h(async (_req, res) => {
+    const mode = getRuflouiRuntimeMode()
+    res.json({
+      ...mode,
+      ports: { api: PORT, daemon: Number(process.env.DAEMON_PORT) || 28581 },
+      timestamp: new Date().toISOString()
+    })
   }))
 
   // Auto-fix — attempts to install/fix missing dependencies

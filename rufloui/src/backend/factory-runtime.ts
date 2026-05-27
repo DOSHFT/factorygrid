@@ -24,6 +24,7 @@ export interface FactoryRuntimeSnapshot {
   endpoints: FactoryEndpoint[]
   gpu: GpuMetrics | null
   protectedFilePatterns: string[]
+  notes: string[]
 }
 
 const PROTECTED_PATTERNS = [
@@ -140,12 +141,6 @@ export async function getFactoryRuntimeSnapshot(): Promise<FactoryRuntimeSnapsho
       'http://127.0.0.1:4000/v1/models',
       'http://litellm:4000/v1/models',
     ]),
-    checkEndpointCandidates('Qdrant', [
-      process.env.QDRANT_URL ? `${process.env.QDRANT_URL.replace(/\/$/, '')}/collections` : '',
-      'http://127.0.0.1:6333/collections',
-      'http://127.0.0.1:16333/collections',
-      'http://qdrant:6333/collections',
-    ].filter(Boolean)),
     checkEndpointCandidates('OpenHands', [
       'http://127.0.0.1:3000/api/settings',
       'http://127.0.0.1:13000/api/settings',
@@ -164,5 +159,9 @@ export async function getFactoryRuntimeSnapshot(): Promise<FactoryRuntimeSnapsho
     endpoints,
     gpu: await readGpuMetrics(),
     protectedFilePatterns: protectedFilePatterns(),
+    notes: [
+      'Qdrant is monitored as a Docker production container and through memory API stats, not as a direct RuFloUI-to-Qdrant connection line.',
+      'Direct qdrant service-name probes are intentionally excluded here because they create false red edges when RuFloUI is served outside Docker.',
+    ],
   }
 }
