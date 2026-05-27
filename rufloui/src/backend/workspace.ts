@@ -1,4 +1,5 @@
 import fs from 'fs/promises'
+import fsSync from 'fs'
 import path from 'path'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
@@ -8,6 +9,39 @@ const execFileAsync = promisify(execFile)
 const SKIP_DIRS = new Set([
   '.git', 'node_modules', 'dist', 'build', '.next', '.turbo', '.cache', '.ruflo', '.swarm',
 ])
+
+function gitEnv(root: string): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    GIT_CONFIG_COUNT: '1',
+    GIT_CONFIG_KEY_0: 'safe.directory',
+    GIT_CONFIG_VALUE_0: root,
+  }
+}
+
+async function resolveWorkspaceRoot(root: string): Promise<string> {
+  const candidates = [
+    root,
+    process.env.FACTORYGRID_ROOT,
+    '/factorygrid',
+    process.cwd(),
+  ].filter((candidate): candidate is string => Boolean(candidate && fsSync.existsSync(candidate)))
+
+  for (const candidate of candidates) {
+    const resolved = path.resolve(candidate)
+    try {
+      const { stdout } = await execFileAsync('git', ['rev-parse', '--show-toplevel'], {
+        cwd: resolved,
+        env: gitEnv(resolved),
+      })
+      return stdout.trim() || resolved
+    } catch {
+      // Try the next mounted workspace candidate.
+    }
+  }
+
+  return path.resolve(root)
+}
 
 export interface WorkspaceTreeNode {
   path: string
@@ -38,7 +72,7 @@ export interface WorkspaceDiff {
 }
 
 export async function listWorkspaceTree(root: string, limit = 800): Promise<WorkspaceTree> {
-  const resolvedRoot = path.resolve(root)
+  const resolvedRoot = await resolveWorkspaceRoot(root)
   const nodes: WorkspaceTreeNode[] = []
 
   async function walk(dir: string) {
@@ -72,13 +106,22 @@ export async function listWorkspaceTree(root: string, limit = 800): Promise<Work
 }
 
 export async function getWorkspaceStatus(root: string): Promise<WorkspaceStatus> {
-  const resolvedRoot = path.resolve(root)
+  const resolvedRoot = await resolveWorkspaceRoot(root)
   let stdout = ''
   try {
-    const result = await execFileAsync('git', ['status', '--porcelain=v1'], { cwd: resolvedRoot })
+    const result = await execFileAsync('git', ['status', '--porcelain=v1'], {
+      cwd: resolvedRoot,
+      env: gitEnv(resolvedRoot),
+    })
     stdout = result.stdout
-  } catch {
-    return { root: resolvedRoot, files: [] }
+  } catch (err) {
+    return {
+      root: resolvedRoot,
+      files: [{
+        path: err instanceof Error ? err.message : String(err),
+        status: 'unknown',
+      }],
+    }
   }
   const files = stdout
     .split('\n')
@@ -90,12 +133,16 @@ export async function getWorkspaceStatus(root: string): Promise<WorkspaceStatus>
 }
 
 export async function getWorkspaceDiff(root: string, filePath?: string): Promise<WorkspaceDiff> {
-  const resolvedRoot = path.resolve(root)
+  const resolvedRoot = await resolveWorkspaceRoot(root)
   const safePath = filePath ? sanitizeRelativePath(filePath) : undefined
   const args = ['diff', '--']
   if (safePath) args.push(safePath)
   try {
-    const { stdout } = await execFileAsync('git', args, { cwd: resolvedRoot, maxBuffer: 2 * 1024 * 1024 })
+    const { stdout } = await execFileAsync('git', args, {
+      cwd: resolvedRoot,
+      env: gitEnv(resolvedRoot),
+      maxBuffer: 2 * 1024 * 1024,
+    })
     return { path: safePath ?? '', diff: stdout }
   } catch {
     return { path: safePath ?? '', diff: '' }

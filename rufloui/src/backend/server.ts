@@ -2259,17 +2259,8 @@ function taskRoutes(): Router {
   }))
   r.post('/', h(async (req, res) => {
     const { title, description, priority, assignTo, cwd } = req.body || {}
-    // Create via CLI to get a proper ID
-    let taskId = `task-${Date.now()}`
-    try {
-      const args = ['create', '--type', 'implementation', '--description', `${title}: ${description || ''}`]
-      if (priority) args.push('--priority', priority)
-      const { raw } = await execCli('task', args)
-      const idMatch = raw.match(/task-[\w-]+/)
-      if (idMatch) taskId = idMatch[0]
-    } catch (e) {
-      console.log('[cli] ID from CLI unavailable, using generated:', e instanceof Error ? e.message : String(e))
-    }
+    // Use a local ID first. Blocking on the CLI here can hang the dashboard before a task even exists.
+    const taskId = `task-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`
     // Validate cwd if provided
     const resolvedCwd = cwd && typeof cwd === 'string' && cwd.trim()
       ? (fs.existsSync(cwd.trim()) ? cwd.trim() : undefined)
@@ -2287,6 +2278,7 @@ function taskRoutes(): Router {
     }
     taskStore.set(taskId, task)
     broadcast('task:added', task)
+    saveToDisk()
     res.json(task)
 
     // If assigned on creation, execute in background
@@ -2620,7 +2612,22 @@ function neuralRoutes(): Router {
     res.json(factoryNeuralStatus())
   }))
   r.post('/train', h(async (req, res) => {
-    res.json({ training: false, completed: true, model: req.body?.model || '', detail: 'FactoryGrid training currently updates Factory Brain/heuristic routing metadata, not ML weights.' })
+    const model = String(req.body?.model || 'factory-context-ranker')
+    const now = new Date().toISOString()
+    const safeModel = model.replace(/[^a-zA-Z0-9_.-]/g, '-').slice(0, 100)
+    const dir = path.join(factoryRoot(), 'workspace', 'factory-brain', 'pages', 'learning')
+    fs.mkdirSync(dir, { recursive: true })
+    const filePath = path.join(dir, `${safeModel}-training.md`)
+    const data = req.body?.data === undefined ? {} : req.body.data
+    fs.writeFileSync(filePath, `---\nid: ${safeModel}-training\ntype: learning\ntitle: ${JSON.stringify(`${model} training state`)}\nupdatedAt: ${now}\nsource: "rufloui-neural-train"\ntags: ["neural","learning","factorygrid"]\n---\n\n# ${model} Training State\n\n## Compiled Truth\nFactoryGrid learning was initiated from the Neural panel at ${now}. This updates Factory Brain learning memory and routing metadata; it does not claim new ML weight training.\n\n## Training Input\n\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\`\n\n## Outcome\n- model: ${model}\n- status: completed\n- routing memory: updated\n`)
+    broadcast('memory:stored', { key: `${safeModel}-training`, namespace: 'learning' })
+    res.json({
+      training: false,
+      completed: true,
+      model,
+      storedIn: path.relative(factoryRoot(), filePath).replace(/\\/g, '/'),
+      detail: 'FactoryGrid learning memory and heuristic routing metadata updated.',
+    })
   }))
   r.post('/predict', h(async (req, res) => {
     res.json(predictFactoryNeural(String(req.body?.model || 'factory-context-ranker'), req.body?.input))
