@@ -26,7 +26,8 @@ const SwarmMonitorPanel = React.lazy(() => import('./pages/SwarmMonitorPanel'))
 const WebhooksPanel = React.lazy(() => import('./pages/WebhooksPanel'))
 const WorkspacePanel = React.lazy(() => import('./pages/WorkspacePanel'))
 const FactoryPanel = React.lazy(() => import('./pages/FactoryPanel'))
-const FabricPanel = React.lazy(() => import('./pages/FabricPanel'))
+const LearningPanel = React.lazy(() => import('./pages/LearningPanel'))
+const FabricMonitorPanel = React.lazy(() => import('./pages/FabricMonitorPanel'))
 
 function LoadingSpinner() {
   return (
@@ -390,6 +391,14 @@ export function App() {
           }
         />
         <Route
+          path="learning"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <LearningPanel />
+            </Suspense>
+          }
+        />
+        <Route
           path="hive-mind"
           element={
             <Suspense fallback={<LoadingSpinner />}>
@@ -473,7 +482,7 @@ export function App() {
           path="monitoring/fabric"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <FabricPanel />
+              <FabricMonitorPanel />
             </Suspense>
           }
         />

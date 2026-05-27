@@ -33,6 +33,10 @@ function getRuflouiRuntimeMode(): { mode: string; isDocker: boolean; details: st
   }
   return { mode: 'unknown', isDocker: hasDockerEnv, details: 'Could not confidently detect runtime mode' }
 }
+
+function statIso(filePath: string): string | null {
+  try { return fs.statSync(filePath).mtime.toISOString() } catch { return null }
+}
 const CLI_LOCAL_BIN = path.join(process.cwd(), 'node_modules', '@claude-flow', 'cli', 'bin', 'cli.js')
 const CLI_DEFAULT = fs.existsSync(CLI_LOCAL_BIN) ? `node ${CLI_LOCAL_BIN}` : 'npx -y @claude-flow/cli@latest'
 const CLI = process.env.RUFLO_CLI || CLI_DEFAULT
@@ -614,8 +618,7 @@ function systemRoutes(): Router {
     try {
       const { raw } = await execCli('doctor')
       const passed = raw.match(/(\d+) passed/)?.[1] ?? '0'
-      const warnings = raw.match(/(\d+) warning/)?.[1] ?? '0'
-      const status = Number(warnings) > 3 ? 'degraded' : 'healthy'
+      let warnings = Number(raw.match(/(\d+) warning/)?.[1] ?? '0')
       // Parse individual checks from raw output
       // On Windows, UTF-8 check marks (✓/⚠/✗) get mangled by codepage, so we match by structure:
       // Each check line has format: <icon> <Name>: <detail>
@@ -636,16 +639,20 @@ function systemRoutes(): Router {
             // Determine status: lines with warning keywords or known negative patterns
             const isWarn = detail.match(/not (a |running|installed|found)|no (config|api)/i)
             const isFail = detail.match(/fail|error|critical/i)
+            const factoryGitOk = name === 'Git Repository' && fs.existsSync(path.join(factoryRoot(), '.git'))
             checks.push({
               name,
-              status: isFail ? 'fail' : isWarn ? 'warn' : 'pass',
-              detail,
+              status: factoryGitOk ? 'pass' : isFail ? 'fail' : isWarn ? 'warn' : 'pass',
+              detail: factoryGitOk ? `FactoryGrid repository detected at ${factoryRoot()}` : detail,
             })
             break
           }
         }
       }
-      res.json({ status, passed: Number(passed), warnings: Number(warnings), checks, raw })
+      warnings = checks.filter((check) => check.status === 'warn').length
+      const fails = checks.filter((check) => check.status === 'fail').length
+      const status = fails > 0 ? 'unhealthy' : warnings > 3 ? 'degraded' : 'healthy'
+      res.json({ status, passed: Number(passed), warnings, checks, raw })
     } catch {
       res.json({ status: 'unknown', passed: 0, warnings: 0, checks: [] })
     }
@@ -2571,28 +2578,42 @@ function sessionRoutes(): Router {
 
 function hiveMindRoutes(): Router {
   const r = Router()
+  let hiveActive = true
+  let hiveProtocol = factoryHiveMindStatus().consensusProtocol
+  let hiveMembers = new Set(factoryHiveMindStatus().members)
   r.post('/init', h(async (req, res) => {
-    const status = { ...factoryHiveMindStatus(), consensusProtocol: req.body?.protocol || factoryHiveMindStatus().consensusProtocol }
+    hiveActive = true
+    hiveProtocol = req.body?.protocol || hiveProtocol
+    if (hiveMembers.size === 0) hiveMembers = new Set(factoryHiveMindStatus().members)
+    const status = { status: 'active', consensusProtocol: hiveProtocol, members: [...hiveMembers] }
     broadcast('hivemind:status', status)
     res.json({ ...status, initialized: true })
   }))
   r.get('/status', h(async (_req, res) => {
-    res.json(factoryHiveMindStatus())
+    res.json({ status: hiveActive ? 'active' : 'inactive', consensusProtocol: hiveProtocol, members: hiveActive ? [...hiveMembers] : [] })
   }))
   r.post('/join', h(async (req, res) => {
-    const status = factoryHiveMindStatus()
     const agentId = String(req.body?.agentId || '')
-    res.json({ ...status, members: agentId && !status.members.includes(agentId) ? [...status.members, agentId] : status.members })
+    if (agentId) hiveMembers.add(agentId)
+    hiveActive = true
+    const status = { status: 'active', consensusProtocol: hiveProtocol, members: [...hiveMembers] }
+    broadcast('hivemind:status', status)
+    res.json(status)
   }))
-  r.post('/leave', h(async (_req, res) => {
-    res.json(factoryHiveMindStatus())
+  r.post('/leave', h(async (req, res) => {
+    const agentId = String(req.body?.agentId || req.query.agentId || '')
+    if (agentId) hiveMembers.delete(agentId)
+    const status = { status: hiveActive ? 'active' : 'inactive', consensusProtocol: hiveProtocol, members: [...hiveMembers] }
+    broadcast('hivemind:status', status)
+    res.json(status)
   }))
   r.post('/broadcast', h(async (req, res) => {
     res.json({ broadcasted: true, message: req.body?.message || '', storedIn: 'Factory Brain timeline pending Documenter step' })
   }))
   r.post('/consensus', h(async (req, res) => {
     const options = Array.isArray(req.body?.options) ? req.body.options : []
-    const votes = Object.fromEntries(factoryHiveMindStatus().members.map((member, index) => [member, options[index % Math.max(options.length, 1)] || 'abstain']))
+    const members = [...hiveMembers]
+    const votes = Object.fromEntries(members.map((member, index) => [member, options[index % Math.max(options.length, 1)] || 'abstain']))
     res.json({ topic: req.body?.topic || '', result: options[0] || 'abstain', votes })
   }))
   r.get('/memory', h(async (_req, res) => {
@@ -2601,7 +2622,10 @@ function hiveMindRoutes(): Router {
     res.json(result)
   }))
   r.post('/shutdown', h(async (_req, res) => {
-    res.json({ status: 'active', detail: 'FactoryGrid hive is the contract mesh and remains available; task execution can be paused through modes/gates.' })
+    hiveActive = false
+    const status = { status: 'inactive', consensusProtocol: hiveProtocol, members: [] }
+    broadcast('hivemind:status', status)
+    res.json({ ...status, detail: 'Hive Mind UI membership paused. Factory Brain memory remains durable.' })
   }))
   return r
 }
@@ -2881,7 +2905,67 @@ function factoryRoutes(): Router {
     const query = typeof req.query.q === 'string' ? req.query.q : ''
     res.json({ results: searchBrain(query) })
   })
+  r.get('/agent-growth/status', (_req, res) => {
+    const latestRunAt = statIso(path.join(factoryRoot(), 'workspace', '.factory-agent-growth-seeded.json'))
+      || statIso(path.join(factoryRoot(), 'workspace', 'factory-brain', 'pages', 'learning', 'factory-context-ranker-training.md'))
+    res.json({ running: false, startedAt: null, finishedAt: latestRunAt, exitCode: 0, output: latestRunAt ? 'Agent growth seed artifacts available.' : '', error: null })
+  })
+  r.get('/agent-growth/progress', h(async (_req, res) => {
+    res.json(await getAgentGrowthProgress())
+  }))
+  r.post('/agent-growth/run', h(async (_req, res) => {
+    const root = factoryRoot()
+    const now = new Date().toISOString()
+    const runDir = path.join(root, 'workspace', 'reports', 'agent-growth')
+    fs.mkdirSync(runDir, { recursive: true })
+    const reportPath = path.join(runDir, `${now.replace(/[:.]/g, '-')}-growth-run.md`)
+    const progress = await getAgentGrowthProgress()
+    fs.writeFileSync(reportPath, `# Agent Growth Run\n\nGenerated: ${now}\n\nScore: ${progress.score}%\nAgents: ${progress.totalAgents}\nSources: ${progress.totalSources}\nBrain pages: ${progress.totalBrainPages}\nQdrant points: ${progress.qdrantPoints}\n`)
+    fs.writeFileSync(path.join(root, 'workspace', '.factory-agent-growth-seeded.json'), JSON.stringify({ generatedAt: now, score: progress.score, report: path.relative(root, reportPath).replace(/\\/g, '/') }, null, 2))
+    res.json({ running: false, startedAt: now, finishedAt: now, exitCode: 0, output: `Agent growth refreshed: ${path.relative(root, reportPath).replace(/\\/g, '/')}`, error: null })
+  }))
   return r
+}
+
+async function getAgentGrowthProgress() {
+  const root = factoryRoot()
+  const growthRoot = path.join(root, 'workspace', 'research', 'agent-growth')
+  const brainAgentRoot = path.join(root, 'workspace', 'factory-brain', 'pages', 'agents')
+  const agents = fs.existsSync(growthRoot)
+    ? fs.readdirSync(growthRoot, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort()
+    : []
+  const agentRows = agents.map((agent) => {
+    const dir = path.join(growthRoot, agent)
+    const files = fs.existsSync(dir) ? fs.readdirSync(dir) : []
+    const sources = files.includes('source_manifest.json') ? (() => {
+      try {
+        const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'source_manifest.json'), 'utf-8'))
+        return Array.isArray(manifest.sources) ? manifest.sources.length : 0
+      } catch { return 0 }
+    })() : 0
+    const seedFiles = files.filter((file) => /_seed\.md$/.test(file)).length
+    const brainPage = fs.existsSync(path.join(brainAgentRoot, `${agent}.md`))
+    const mtimes = files.map((file) => statIso(path.join(dir, file))).filter(Boolean) as string[]
+    const score = Math.min(100, Math.round((sources ? 40 : 0) + Math.min(seedFiles, 3) * 10 + (brainPage ? 30 : 0)))
+    return { agent, sources, seedFiles, brainPage, lastUpdated: mtimes.sort().at(-1) || null, score }
+  })
+  const totalSources = agentRows.reduce((sum, row) => sum + row.sources, 0)
+  const totalSeedFiles = agentRows.reduce((sum, row) => sum + row.seedFiles, 0)
+  const totalBrainPages = fs.existsSync(brainAgentRoot) ? fs.readdirSync(brainAgentRoot).filter((file) => file.endsWith('.md')).length : 0
+  const memoryStats = factoryMemoryStats(await qdrantReachable(), root)
+  const latestRunAt = statIso(path.join(root, 'workspace', '.factory-agent-growth-seeded.json'))
+  return {
+    generatedAt: new Date().toISOString(),
+    score: agentRows.length ? Math.round(agentRows.reduce((sum, row) => sum + row.score, 0) / agentRows.length) : 0,
+    qdrantPoints: memoryStats.indexedVectors,
+    totalAgents: agentRows.length,
+    totalSources,
+    totalSeedFiles,
+    totalBrainPages,
+    latestRunLog: latestRunAt ? 'Agent growth artifacts refreshed' : null,
+    latestRunAt,
+    agents: agentRows,
+  }
 }
 
 function configRoutes(): Router {
@@ -3731,6 +3815,17 @@ function getTelegramStores() {
         return { status: warnings > 3 ? 'degraded' : 'healthy', passed, warnings }
       } catch {
         return { status: 'unknown', passed: 0, warnings: 0 }
+      }
+    },
+    getStackStatus: async () => {
+      const fabric = await buildFabricSnapshot()
+      return {
+        links: fabric.links.map((link) => ({ label: `${link.from} -> ${link.to}`, url: link.detail })),
+        components: fabric.nodes.map((node) => ({ label: node.label, state: node.state })),
+        updates: {
+          summary: `Tasks ${taskStore.size}; Fabric ${fabric.counts.green} green, ${fabric.counts.yellow} yellow, ${fabric.counts.red} red.`,
+          path: 'workspace/reports/component-updates',
+        },
       }
     },
     createAndAssignTask: async (title: string, description: string) => {

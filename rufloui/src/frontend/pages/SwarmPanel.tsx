@@ -245,6 +245,9 @@ export default function SwarmPanel() {
           <span style={styles.pulseDot} />
         </div>
         <div style={styles.actions}>
+          <Button variant="secondary" onClick={handleInit} disabled={loading}>
+            {loading ? 'Starting...' : 'Start / Restart Swarm'}
+          </Button>
           <Button variant="danger" onClick={() => setConfirmShutdown(true)} disabled={loading}>
             {loading ? 'Shutting down...' : 'Shutdown Swarm'}
           </Button>

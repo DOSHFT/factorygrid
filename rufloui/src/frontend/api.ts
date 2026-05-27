@@ -240,6 +240,17 @@ export const api = {
     createIntake: (input: { title: string; vision: string; successCriteria?: string; cautions?: string; requestedMode?: 'PLAN' | 'DEV' | 'UAT' | 'PROD' }) =>
       request<SpecKitIntakeResult>('/factory/intake', { method: 'POST', body: JSON.stringify(input) }),
     searchBrain: (query: string) => request<{ results: Array<{ id: string; title: string; compiledTruth: string; path: string }> }>(`/factory/brain/search?${new URLSearchParams({ q: query })}`),
+    agentGrowthStatus: () => request<{ running: boolean; startedAt: string | null; finishedAt: string | null; exitCode: number | null; output: string; error: string | null }>('/factory/agent-growth/status'),
+    agentGrowthProgress: () => request<{ generatedAt: string; score: number; qdrantPoints: number; totalAgents: number; totalSources: number; totalSeedFiles: number; totalBrainPages: number; latestRunLog: string | null; latestRunAt: string | null; agents: Array<{ agent: string; sources: number; seedFiles: number; brainPage: boolean; lastUpdated: string | null; score: number }> }>('/factory/agent-growth/progress'),
+    runAgentGrowth: () => request<{ running: boolean; startedAt: string | null; finishedAt: string | null; exitCode: number | null; output: string; error: string | null }>('/factory/agent-growth/run', { method: 'POST', timeout: 180_000 }),
+  },
+
+  fabric: {
+    snapshot: () => request<{ generatedAt: string; counts: { green: number; yellow: number; red: number }; nodes: Array<{ id: string; label: string; kind: string; state: 'green' | 'yellow' | 'red'; detail: string; restartable: boolean; restartType?: string }>; links: Array<{ id: string; from: string; to: string; state: 'green' | 'yellow' | 'red'; detail: string }> }>('/fabric/snapshot'),
+    restart: (input: { target: string; type: string }) => request<{ ok: boolean; target: string; type: string }>('/fabric/restart', { method: 'POST', body: JSON.stringify(input), timeout: 120_000 }),
+    updateWorkOrder: (reason = 'manual') => request<{ path: string; taskId: string }>('/fabric/update-work-order', { method: 'POST', body: JSON.stringify({ reason }), timeout: 60_000 }),
+    vllmModels: () => request<{ current: string; requested: string; models: Array<{ id: string; path: string; source: string }> }>('/fabric/vllm/models'),
+    setVllmModel: (model: string) => request<{ ok: boolean; model: string; command: string; note: string }>('/fabric/vllm/model', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
   },
 
   config: {

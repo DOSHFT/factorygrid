@@ -22,6 +22,7 @@ import {
   FolderGit2,
   Webhook,
   Factory,
+  GraduationCap,
   ServerCog,
 } from 'lucide-react'
 import { useStore } from '@/store'
@@ -63,6 +64,7 @@ const navGroups: NavGroup[] = [
   {
     title: 'Intelligence',
     items: [
+      { label: 'Learning', to: '/learning', icon: GraduationCap },
       { label: 'Hive Mind', to: '/hive-mind', icon: Brain },
       { label: 'Neural', to: '/neural', icon: Cpu },
       { label: 'Memory', to: '/memory', icon: Database },
