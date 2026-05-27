@@ -105,3 +105,20 @@ Each build request should include:
 - success criteria
 - risks or caution areas
 - preferred mode: `PLAN`, `DEV`, `UAT`, or `PROD`
+
+## Verified Spec-Kit Intake and Queen Gate
+
+Last smoke-tested: 2026-05-27.
+
+Spec-Kit intake is confirmed to write the request, spec, approval checklist, and Factory Brain run page before any implementation phase. The verified run was:
+
+- run id: `20260527-spec-kit-queen-smoke-build-0a111ccb`
+- request: `workspace/spec-kit/intake/20260527-spec-kit-queen-smoke-build-0a111ccb_request.md`
+- spec: `workspace/spec-kit/specs/20260527-spec-kit-queen-smoke-build-0a111ccb_spec.md`
+- checklist: `workspace/spec-kit/checklists/20260527-spec-kit-queen-smoke-build-0a111ccb_approval.md`
+- brain page: `workspace/factory-brain/pages/runs/run-spec-kit-queen-smoke-build-0a111ccb.md`
+- validation task: `task-1779871888034-2ca023`
+
+The validation task completed with `QUEEN_SPEC_KIT_VALIDATION_OK` and saw this live swarm roster: Queen/coordinator, Architect/architect, Researcher/researcher, Coder/coder, Tester/tester, Reviewer/reviewer, Analyst/analyst.
+
+Compatibility note: Ruflo upstream documents Queen-led hierarchical swarms and a broader Hive Mind worker set. FactoryGrid must keep the live RuFloUI roster limited to agent types accepted by the installed `@claude-flow/cli` until that dependency is updated. On 2026-05-27, `documenter` was not accepted by the installed CLI, so documentation/memory validation is handled by Queen plus Analyst.

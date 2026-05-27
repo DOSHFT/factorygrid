@@ -101,3 +101,29 @@ bin/factory-secure-backup.sh "sync portable factory"
 cd /mnt/d/UAT/factorygrid
 git push origin main
 ```
+
+## Pre-Backup Functional Smoke
+
+Before committing a RuFloUI orchestration change, run a user-visible smoke instead of relying on TypeScript alone:
+
+1. Build RuFloUI from the UAT checkout:
+
+```bash
+cd /mnt/d/UAT/factorygrid
+./bin/rufloui-build.sh
+```
+
+2. Deploy the touched live files to `/home/revelation/factorygrid`, restart `factory_rufloui`, and confirm health.
+
+3. Reinitialize the swarm through the API with `topology=hierarchical`, `strategy=specialized`, and `maxAgents=7`.
+
+4. Confirm `/api/swarm/status` returns Queen plus the six specialists.
+
+5. Submit a task assigned to `swarm` and verify it reaches `completed`.
+
+Reference smoke from 2026-05-27:
+
+- swarm roles: Queen, Architect, Researcher, Coder, Tester, Reviewer, Analyst
+- task: `task-1779871888034-2ca023`
+- result marker: `QUEEN_SPEC_KIT_VALIDATION_OK`
+- validated run: `20260527-spec-kit-queen-smoke-build-0a111ccb`

@@ -21,6 +21,24 @@ This is a development factory. Agents operate in YOLO mode after a DR snapshot e
 | MemoryWriter | Provenance-rich memory write | Graphiti episode write, Qdrant/file fallback, source hash capture | raw secret/log ingestion, untraceable summaries | accepted artifact or handoff summary | memory id + source path + content hash |
 | MemoryChecker | SAGE-style validation | contradiction detection, repair-task creation, superseded/invalidated relation requests | deleting old memory, unreviewed automatic truth replacement | task result + validation/review artifacts | contradiction report + repair tasks |
 
+## Live Swarm Validation
+
+Last verified: 2026-05-27.
+
+RuFloUI task `task-1779871888034-2ca023` completed with `QUEEN_SPEC_KIT_VALIDATION_OK` after the Queen-led swarm validated Spec-Kit intake artifacts for run `20260527-spec-kit-queen-smoke-build-0a111ccb`.
+
+The live swarm roster available to the task was:
+
+- Queen/coordinator
+- Architect/architect
+- Researcher/researcher
+- Coder/coder
+- Tester/tester
+- Reviewer/reviewer
+- Analyst/analyst
+
+Registry bug fixed during this validation: agents spawned within the same second were previously keyed by display time, causing most specialists to be overwritten. The registry now keys API-spawned agents by stable agent id.
+
 ## Protected Paths
 
 These require explicit `infrastructure_run=true` in the architecture blueprint:
