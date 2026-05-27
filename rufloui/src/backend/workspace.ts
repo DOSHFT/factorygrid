@@ -71,6 +71,15 @@ export interface WorkspaceDiff {
   diff: string
 }
 
+export interface WorkspaceFile {
+  path: string
+  realPath: string
+  content: string
+  size: number
+  language: string
+  truncated: boolean
+}
+
 export async function listWorkspaceTree(root: string, limit = 800): Promise<WorkspaceTree> {
   const resolvedRoot = await resolveWorkspaceRoot(root)
   const nodes: WorkspaceTreeNode[] = []
@@ -149,6 +158,35 @@ export async function getWorkspaceDiff(root: string, filePath?: string): Promise
   }
 }
 
+export async function getWorkspaceFile(root: string, filePath: string): Promise<WorkspaceFile> {
+  const resolvedRoot = await resolveWorkspaceRoot(root)
+  const safePath = sanitizeRelativePath(filePath)
+  const realPath = path.join(resolvedRoot, safePath)
+  const relative = path.relative(resolvedRoot, realPath)
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error('Path must be relative to the workspace')
+  }
+  const stat = await fs.stat(realPath)
+  if (!stat.isFile()) throw new Error('Path is not a file')
+  const maxBytes = 512 * 1024
+  const handle = await fs.open(realPath, 'r')
+  try {
+    const size = Math.min(stat.size, maxBytes)
+    const buffer = Buffer.alloc(size)
+    await handle.read(buffer, 0, size, 0)
+    return {
+      path: safePath,
+      realPath,
+      content: buffer.toString('utf-8'),
+      size: stat.size,
+      language: languageForPath(safePath),
+      truncated: stat.size > maxBytes,
+    }
+  } finally {
+    await handle.close()
+  }
+}
+
 function parseStatusLine(line: string): WorkspaceStatusFile {
   const code = line.slice(0, 2)
   const rawPath = line.slice(3)
@@ -170,4 +208,17 @@ export function sanitizeRelativePath(filePath: string): string {
     throw new Error('Path must be relative to the workspace')
   }
   return normalized
+}
+
+function languageForPath(filePath: string): string {
+  const ext = path.extname(filePath).toLowerCase()
+  if (ext === '.json' || ext === '.jsonl') return 'json'
+  if (ext === '.md') return 'markdown'
+  if (ext === '.ts' || ext === '.tsx') return 'typescript'
+  if (ext === '.js' || ext === '.jsx' || ext === '.mjs') return 'javascript'
+  if (ext === '.yml' || ext === '.yaml') return 'yaml'
+  if (ext === '.py') return 'python'
+  if (ext === '.sh') return 'shell'
+  if (ext === '.ps1') return 'powershell'
+  return 'text'
 }

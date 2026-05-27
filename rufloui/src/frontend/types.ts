@@ -309,6 +309,15 @@ export interface WorkspaceStatus {
   files: WorkspaceStatusFile[]
 }
 
+export interface WorkspaceFile {
+  path: string
+  realPath: string
+  content: string
+  size: number
+  language: string
+  truncated: boolean
+}
+
 export interface WorkspaceDiff {
   path: string
   diff: string

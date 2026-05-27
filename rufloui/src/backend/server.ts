@@ -12,7 +12,7 @@ import { startMonitoring, stopMonitoring, getSessionTree, getAllMonitoredSession
 import { initTelegramBot, TelegramConfig, TelegramHandle } from './telegram-bot'
 import { loadGitHubWebhookConfig, saveGitHubWebhookConfig, githubWebhookRoutes, updateWebhookEventByTaskId } from './webhook-github'
 import { loadGitLabWebhookConfig, saveGitLabWebhookConfig, gitlabWebhookRoutes, updateGitLabEventByTaskId } from './webhook-gitlab'
-import { getWorkspaceDiff, getWorkspaceStatus, listWorkspaceTree } from './workspace'
+import { getWorkspaceDiff, getWorkspaceFile, getWorkspaceStatus, listWorkspaceTree } from './workspace'
 import { classifyProtectedPath, getFactoryRuntimeSnapshot, protectedFilePatterns, summarizeDockerPortBinding } from './factory-runtime'
 import { getFactoryWorkflowGuide, createSpecKitIntake, searchBrain, factoryRoot } from './factory-brain'
 import { factoryBottleneckReport, factoryHiveMindStatus, factoryMemoryStats, factoryNeuralPatterns, factoryNeuralStatus, listFactoryConfigEntries, listFactoryHooks, listFactoryMemoryEntries, listFactoryWorkflowTemplates, listFactoryWorkflows, predictFactoryNeural, searchFactoryMemory } from './factory-state'
@@ -3621,6 +3621,15 @@ function workspaceRoutes(): Router {
   r.get('/diff', h(async (req, res) => {
     const filePath = typeof req.query.path === 'string' ? req.query.path : undefined
     res.json(await getWorkspaceDiff(workspaceRoot, filePath))
+  }))
+
+  r.get('/file', h(async (req, res) => {
+    const filePath = typeof req.query.path === 'string' ? req.query.path : ''
+    if (!filePath) {
+      res.status(400).json({ error: 'path is required' })
+      return
+    }
+    res.json(await getWorkspaceFile(workspaceRoot, filePath))
   }))
 
   return r

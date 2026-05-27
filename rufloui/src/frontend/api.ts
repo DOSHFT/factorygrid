@@ -1,5 +1,5 @@
 import { useStore } from './store'
-import type { FabricSnapshot, WebhookEvent, GitHubWebhookStatus, GitLabWebhookStatus, WorkspaceDiff, WorkspaceStatus, WorkspaceTree } from './types'
+import type { FabricSnapshot, WebhookEvent, GitHubWebhookStatus, GitLabWebhookStatus, WorkspaceDiff, WorkspaceFile, WorkspaceStatus, WorkspaceTree } from './types'
 
 export interface PreflightCheck {
   id: string
@@ -291,6 +291,7 @@ export const api = {
   workspace: {
     tree: (limit = 800) => request<WorkspaceTree>(`/workspace/tree?limit=${limit}`),
     status: () => request<WorkspaceStatus>('/workspace/status'),
+    file: (path: string) => request<WorkspaceFile>(`/workspace/file?${new URLSearchParams({ path })}`),
     diff: (path?: string) => request<WorkspaceDiff>(`/workspace/diff${path ? `?${new URLSearchParams({ path })}` : ''}`),
   },
 
