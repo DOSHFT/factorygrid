@@ -8,11 +8,16 @@ The Fabric page is the operator view for FactoryGrid runtime state. It should sh
 
 ## Data Sources
 
-- Docker container inventory: `docker ps -a --format`.
+- Docker container inventory: `docker ps -a --format`, with fallback to the mounted Docker Engine socket at `/var/run/docker.sock`.
 - Task state: RuFloUI task store.
 - Memory state: Factory Brain entries plus memory API stats.
 - Runtime endpoints: `/api/system/factory-runtime`.
 - GPU state: `nvidia-smi`.
+- Fabric page snapshot: `/api/fabric/snapshot`.
+
+`/api/monitoring/fabric` returns the full production report. `/api/fabric/snapshot` adapts the same live data into the node/link/count shape consumed by the existing Fabric page.
+
+The RuFloUI container currently has the Docker socket mounted but does not include a `docker` binary. Fabric monitoring therefore must use the Docker socket fallback when running in the live container; otherwise the page collapses to `docker-unavailable`.
 
 ## Service Checks
 

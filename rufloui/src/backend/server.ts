@@ -1,7 +1,7 @@
 import express, { Router, Request, Response, RequestHandler } from 'express'
 import cors from 'cors'
 import { WebSocketServer, WebSocket } from 'ws'
-import { createServer } from 'http'
+import { createServer, request as httpRequest } from 'http'
 import { exec, execFile, spawn } from 'child_process'
 import { promisify } from 'util'
 import os from 'os'
@@ -13,7 +13,7 @@ import { initTelegramBot, TelegramConfig, TelegramHandle } from './telegram-bot'
 import { loadGitHubWebhookConfig, saveGitHubWebhookConfig, githubWebhookRoutes, updateWebhookEventByTaskId } from './webhook-github'
 import { loadGitLabWebhookConfig, saveGitLabWebhookConfig, gitlabWebhookRoutes, updateGitLabEventByTaskId } from './webhook-gitlab'
 import { getWorkspaceDiff, getWorkspaceStatus, listWorkspaceTree } from './workspace'
-import { classifyProtectedPath, getFactoryRuntimeSnapshot, protectedFilePatterns } from './factory-runtime'
+import { classifyProtectedPath, getFactoryRuntimeSnapshot, protectedFilePatterns, summarizeDockerPortBinding } from './factory-runtime'
 import { getFactoryWorkflowGuide, createSpecKitIntake, searchBrain, factoryRoot } from './factory-brain'
 import { factoryBottleneckReport, factoryHiveMindStatus, factoryMemoryStats, factoryNeuralPatterns, factoryNeuralStatus, listFactoryConfigEntries, listFactoryHooks, listFactoryMemoryEntries, listFactoryWorkflowTemplates, listFactoryWorkflows, predictFactoryNeural, searchFactoryMemory } from './factory-state'
 
@@ -3015,6 +3015,34 @@ interface FabricContainer {
   production: boolean
 }
 
+interface DockerApiContainer {
+  Names?: string[]
+  Image?: string
+  State?: string
+  Status?: string
+  Ports?: Array<{ IP?: string; PrivatePort?: number; PublicPort?: number; Type?: string }>
+}
+
+type FabricState = 'green' | 'yellow' | 'red'
+
+interface FabricNode {
+  id: string
+  label: string
+  kind: string
+  state: FabricState
+  detail: string
+  restartable: boolean
+  restartType?: string
+}
+
+interface FabricLink {
+  id: string
+  from: string
+  to: string
+  state: FabricState
+  detail: string
+}
+
 function classifyFabricContainer(name: string, image: string, status: string): Omit<FabricContainer, 'name' | 'image' | 'status' | 'ports'> {
   const lower = `${name} ${image}`.toLowerCase()
   const running = status.toLowerCase().startsWith('up')
@@ -3077,6 +3105,11 @@ async function listDockerFabricContainers(): Promise<FabricContainer[]> {
       return { name, image, status, ports, ...classifyFabricContainer(name, image, status) }
     })
   } catch (err) {
+    try {
+      return await listDockerFabricContainersViaSocket()
+    } catch {
+      // Fall through to the original Docker CLI error because it is usually the clearest operator signal.
+    }
     return [{
       name: 'docker-unavailable',
       image: '',
@@ -3087,6 +3120,120 @@ async function listDockerFabricContainers(): Promise<FabricContainer[]> {
       memoryRelated: false,
       production: false,
     }]
+  }
+}
+
+function dockerSocketGet(pathname: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest({
+      socketPath: '/var/run/docker.sock',
+      path: pathname,
+      method: 'GET',
+    }, (res) => {
+      const chunks: Buffer[] = []
+      res.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)))
+      res.on('end', () => {
+        const body = Buffer.concat(chunks).toString('utf-8')
+        if ((res.statusCode || 500) >= 400) {
+          reject(new Error(`Docker socket ${pathname} returned ${res.statusCode}: ${body.slice(0, 200)}`))
+          return
+        }
+        resolve(body)
+      })
+    })
+    req.on('error', reject)
+    req.end()
+  })
+}
+
+function dockerApiPortsToString(ports: DockerApiContainer['Ports']): string {
+  return (ports || []).map((port) => {
+    const protocol = port.Type || 'tcp'
+    if (port.PublicPort) {
+      const ip = port.IP || '0.0.0.0'
+      return `${ip}:${port.PublicPort}->${port.PrivatePort}/${protocol}`
+    }
+    return `${port.PrivatePort}/${protocol}`
+  }).join(', ')
+}
+
+async function listDockerFabricContainersViaSocket(): Promise<FabricContainer[]> {
+  if (!fs.existsSync('/var/run/docker.sock')) {
+    throw new Error('Docker socket not mounted')
+  }
+  const raw = await dockerSocketGet('/containers/json?all=1')
+  const containers = JSON.parse(raw) as DockerApiContainer[]
+  return containers.map((container) => {
+    const name = (container.Names?.[0] || '').replace(/^\//, '')
+    const image = container.Image || ''
+    const status = container.Status || container.State || ''
+    const ports = summarizeDockerPortBinding(dockerApiPortsToString(container.Ports)).join(', ')
+    return { name, image, status, ports, ...classifyFabricContainer(name, image, status) }
+  })
+}
+
+function fabricStateFromContainer(container: FabricContainer): FabricState {
+  const status = container.status.toLowerCase()
+  if (container.name === 'docker-unavailable') return 'red'
+  if (status.startsWith('up') && container.production) return 'green'
+  if (status.startsWith('up')) return 'yellow'
+  return container.production ? 'red' : 'yellow'
+}
+
+function fabricStateFromRuntimeStatus(status: string): FabricState {
+  if (status === 'ok') return 'green'
+  if (status === 'fail') return 'red'
+  return 'yellow'
+}
+
+function buildFabricNodes(containers: FabricContainer[]): FabricNode[] {
+  return containers.map((container) => ({
+    id: container.name,
+    label: container.name,
+    kind: container.production ? 'Production Docker' : container.kind === 'legacy' ? 'Legacy / old memory Docker' : 'Support Docker',
+    state: fabricStateFromContainer(container),
+    detail: [
+      container.role,
+      container.status,
+      container.ports ? `Ports: ${container.ports}` : '',
+      container.image ? `Image: ${container.image}` : '',
+    ].filter(Boolean).join(' | '),
+    restartable: container.production && container.name !== 'docker-unavailable',
+    restartType: container.production ? 'docker-compose-service' : undefined,
+  }))
+}
+
+async function buildFabricSnapshot() {
+  const [containers, runtime] = await Promise.all([
+    listDockerFabricContainers(),
+    getFactoryRuntimeSnapshot(),
+  ])
+  const nodes = buildFabricNodes(containers)
+  const links: FabricLink[] = runtime.endpoints.map((endpoint) => ({
+    id: `runtime-${endpoint.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    from: 'factory_rufloui',
+    to: endpoint.name,
+    state: fabricStateFromRuntimeStatus(endpoint.status),
+    detail: `${endpoint.url} | ${endpoint.detail}`,
+  }))
+  const countedStates = [...nodes.map((node) => node.state), ...links.map((link) => link.state)]
+  const counts = {
+    green: countedStates.filter((state) => state === 'green').length,
+    yellow: countedStates.filter((state) => state === 'yellow').length,
+    red: countedStates.filter((state) => state === 'red').length,
+  }
+  return {
+    generatedAt: new Date().toISOString(),
+    counts,
+    nodes,
+    links,
+    containers,
+    runtime,
+    notes: [
+      'Live data source: Docker ps plus FactoryGrid runtime endpoint probes.',
+      'Qdrant is shown as a production Docker container, not as a direct RuFloUI connection line.',
+      ...runtime.notes,
+    ],
   }
 }
 
@@ -3119,6 +3266,57 @@ function monitoringRoutes(): Router {
         'Current production memory is Qdrant plus Neo4j shadow graph; old experimental memory containers are not authoritative.',
       ],
     })
+  }))
+  return r
+}
+
+function fabricRoutes(): Router {
+  const r = Router()
+  r.get('/snapshot', h(async (_req, res) => {
+    res.json(await buildFabricSnapshot())
+  }))
+  r.post('/restart', h(async (req, res) => {
+    const target = String(req.body?.target || '')
+    const containers = await listDockerFabricContainers()
+    const container = containers.find((item) => item.name === target && item.production)
+    if (!container) {
+      res.status(400).json({ error: `Refusing restart for unknown or non-production target: ${target}` })
+      return
+    }
+    await execFileAsync('docker', ['compose', 'restart', target.replace(/^factory_/, '')], { timeout: 120_000 })
+    res.json({ ok: true, target, type: 'docker-compose-service' })
+  }))
+  r.get('/vllm/models', h(async (_req, res) => {
+    const runtime = await getFactoryRuntimeSnapshot()
+    const vllm = runtime.endpoints.find((endpoint) => endpoint.name === 'vLLM')
+    res.json({
+      current: vllm?.status === 'ok' ? 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ' : '',
+      requested: process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ',
+      models: [{ id: process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ', path: 'vLLM /v1/models', source: vllm?.url || 'unknown' }],
+    })
+  }))
+  r.post('/vllm/model', h(async (req, res) => {
+    const model = String(req.body?.model || '').trim()
+    if (!model) {
+      res.status(400).json({ error: 'model is required' })
+      return
+    }
+    res.json({
+      ok: true,
+      model,
+      command: `cd /home/revelation/factorygrid && ./bin/change-vllm-model.sh ${JSON.stringify(model)}`,
+      note: 'Model change is staged only; run the command on Revelation to restart vLLM with the selected model.',
+    })
+  }))
+  r.post('/update-work-order', h(async (req, res) => {
+    const reason = String(req.body?.reason || 'manual').replace(/[^a-z0-9._-]+/gi, '-').slice(0, 60)
+    const dir = path.join(process.cwd(), 'workspace', 'work-orders')
+    fs.mkdirSync(dir, { recursive: true })
+    const filePath = path.join(dir, `${new Date().toISOString().slice(0, 10)}-fabric-update-${reason}.md`)
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, `# Fabric Update Work Order\n\nCreated: ${new Date().toISOString()}\nReason: ${reason}\n\nReview snapshot, rollback, and Queen approval before implementation.\n`)
+    }
+    res.json({ path: filePath, taskId: 'task-update-20260526' })
   }))
   return r
 }
@@ -3361,6 +3559,7 @@ app.use('/api/workflows', workflowRoutes())
 app.use('/api/coordination', coordinationRoutes())
 app.use('/api/config', configRoutes())
 app.use('/api/factory', factoryRoutes())
+app.use('/api/fabric', fabricRoutes())
 app.use('/api/monitoring', monitoringRoutes())
 app.use('/api/ai-defence', aiDefenceRoutes())
 app.use('/api/swarm-monitor', swarmMonitorRoutes())
