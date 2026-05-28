@@ -28,6 +28,28 @@ The RuFloUI container currently has the Docker socket mounted but does not inclu
 - OpenHands: tries local host mapping and Docker service name.
 - RuFlo orchestrator: reported from Docker healthcheck status.
 
+The Fabric page now also shows a **Degraded States** section. Every yellow or red node/link must be listed there with:
+
+- the affected component or connection,
+- the raw probe detail,
+- a restart action when the target is a production Docker container,
+- a vLLM start action when the model endpoint is down,
+- a vLLM RCA action when the operator needs the reason why.
+
+The RuFlo orchestrator runtime line is green when the `factory_ruflo` production container is healthy. It should not show vague yellow `unknown` while Docker health is green.
+
+## Operator Actions
+
+Production Docker rows can be restarted from Fabric through `/api/fabric/restart`. The backend first tries `docker compose restart <service>` and falls back to the mounted Docker Engine socket when RuFloUI is running inside a container without a Docker CLI binary.
+
+vLLM is a native WSL GPU process, not a Docker container. Fabric controls it through the host-control bridge:
+
+- host-control service: `bin/factory-host-control.py`
+- default URL from RuFloUI: `http://host.docker.internal:28601`
+- start script: `bin/start-factory-host-control.sh`
+- vLLM launcher: `bin/restart-vllm-factory.sh`
+- RCA reports: `workspace/reports/vllm-rca/`
+
 Qdrant is not checked as a direct RuFloUI-to-Qdrant connection line. That edge caused false red Fabric lines when RuFloUI was served from WSL while Qdrant was Docker-scoped. Qdrant remains monitored as:
 
 - the `factory_qdrant` production container,

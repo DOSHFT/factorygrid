@@ -250,7 +250,11 @@ export const api = {
     restart: (input: { target: string; type: string }) => request<{ ok: boolean; target: string; type: string }>('/fabric/restart', { method: 'POST', body: JSON.stringify(input), timeout: 120_000 }),
     updateWorkOrder: (reason = 'manual') => request<{ path: string; taskId: string }>('/fabric/update-work-order', { method: 'POST', body: JSON.stringify({ reason }), timeout: 60_000 }),
     vllmModels: () => request<{ current: string; requested: string; models: Array<{ id: string; path: string; source: string }> }>('/fabric/vllm/models'),
-    setVllmModel: (model: string) => request<{ ok: boolean; model: string; command: string; note: string }>('/fabric/vllm/model', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
+    setVllmModel: (model: string) => request<{ ok: boolean; model: string; command?: string; note?: string; path?: string; summary?: string }>('/fabric/vllm/model', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
+    startVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean }>('/fabric/vllm/start', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
+    stopVllm: () => request<{ ok: boolean }>('/fabric/vllm/stop', { method: 'POST', timeout: 60_000 }),
+    restartVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean }>('/fabric/vllm/restart', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
+    runVllmRca: () => request<{ ok: boolean; path: string; summary: string }>('/fabric/vllm/rca', { method: 'POST', timeout: 180_000 }),
   },
 
   config: {

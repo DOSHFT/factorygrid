@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { RefreshCw, RotateCcw, ShieldCheck, ClipboardList, Cpu } from 'lucide-react'
+import { RefreshCw, RotateCcw, ShieldCheck, ClipboardList, Cpu, Play, Square, SearchCode } from 'lucide-react'
 import { api } from '@/api'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -52,6 +52,61 @@ function LinkLine({ link }: { link: FabricLink }) {
   )
 }
 
+function FabricGraph({ snapshot }: { snapshot: FabricSnapshot | null }) {
+  const nodes = snapshot?.nodes || []
+  const links = snapshot?.links || []
+  const production = nodes.filter((node) => node.kind === 'Production Docker')
+  const runtime = links.map((link) => ({
+    id: link.id,
+    label: link.to,
+    state: link.state,
+    detail: link.detail,
+    kind: 'Runtime endpoint',
+  }))
+  const width = 980
+  const height = 390
+  const center = { x: 490, y: 64 }
+  const prodY = 200
+  const endpointY = 330
+  const prodGap = production.length > 1 ? 760 / (production.length - 1) : 0
+  const endpointGap = runtime.length > 1 ? 560 / (runtime.length - 1) : 0
+  const graphNodes = [
+    { id: 'operator', label: 'RuFloUI', state: 'green' as State, kind: 'Operator API', detail: 'Fabric monitor source', x: center.x, y: center.y },
+    ...production.map((node, index) => ({ ...node, x: 110 + (prodGap * index), y: prodY })),
+    ...runtime.map((node, index) => ({ ...node, x: 210 + (endpointGap * index), y: endpointY })),
+  ]
+  const nodeById = new Map(graphNodes.map((node) => [node.id, node]))
+  const graphLinks = [
+    ...production.map((node) => ({ from: 'operator', to: node.id, state: node.state, detail: node.detail })),
+    ...links.map((link) => ({ from: 'operator', to: link.id, state: link.state, detail: link.detail })),
+  ]
+
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{ minWidth: 820, width: '100%', height: 390, display: 'block', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+        {graphLinks.map((link) => {
+          const from = nodeById.get(link.from)
+          const to = nodeById.get(link.to)
+          if (!from || !to) return null
+          return (
+            <g key={`${link.from}-${link.to}`}>
+              <line x1={from.x} y1={from.y + 26} x2={to.x} y2={to.y - 30} stroke={colors[link.state]} strokeWidth="2" strokeDasharray={link.state === 'green' ? '0' : '7 6'} opacity="0.82" />
+              <circle cx={(from.x + to.x) / 2} cy={(from.y + to.y) / 2} r="4" fill={colors[link.state]} />
+            </g>
+          )
+        })}
+        {graphNodes.map((node) => (
+          <g key={node.id}>
+            <circle cx={node.x} cy={node.y} r={node.id === 'operator' ? 43 : 37} fill="var(--bg-secondary)" stroke={colors[node.state]} strokeWidth="2.5" />
+            <text x={node.x} y={node.y - 4} textAnchor="middle" fill="var(--text-primary)" fontSize="12" fontWeight="700">{node.label.length > 16 ? `${node.label.slice(0, 15)}...` : node.label}</text>
+            <text x={node.x} y={node.y + 13} textAnchor="middle" fill="var(--text-muted)" fontSize="10">{node.kind.length > 20 ? node.kind.slice(0, 20) : node.kind}</text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  )
+}
+
 export default function FabricMonitorPanel() {
   const [snapshot, setSnapshot] = useState<FabricSnapshot | null>(null)
   const [loading, setLoading] = useState(false)
@@ -60,6 +115,7 @@ export default function FabricMonitorPanel() {
   const [currentModel, setCurrentModel] = useState('')
   const [requestedModel, setRequestedModel] = useState('')
   const [selectedModel, setSelectedModel] = useState('')
+  const [lastRca, setLastRca] = useState<{ path: string; summary: string } | null>(null)
   const addLog = useStore((s) => s.addLog)
 
   const load = useCallback(async () => {
@@ -93,6 +149,20 @@ export default function FabricMonitorPanel() {
     }
     return [...groups.entries()]
   }, [snapshot])
+  const degraded = useMemo(() => {
+    const nodeItems = (snapshot?.nodes || [])
+      .filter((node) => node.state !== 'green')
+      .map((node) => ({ id: `node-${node.id}`, label: node.label, type: node.kind, state: node.state, detail: node.detail, restartTarget: node.restartable ? node.id : '', isVllm: false }))
+    const runtimeTargets: Record<string, string> = {
+      'LiteLLM': 'factory_litellm',
+      'OpenHands': 'agent_openhands',
+      'RuFlo orchestrator': 'factory_ruflo',
+    }
+    const linkItems = (snapshot?.links || [])
+      .filter((link) => link.state !== 'green')
+      .map((link) => ({ id: `link-${link.id}`, label: `${link.from} -> ${link.to}`, type: 'Runtime connection', state: link.state, detail: link.detail, restartTarget: runtimeTargets[link.to] || '', isVllm: link.to === 'vLLM' }))
+    return [...nodeItems, ...linkItems]
+  }, [snapshot])
 
   async function restart(node: FabricNode) {
     if (!node.restartType) return
@@ -108,15 +178,56 @@ export default function FabricMonitorPanel() {
     }
   }
 
+  async function restartTarget(target: string, label: string) {
+    if (!target) return
+    setBusy(target)
+    try {
+      await api.fabric.restart({ target, type: 'docker-compose-service' })
+      addLog({ level: 'warn', source: 'fabric', message: `Restart requested for ${label}` })
+      await load()
+    } catch (err) {
+      addLog({ level: 'error', source: 'fabric', message: `Restart failed for ${label}: ${(err as Error).message}` })
+    } finally {
+      setBusy(null)
+    }
+  }
+
   async function changeVllmModel() {
     if (!selectedModel.trim()) return
     setBusy('vllm-model')
     try {
-      const result = await api.fabric.setVllmModel(selectedModel.trim())
-      addLog({ level: 'warn', source: 'fabric', message: `vLLM model staged. Run on Revelation: ${result.command}` })
+      const result = await api.fabric.startVllm(selectedModel.trim())
+      addLog({ level: 'warn', source: 'fabric', message: `vLLM start requested for ${result.model}. PID ${result.pid || 'unknown'}` })
       await load()
     } catch (err) {
-      addLog({ level: 'error', source: 'fabric', message: `vLLM model change failed: ${(err as Error).message}` })
+      addLog({ level: 'error', source: 'fabric', message: `vLLM start failed: ${(err as Error).message}` })
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function stopVllm() {
+    setBusy('vllm-stop')
+    try {
+      await api.fabric.stopVllm()
+      addLog({ level: 'warn', source: 'fabric', message: 'vLLM stop requested' })
+      await load()
+    } catch (err) {
+      addLog({ level: 'error', source: 'fabric', message: `vLLM stop failed: ${(err as Error).message}` })
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function runVllmRca() {
+    setBusy('vllm-rca')
+    try {
+      const result = await api.fabric.runVllmRca()
+      setLastRca({ path: result.path, summary: result.summary })
+      addLog({ level: 'warn', source: 'fabric', message: `vLLM RCA written: ${result.path}` })
+      await load()
+    } catch (err) {
+      addLog({ level: 'error', source: 'fabric', message: `vLLM RCA failed: ${(err as Error).message}` })
     } finally {
       setBusy(null)
     }
@@ -163,10 +274,49 @@ export default function FabricMonitorPanel() {
         ))}
       </div>
 
-      <Card title="Connection Lines">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <Card title="Live Fabric Topology">
+        <FabricGraph snapshot={snapshot} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10, marginTop: 12 }}>
           {(snapshot?.links || []).map((link) => <LinkLine key={link.id} link={link} />)}
         </div>
+      </Card>
+
+      <Card title="Degraded States">
+        {degraded.length === 0 ? (
+          <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>No degraded states detected. All production containers and runtime connections are green.</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {degraded.map((item) => (
+              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'center', padding: 12, border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--bg-primary)' }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <StateDot state={item.state} />
+                    <span style={{ color: colors[item.state], fontWeight: 700, textTransform: 'uppercase', fontSize: 11 }}>{item.state}</span>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 650 }}>{item.label}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>{item.type}</span>
+                  </div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 6, wordBreak: 'break-word' }}>{item.detail}</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  {item.restartTarget && (
+                    <Button size="sm" variant="secondary" onClick={() => restartTarget(item.restartTarget, item.label)} loading={busy === item.restartTarget}>
+                      <RotateCcw size={13} /> Restart
+                    </Button>
+                  )}
+                  {item.isVllm && (
+                    <>
+                      <Button size="sm" variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'}><Play size={13} /> Start Model</Button>
+                      <Button size="sm" variant="secondary" onClick={runVllmRca} loading={busy === 'vllm-rca'}><SearchCode size={13} /> Get Reason</Button>
+                    </>
+                  )}
+                  {!item.restartTarget && !item.isVllm && (
+                    <Button size="sm" variant="secondary" onClick={createWorkOrder} loading={busy === 'work-order'}><ClipboardList size={13} /> Work Order</Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
@@ -211,8 +361,17 @@ export default function FabricMonitorPanel() {
               Loaded: {currentModel || 'unknown'} | Requested: {requestedModel || 'unknown'}
             </div>
           </div>
-          <Button variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'}>Stage Model</Button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <Button variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'}><Play size={14} /> Start Model</Button>
+            <Button variant="secondary" onClick={stopVllm} loading={busy === 'vllm-stop'}><Square size={14} /> Stop</Button>
+            <Button variant="secondary" onClick={runVllmRca} loading={busy === 'vllm-rca'}><SearchCode size={14} /> Run RCA</Button>
+          </div>
         </div>
+        {lastRca && (
+          <div style={{ marginTop: 12, padding: 10, border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text-secondary)', fontSize: 12, wordBreak: 'break-word' }}>
+            RCA: {lastRca.summary} | {lastRca.path}
+          </div>
+        )}
       </Card>
 
       <Card title="Supervisor Gate">
