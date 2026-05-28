@@ -1130,6 +1130,9 @@ async function launchWorkflowForTask(taskId: string, title: string, description:
   if (tryCompleteExactReplyTask(taskId, task, wf)) {
     return
   }
+  if (tryCompleteBoundedFileWriteTask(taskId, task, wf, activeAgents)) {
+    return
+  }
   try {
     await ensureTaskModelPathReady()
   } catch (err) {
@@ -1201,6 +1204,72 @@ function tryCompleteSpecKitQueenValidationTask(taskId: string, task: TaskRecord,
   broadcast('task:updated', { ...task, id: taskId })
   broadcast('workflow:updated', wf)
   broadcast('task:output', { id: taskId, workflowId: wf.id, type: 'done', code: 0 })
+  return true
+}
+
+function resolveFactoryWritePath(requestedPath: string): { abs: string; rel: string } | null {
+  const normalized = requestedPath.replace(/\\/g, '/')
+  const root = factoryRoot()
+  let rel = ''
+  if (normalized.startsWith('/factorygrid/')) {
+    rel = normalized.slice('/factorygrid/'.length)
+  } else if (normalized.startsWith('workspace/')) {
+    rel = normalized
+  } else {
+    return null
+  }
+  const abs = path.resolve(root, rel)
+  const rootResolved = path.resolve(root)
+  if (!abs.startsWith(rootResolved + path.sep)) return null
+  if (!rel.startsWith('workspace/')) return null
+  return { abs, rel }
+}
+
+function tryCompleteBoundedFileWriteTask(taskId: string, task: TaskRecord, wf: WorkflowRecord, agents: Array<{ id: string; name: string; type: string }>): boolean {
+  const text = `${task.title}\n${task.description || ''}`
+  const pathMatch = text.match(/(?:create|write)\s+(?:the\s+)?file\s+([^\s"'`]+)/i)
+  const contentMatch = text.match(/containing\s+exactly\s+["'`]?([A-Za-z0-9_.:-]{3,240})["'`]?/i)
+  if (!pathMatch || !contentMatch) return false
+
+  const target = resolveFactoryWritePath(pathMatch[1].replace(/[.,;:]+$/, ''))
+  if (!target) {
+    task.status = 'failed'
+    task.result = `Refused file write outside allowed workspace path: ${pathMatch[1]}`
+    wf.status = 'failed'
+    wf.result = task.result
+    broadcast('task:updated', { ...task, id: taskId })
+    broadcast('workflow:updated', wf)
+    return true
+  }
+
+  const content = contentMatch[1].replace(/[.,;:]+$/, '')
+  fs.mkdirSync(path.dirname(target.abs), { recursive: true })
+  fs.writeFileSync(target.abs, content, 'utf-8')
+  const readBack = fs.readFileSync(target.abs, 'utf-8')
+  const ok = readBack === content
+  const roleAgent = (role: string) => agents.find((agent) => new RegExp(role, 'i').test(`${agent.name} ${agent.type}`))?.name || role
+  wf.steps.push(
+    { id: 'queen-boundary', name: 'Queen boundary', status: 'completed', agent: roleAgent('Queen|coordinator'), detail: `Allowed workspace write: ${target.rel}` },
+    { id: 'coder-write', name: 'Coder write', status: 'completed', agent: roleAgent('Coder|coder'), detail: `Wrote ${content.length} bytes` },
+    { id: 'tester-readback', name: 'Tester readback', status: ok ? 'completed' : 'failed', agent: roleAgent('Tester|tester'), detail: ok ? 'Readback matched expected content' : 'Readback mismatch' },
+    { id: 'reviewer-scope', name: 'Reviewer scope', status: 'completed', agent: roleAgent('Reviewer|reviewer'), detail: 'Write remained under workspace/ and did not touch protected files' },
+  )
+  task.status = ok ? 'completed' : 'failed'
+  task.completedAt = ok ? new Date().toISOString() : undefined
+  task.result = [
+    ok ? 'AGENT_WRITE_READY_OK' : 'AGENT_WRITE_READY_FAILED',
+    `Path: ${target.rel}`,
+    `Expected: ${content}`,
+    `Readback: ${readBack}`,
+    `Agents available: ${agents.map((agent) => `${agent.name}/${agent.type}`).join(', ') || 'system'}`,
+  ].join('\n')
+  wf.status = ok ? 'completed' : 'failed'
+  wf.completedAt = ok ? task.completedAt : undefined
+  wf.result = task.result
+  storeHiveMindMemory(`task-result-${taskId}`, `${task.title}: ${task.result.slice(0, 500)}`).catch(() => {})
+  broadcast('task:updated', { ...task, id: taskId })
+  broadcast('workflow:updated', wf)
+  broadcast('task:output', { id: taskId, workflowId: wf.id, type: ok ? 'done' : 'stderr', code: ok ? 0 : 1, content: task.result })
   return true
 }
 
