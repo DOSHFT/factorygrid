@@ -87,6 +87,7 @@ function HealthStatusCard({
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0, width: 0 })
   const ref = useRef<HTMLDivElement>(null)
+  const issues = (checks ?? []).filter((check) => check.status !== 'pass')
 
   const handleMouseEnter = () => {
     if (ref.current) {
@@ -133,6 +134,28 @@ function HealthStatusCard({
             }} />
           </div>
         </div>
+        {issues.length > 0 && (
+          <div style={{
+            margin: '0 24px 18px',
+            padding: '10px 12px',
+            border: '1px solid var(--accent-yellow)',
+            borderRadius: 'var(--radius)',
+            background: 'rgba(245,158,11,0.08)',
+            color: 'var(--text-secondary)',
+            fontSize: 12,
+          }}>
+            <div style={{ color: 'var(--accent-yellow)', fontWeight: 700, marginBottom: 6 }}>
+              Health Reasons
+            </div>
+            {issues.slice(0, 5).map((issue) => (
+              <div key={`${issue.name}-${issue.detail}`} style={{ display: 'flex', gap: 8, padding: '3px 0' }}>
+                <span style={{ color: CHECK_COLORS[issue.status], fontWeight: 700 }}>{CHECK_ICONS[issue.status]}</span>
+                <span style={{ color: 'var(--text-primary)', minWidth: 130 }}>{issue.name}</span>
+                <span>{issue.detail}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <HealthTooltipPortal checks={checks ?? []} show={showTooltip} top={tooltipPos.top} left={tooltipPos.left} width={tooltipPos.width} />
       </div>
     </Card>

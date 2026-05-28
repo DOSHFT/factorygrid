@@ -20,8 +20,20 @@ function gitEnv(root: string): NodeJS.ProcessEnv {
 }
 
 async function resolveWorkspaceRoot(root: string): Promise<string> {
+  if (root && fsSync.existsSync(root)) {
+    const resolved = path.resolve(root)
+    try {
+      const { stdout } = await execFileAsync('git', ['rev-parse', '--show-toplevel'], {
+        cwd: resolved,
+        env: gitEnv(resolved),
+      })
+      return stdout.trim() || resolved
+    } catch {
+      return resolved
+    }
+  }
+
   const candidates = [
-    root,
     process.env.FACTORYGRID_ROOT,
     '/factorygrid',
     process.cwd(),
@@ -124,10 +136,14 @@ export async function getWorkspaceStatus(root: string): Promise<WorkspaceStatus>
     })
     stdout = result.stdout
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    if (/not a git repository/i.test(message)) {
+      return { root: resolvedRoot, files: [] }
+    }
     return {
       root: resolvedRoot,
       files: [{
-        path: err instanceof Error ? err.message : String(err),
+        path: message,
         status: 'unknown',
       }],
     }
@@ -152,7 +168,9 @@ export async function getWorkspaceDiff(root: string, filePath?: string): Promise
       env: gitEnv(resolvedRoot),
       maxBuffer: 2 * 1024 * 1024,
     })
-    return { path: safePath ?? '', diff: stdout }
+    if (stdout || !safePath) return { path: safePath ?? '', diff: stdout }
+    const untracked = await getUntrackedDiffPreview(resolvedRoot, safePath)
+    return { path: safePath, diff: untracked }
   } catch {
     return { path: safePath ?? '', diff: '' }
   }
@@ -200,6 +218,39 @@ function parseStatusLine(line: string): WorkspaceStatusFile {
   else if (compact.includes('R')) status = 'renamed'
   else if (compact) status = 'modified'
   return { path: filePath, status }
+}
+
+async function getUntrackedDiffPreview(root: string, safePath: string): Promise<string> {
+  try {
+    await execFileAsync('git', ['ls-files', '--error-unmatch', safePath], {
+      cwd: root,
+      env: gitEnv(root),
+    })
+    return ''
+  } catch {
+    const realPath = path.join(root, safePath)
+    try {
+      const stat = await fs.stat(realPath)
+      if (stat.isDirectory()) {
+        return `Untracked directory: ${safePath}\n\nGit does not provide a file diff for untracked directories. Expand the tree to inspect contained files.`
+      }
+      if (!stat.isFile()) return `Untracked path: ${safePath}`
+      const maxBytes = 64 * 1024
+      const content = await fs.readFile(realPath, 'utf-8')
+      const truncated = Buffer.byteLength(content, 'utf-8') > maxBytes
+      const visible = truncated ? content.slice(0, maxBytes) : content
+      return [
+        `Created file: ${safePath}`,
+        '--- /dev/null',
+        `+++ b/${safePath}`,
+        '@@',
+        ...visible.split('\n').map((line) => `+${line}`),
+        truncated ? `\n[truncated at ${maxBytes} bytes]` : '',
+      ].filter(Boolean).join('\n')
+    } catch {
+      return `Untracked path no longer exists: ${safePath}`
+    }
+  }
 }
 
 export function sanitizeRelativePath(filePath: string): string {

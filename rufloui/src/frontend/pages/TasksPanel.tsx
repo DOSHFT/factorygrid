@@ -429,14 +429,15 @@ export default function TasksPanel() {
     return () => clearInterval(intervalRef.current)
   }, [fetchData])
 
-  const handleCleanCompleted = async () => {
+  const handleCleanColumn = async (statuses: Array<'completed' | 'failed' | 'cancelled'>) => {
     setCleaning(true)
     // Optimistic: remove from local store immediately and prevent poll re-adding
-    const removedIds = new Set(tasks.filter(t => t.status === 'completed' || t.status === 'failed' || t.status === 'cancelled').map(t => t.id))
+    const statusSet = new Set<string>(statuses)
+    const removedIds = new Set(tasks.filter(t => statusSet.has(t.status)).map(t => t.id))
     cleanedIdsRef.current = { ids: removedIds, ts: Date.now() }
     setTasks(tasks.filter(t => !removedIds.has(t.id)))
     try {
-      await api.tasks.cleanCompleted()
+      await api.tasks.cleanTerminal(statuses)
     } catch { /* silent */ }
     setCleaning(false)
     fetchData()
@@ -529,7 +530,10 @@ export default function TasksPanel() {
                   {col.label}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {(col.key === 'completed' || col.key === 'failed') && colTasks.length > 0 && (
-                      <Button size="sm" variant="ghost" loading={cleaning} onClick={(e) => { e.stopPropagation(); handleCleanCompleted() }}
+                      <Button size="sm" variant="ghost" loading={cleaning} onClick={(e) => {
+                        e.stopPropagation()
+                        handleCleanColumn(col.key === 'completed' ? ['completed'] : ['failed', 'cancelled'])
+                      }}
                         style={{ fontSize: 10, padding: '2px 6px', color: 'var(--text-muted)' }}>Clean</Button>
                     )}
                     <span style={s.colCount}>{colTasks.length}</span>

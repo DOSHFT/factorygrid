@@ -56,6 +56,21 @@ describe('workspace helpers', () => {
     expect(diff.path).toBe('src/app.ts')
     expect(diff.diff).toContain('+export const next = 2')
   })
+
+  test('returns an explanatory preview for untracked files', async () => {
+    await run('git init')
+    await run('git config user.email test@example.com')
+    await run('git config user.name Tester')
+    await run('git add README.md')
+    await run('git commit -m init')
+    fs.writeFileSync(path.join(tmpDir, 'src', 'new.ts'), 'export const created = true\n')
+
+    const diff = await getWorkspaceDiff(tmpDir, 'src/new.ts')
+
+    expect(diff.path).toBe('src/new.ts')
+    expect(diff.diff).toContain('Created file: src/new.ts')
+    expect(diff.diff).toContain('+export const created = true')
+  })
 })
 
 function run(command: string): Promise<void> {

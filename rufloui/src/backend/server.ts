@@ -623,10 +623,12 @@ function systemRoutes(): Router {
       // On Windows, UTF-8 check marks (✓/⚠/✗) get mangled by codepage, so we match by structure:
       // Each check line has format: <icon> <Name>: <detail>
       const checks: Array<{ name: string; status: 'pass' | 'warn' | 'fail'; detail: string }> = []
+      const doctorWarnings: Array<{ name: string; detail: string }> = []
       const knownChecks = [
         'Version Freshness', 'Node.js Version', 'npm Version', 'Claude Code CLI',
         'Git:', 'Git Repository', 'Config File', 'Daemon Status', 'Memory Database',
-        'API Keys', 'MCP Servers', 'Disk Space', 'TypeScript', 'agentic-flow',
+        'API Keys', 'MCP Servers', 'AIDefence', 'Disk Space', 'TypeScript', 'agentic-flow',
+        'Encryption at Rest', 'Federation Breaker',
       ]
       for (const line of raw.replace(/\r/g, '').split('\n')) {
         // Match lines containing a known check name followed by a colon and detail
@@ -636,14 +638,22 @@ function systemRoutes(): Router {
             const colonIdx = line.indexOf(checkName + ':')
             const name = checkName.trim()
             const detail = line.substring(colonIdx + checkName.length + 1).trim()
+            if (line.includes('⚠') || line.includes('[WARN]')) doctorWarnings.push({ name, detail })
             // Determine status: lines with warning keywords or known negative patterns
-            const isWarn = detail.match(/not (a |running|installed|found)|no (config|api)/i)
+            const isWarn = detail.match(/not (a |running|installed|found)|no (config|api)|stale pid|off/i)
             const isFail = detail.match(/fail|error|critical/i)
             const factoryGitOk = name === 'Git Repository' && fs.existsSync(path.join(factoryRoot(), '.git'))
+            const optionalOk = (
+              (name === 'Version Freshness') ||
+              (name === 'Daemon Status' && /stale pid/i.test(detail)) ||
+              (name === 'API Keys' && /OPENAI_API_KEY/i.test(detail)) ||
+              (name === 'Encryption at Rest' && /off/i.test(detail)) ||
+              (name === 'Federation Breaker')
+            )
             checks.push({
               name,
-              status: factoryGitOk ? 'pass' : isFail ? 'fail' : isWarn ? 'warn' : 'pass',
-              detail: factoryGitOk ? `FactoryGrid repository detected at ${factoryRoot()}` : detail,
+              status: factoryGitOk || optionalOk ? 'pass' : isFail ? 'fail' : isWarn ? 'warn' : 'pass',
+              detail: factoryGitOk ? `FactoryGrid repository detected at ${factoryRoot()}` : optionalOk ? `${detail} (non-blocking for FactoryGrid production)` : detail,
             })
             break
           }
@@ -652,7 +662,8 @@ function systemRoutes(): Router {
       warnings = checks.filter((check) => check.status === 'warn').length
       const fails = checks.filter((check) => check.status === 'fail').length
       const status = fails > 0 ? 'unhealthy' : warnings > 3 ? 'degraded' : 'healthy'
-      res.json({ status, passed: Number(passed), warnings, checks, raw })
+      const issues = checks.filter((check) => check.status !== 'pass')
+      res.json({ status, passed: Number(passed), warnings, checks, issues, doctorWarnings, raw })
     } catch {
       res.json({ status: 'unknown', passed: 0, warnings: 0, checks: [] })
     }
@@ -2461,6 +2472,28 @@ function taskRoutes(): Router {
   r.get('/', h(async (_req, res) => {
     res.json({ tasks: [...taskStore.values()] })
   }))
+  r.post('/clean-terminal', h(async (req, res) => {
+    const requested = Array.isArray(req.body?.statuses)
+      ? req.body.statuses.map((status: unknown) => String(status))
+      : []
+    const allowed = new Set(['completed', 'failed', 'cancelled'])
+    const statuses = requested.filter((status: string) => allowed.has(status))
+    if (statuses.length === 0) {
+      res.status(400).json({ ok: false, error: 'statuses must include completed, failed, or cancelled' })
+      return
+    }
+    const statusSet = new Set(statuses)
+    const deleted: string[] = []
+    for (const [id, task] of taskStore.entries()) {
+      if (statusSet.has(task.status)) {
+        taskStore.delete(id)
+        deleted.push(id)
+      }
+    }
+    broadcast('task:list', [...taskStore.values()])
+    saveToDisk()
+    res.json({ ok: true, deleted: deleted.length, ids: deleted, statuses })
+  }))
   r.post('/', h(async (req, res) => {
     const { title, description, priority, assignTo, cwd } = req.body || {}
     // Use a local ID first. Blocking on the CLI here can hang the dashboard before a task even exists.
@@ -2564,6 +2597,7 @@ function taskRoutes(): Router {
       }
     }
     broadcast('task:list', [...taskStore.values()])
+    saveToDisk()
     res.json({ ok: true, deleted: count })
   }))
 
@@ -3894,15 +3928,21 @@ function swarmMonitorRoutes(): Router {
 
 function workspaceRoutes(): Router {
   const r = Router()
-  const workspaceRoot = path.resolve(process.env.RUFLO_WORKSPACE_ROOT || process.env.RUFLO_CWD || process.cwd())
+  function workspaceRoot() {
+    const configured = path.resolve(process.env.RUFLO_WORKSPACE_ROOT || process.env.RUFLO_CWD || factoryRoot())
+    if (fs.existsSync(path.join(configured, '.git'))) return configured
+    const factory = factoryRoot()
+    if (fs.existsSync(path.join(factory, '.git'))) return factory
+    return configured
+  }
 
   r.get('/tree', h(async (req, res) => {
     const limit = Number(req.query.limit || 800)
-    res.json(await listWorkspaceTree(workspaceRoot, Math.min(Math.max(limit, 50), 2000)))
+    res.json(await listWorkspaceTree(workspaceRoot(), Math.min(Math.max(limit, 50), 2000)))
   }))
 
   r.get('/status', h(async (_req, res) => {
-    const status = await getWorkspaceStatus(workspaceRoot)
+    const status = await getWorkspaceStatus(workspaceRoot())
     res.json({
       ...status,
       files: status.files.map((file) => ({
@@ -3914,7 +3954,7 @@ function workspaceRoutes(): Router {
 
   r.get('/diff', h(async (req, res) => {
     const filePath = typeof req.query.path === 'string' ? req.query.path : undefined
-    res.json(await getWorkspaceDiff(workspaceRoot, filePath))
+    res.json(await getWorkspaceDiff(workspaceRoot(), filePath))
   }))
 
   r.get('/file', h(async (req, res) => {
@@ -3923,7 +3963,7 @@ function workspaceRoutes(): Router {
       res.status(400).json({ error: 'path is required' })
       return
     }
-    res.json(await getWorkspaceFile(workspaceRoot, filePath))
+    res.json(await getWorkspaceFile(workspaceRoot(), filePath))
   }))
 
   return r

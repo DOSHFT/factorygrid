@@ -98,6 +98,8 @@ export interface SystemHealth {
   activeConnections: number
   mcpStatus: string
   checks?: HealthCheck[]
+  issues?: HealthCheck[]
+  doctorWarnings?: Array<{ name: string; detail: string }>
   passed?: number
   warnings?: number
 }

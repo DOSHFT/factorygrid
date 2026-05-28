@@ -138,6 +138,11 @@ export const api = {
       request(`/tasks/${id}/complete`, { method: 'POST', body: JSON.stringify({ result }) }),
     cancel: (id: string) => request(`/tasks/${id}/cancel`, { method: 'POST' }),
     cleanCompleted: () => request<{ ok: boolean; deleted: number }>('/tasks/clean-completed', { method: 'POST' }),
+    cleanTerminal: (statuses: Array<'completed' | 'failed' | 'cancelled'>) =>
+      request<{ ok: boolean; deleted: number; ids: string[]; statuses: string[] }>('/tasks/clean-terminal', {
+        method: 'POST',
+        body: JSON.stringify({ statuses }),
+      }),
     continue: (id: string, instruction: string) =>
       request(`/tasks/${id}/continue`, { method: 'POST', body: JSON.stringify({ instruction }) }),
     output: (id: string, tail = 200) =>
