@@ -1,6 +1,5 @@
 import { useRef, useEffect } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { useTour } from '@/tour/TourContext'
 import {
   LayoutDashboard,
   Network,
@@ -110,17 +109,21 @@ const styles = {
   } as React.CSSProperties,
 
   logo: {
-    padding: '20px 24px',
-    fontSize: 22,
-    fontWeight: 700,
-    letterSpacing: '0.05em',
-    color: 'var(--accent-blue)',
-    textShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.2)',
+    padding: '10px 24px',
+    minHeight: 84,
     borderBottom: '1px solid var(--border)',
     userSelect: 'none',
     display: 'flex',
-    alignItems: 'baseline',
-    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as React.CSSProperties,
+
+  logoImage: {
+    width: 68,
+    height: 68,
+    objectFit: 'contain',
+    borderRadius: '50%',
+    filter: 'drop-shadow(0 0 18px rgba(59, 130, 246, 0.28)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.18))',
   } as React.CSSProperties,
 
   nav: {
@@ -178,12 +181,24 @@ const styles = {
     padding: '0 24px',
     borderBottom: '1px solid var(--border)',
     background: 'var(--bg-secondary)',
+    position: 'relative',
   } as React.CSSProperties,
 
   headerTitle: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: 'var(--text-primary)',
+    position: 'absolute',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    maxWidth: 'calc(100% - 260px)',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontFamily: 'Arial, Helvetica, sans-serif',
+    fontSize: 24,
+    fontWeight: 700,
+    color: '#ffffff',
+    letterSpacing: 0,
+    textAlign: 'center',
+    textShadow: '0 1px 2px rgba(0,0,0,0.75)',
   } as React.CSSProperties,
 
   connectionStatus: {
@@ -266,7 +281,6 @@ export function Layout() {
   const wsStatus = useStore((s) => s.wsStatus)
   const backendReachable = useStore((s) => s.backendReachable)
   const logs = useStore((s) => s.logs)
-  const { startTour } = useTour()
   const [activityOpen, setActivityOpen] = useState(false)
   const activityRef = useRef<HTMLDivElement>(null)
 
@@ -281,7 +295,13 @@ export function Layout() {
   return (
     <div style={styles.wrapper}>
       <aside style={styles.sidebar}>
-        <div style={styles.logo}>RuFloUI <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', letterSpacing: 0 }}>v0.3.45</span></div>
+        <div style={styles.logo}>
+          <img
+            src="/decima-intelligence-logo.png"
+            alt="Decima Intelligence"
+            style={styles.logoImage}
+          />
+        </div>
         <nav style={styles.nav}>
           {navGroups.map((group) => (
             <div key={group.title}>
@@ -320,24 +340,8 @@ export function Layout() {
 
       <div style={styles.rightSection}>
         <header style={styles.header}>
-          <span style={styles.headerTitle}>RuFloUI Dashboard</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button
-              data-tour="header-tour"
-              onClick={startTour}
-              style={{
-                background: 'var(--bg-hover)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)',
-                padding: '4px 10px',
-                fontSize: 12,
-                color: 'var(--accent-blue)',
-                cursor: 'pointer',
-                fontWeight: 500,
-              }}
-            >
-              Tour
-            </button>
+          <span style={styles.headerTitle}>Decima Intelligence - Counter SIGINT Branch</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto', position: 'relative', zIndex: 1 }}>
             <div style={styles.connectionStatus}>
               <div style={styles.statusDot(connected ? 'connected' : wsStatus === 'reconnecting' ? 'reconnecting' : 'disconnected')} />
               {connected ? 'Connected' : wsStatus === 'reconnecting' ? 'Reconnecting...' : 'Disconnected'}
