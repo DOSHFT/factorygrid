@@ -259,7 +259,8 @@ export const api = {
     startVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean }>('/fabric/vllm/start', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
     stopVllm: () => request<{ ok: boolean }>('/fabric/vllm/stop', { method: 'POST', timeout: 60_000 }),
     restartVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean }>('/fabric/vllm/restart', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
-    runVllmRca: () => request<{ ok: boolean; path: string; summary: string }>('/fabric/vllm/rca', { method: 'POST', timeout: 180_000 }),
+    warmupVllm: (model: string) => request<{ ok: boolean; model: string; path: string; summary: string; elapsedSeconds?: number; responseText?: string; gpuBefore?: unknown; gpuAfter?: unknown }>('/fabric/vllm/warmup', { method: 'POST', body: JSON.stringify({ model }), timeout: 300_000 }),
+    runVllmRca: () => request<{ ok: boolean; path: string; summary: string }>('/fabric/vllm/rca', { method: 'POST', timeout: 300_000 }),
   },
 
   config: {

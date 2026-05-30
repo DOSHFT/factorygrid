@@ -9,7 +9,9 @@ import time
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 ROOT = Path(os.environ.get("FACTORYGRID_ROOT", "/home/revelation/factorygrid")).resolve()
 HOST = os.environ.get("FACTORY_HOST_CONTROL_HOST", "0.0.0.0")
@@ -61,6 +63,121 @@ def probe(url):
     return run(["bash", "-lc", f"curl -sS --max-time 3 {url}"], timeout=5)
 
 
+def post_json(url, payload, timeout=300):
+    started = time.time()
+    request = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            raw = response.read().decode("utf-8", errors="replace")
+            try:
+                parsed = json.loads(raw)
+            except json.JSONDecodeError:
+                parsed = {"raw": raw}
+            return {
+                "ok": 200 <= response.status < 300,
+                "status": response.status,
+                "elapsedSeconds": round(time.time() - started, 3),
+                "payload": parsed,
+            }
+    except HTTPError as exc:
+        raw = exc.read().decode("utf-8", errors="replace")
+        return {
+            "ok": False,
+            "status": exc.code,
+            "elapsedSeconds": round(time.time() - started, 3),
+            "error": raw or str(exc),
+        }
+    except (URLError, TimeoutError, Exception) as exc:
+        return {
+            "ok": False,
+            "status": 0,
+            "elapsedSeconds": round(time.time() - started, 3),
+            "error": str(exc),
+        }
+
+
+def gpu_snapshot():
+    return {
+        "summary": run(["bash", "-lc", "nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv,noheader,nounits || true"], timeout=10)["output"].strip(),
+        "computeApps": run(["bash", "-lc", "nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader,nounits 2>/dev/null || true"], timeout=10)["output"].strip(),
+    }
+
+
+def warmup_vllm(model=None, write_report=True, report_kind="vllm-warmup"):
+    selected = model or DEFAULT_MODEL
+    before = gpu_snapshot()
+    payload = {
+        "model": selected,
+        "messages": [{"role": "user", "content": "Reply exactly WARM_OK"}],
+        "temperature": 0,
+        "max_tokens": 8,
+    }
+    result = post_json("http://127.0.0.1:8000/v1/chat/completions", payload, timeout=300)
+    after = gpu_snapshot()
+    text = ""
+    try:
+        text = result.get("payload", {}).get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+    except Exception:
+        text = ""
+
+    ok = bool(result.get("ok")) and bool(text)
+    summary = (
+        f"vLLM warm-up completion OK in {result.get('elapsedSeconds')}s; response={text!r}"
+        if ok
+        else f"vLLM warm-up failed after {result.get('elapsedSeconds')}s: {result.get('error') or result.get('payload')}"
+    )
+    report_path = ""
+    if write_report:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        out_dir = ROOT / "workspace" / "reports" / report_kind
+        out_dir.mkdir(parents=True, exist_ok=True)
+        report = out_dir / f"{stamp}-{report_kind}.md"
+        report.write_text(
+            "\n".join([
+                f"# {report_kind}",
+                "",
+                f"Generated: {now_iso()}",
+                f"Model: `{selected}`",
+                f"Summary: {summary}",
+                "",
+                "## GPU Before",
+                "```json",
+                json.dumps(before, indent=2),
+                "```",
+                "",
+                "## Inference Probe",
+                "```json",
+                json.dumps(result, indent=2),
+                "```",
+                "",
+                "## GPU After",
+                "```json",
+                json.dumps(after, indent=2),
+                "```",
+                "",
+            ]),
+            encoding="utf-8",
+        )
+        report_path = str(report)
+
+    return {
+        "ok": ok,
+        "model": selected,
+        "summary": summary,
+        "path": report_path,
+        "elapsedSeconds": result.get("elapsedSeconds"),
+        "responseText": text,
+        "gpuBefore": before,
+        "gpuAfter": after,
+        "probe": result,
+    }
+
+
 def discover_models():
     models = [DEFAULT_MODEL]
     env_models = os.environ.get("FACTORY_VLLM_MODELS", "")
@@ -109,6 +226,8 @@ def build_rca():
         "litellm_host": probe("http://127.0.0.1:4000/v1/models"),
         "litellm_published": probe("http://127.0.0.1:4001/v1/models"),
     }, indent=2)))
+    warmup = warmup_vllm(DEFAULT_MODEL, write_report=False)
+    sections.append(("## Inference Warm-up Probe", json.dumps(warmup, indent=2)))
     sections.append(("## GPU", run(["bash", "-lc", "nvidia-smi || true"], timeout=10)["output"]))
     sections.append(("## Listening Ports", run(["bash", "-lc", "ss -ltnp | grep -E ':(8000|4000|4001)' || true"], timeout=10)["output"]))
     sections.append(("## vLLM Processes", run(["bash", "-lc", "ps -ef | grep -i '[v]llm' || true"], timeout=10)["output"]))
@@ -128,7 +247,12 @@ def build_rca():
         body.append("")
     report.write_text("\n".join(body), encoding="utf-8")
 
-    summary = "vLLM process is alive" if pid_alive(pid) else "vLLM process is not alive or PID file is stale"
+    if warmup.get("ok"):
+        summary = warmup.get("summary", "vLLM warm-up completion OK")
+    elif pid_alive(pid):
+        summary = "vLLM process is alive, but inference warm-up failed"
+    else:
+        summary = "vLLM process is not alive or PID file is stale"
     return {"path": str(report), "summary": summary}
 
 
@@ -174,6 +298,10 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/vllm/restart":
             model = str(body.get("model") or DEFAULT_MODEL)
             self._json(200, {"ok": True, "model": model, **start_vllm(model)})
+            return
+        if parsed.path == "/vllm/warmup":
+            model = str(body.get("model") or DEFAULT_MODEL)
+            self._json(200, warmup_vllm(model))
             return
         if parsed.path == "/vllm/rca":
             self._json(200, {"ok": True, **build_rca()})

@@ -33,8 +33,8 @@ The Fabric page now also shows a **Degraded States** section. Every yellow or re
 - the affected component or connection,
 - the raw probe detail,
 - a restart action when the target is a production Docker container,
-- a vLLM start action when the model endpoint is down,
-- a vLLM RCA action when the operator needs the reason why.
+- vLLM start, warm-up, reload, and RCA actions when the model endpoint is down or suspect,
+- RCA output that includes an inference probe instead of only reporting that a PID exists.
 
 The RuFlo orchestrator runtime line is green when the `factory_ruflo` production container is healthy. It should not show vague yellow `unknown` while Docker health is green.
 
@@ -48,7 +48,16 @@ vLLM is a native WSL GPU process, not a Docker container. Fabric controls it thr
 - default URL from RuFloUI: `http://host.docker.internal:28601`
 - start script: `bin/start-factory-host-control.sh`
 - vLLM launcher: `bin/restart-vllm-factory.sh`
+- warm-up endpoint: `POST /vllm/warmup`
 - RCA reports: `workspace/reports/vllm-rca/`
+
+Fabric exposes three separate vLLM operator actions:
+
+- **Start Model** starts the selected model if vLLM is stopped.
+- **Warm Up Model** sends a real OpenAI-compatible chat completion request directly to `http://127.0.0.1:8000/v1/chat/completions`. This forces the selected model through an inference pass and writes GPU-before/GPU-after evidence to `workspace/reports/vllm-warmup/`.
+- **Reload Model** restarts the native WSL vLLM process with the selected model.
+
+The RCA action now also runs the same small inference probe. A PID, listening port, or `/v1/models` response is not enough to mark vLLM healthy; the useful health signal is whether the model can complete a request and whether GPU evidence is captured in the report.
 
 Qdrant is not checked as a direct RuFloUI-to-Qdrant connection line. That edge caused false red Fabric lines when RuFloUI was served from WSL while Qdrant was Docker-scoped. Qdrant remains monitored as:
 

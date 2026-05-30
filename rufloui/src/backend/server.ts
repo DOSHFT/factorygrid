@@ -3724,6 +3724,10 @@ function fabricRoutes(): Router {
     const model = String(req.body?.model || process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ').trim()
     res.json(await callHostControl('/vllm/restart', 'POST', { model }))
   }))
+  r.post('/vllm/warmup', h(async (req, res) => {
+    const model = String(req.body?.model || process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ').trim()
+    res.json(await callHostControl('/vllm/warmup', 'POST', { model }))
+  }))
   r.post('/vllm/rca', h(async (_req, res) => {
     res.json(await callHostControl('/vllm/rca', 'POST', {}))
   }))

@@ -206,6 +206,35 @@ export default function FabricMonitorPanel() {
     }
   }
 
+  async function reloadVllmModel() {
+    if (!selectedModel.trim()) return
+    setBusy('vllm-reload')
+    try {
+      const result = await api.fabric.restartVllm(selectedModel.trim())
+      addLog({ level: 'warn', source: 'fabric', message: `vLLM reload requested for ${result.model}. PID ${result.pid || 'unknown'}` })
+      await load()
+    } catch (err) {
+      addLog({ level: 'error', source: 'fabric', message: `vLLM reload failed: ${(err as Error).message}` })
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function warmupVllmModel() {
+    if (!selectedModel.trim()) return
+    setBusy('vllm-warmup')
+    try {
+      const result = await api.fabric.warmupVllm(selectedModel.trim())
+      setLastRca({ path: result.path, summary: result.summary })
+      addLog({ level: result.ok ? 'info' : 'error', source: 'fabric', message: `vLLM warm-up: ${result.summary}` })
+      await load()
+    } catch (err) {
+      addLog({ level: 'error', source: 'fabric', message: `vLLM warm-up failed: ${(err as Error).message}` })
+    } finally {
+      setBusy(null)
+    }
+  }
+
   async function stopVllm() {
     setBusy('vllm-stop')
     try {
@@ -306,6 +335,8 @@ export default function FabricMonitorPanel() {
                   {item.isVllm && (
                     <>
                       <Button size="sm" variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'}><Play size={13} /> Start Model</Button>
+                      <Button size="sm" variant="secondary" onClick={warmupVllmModel} loading={busy === 'vllm-warmup'}><Cpu size={13} /> Warm Up</Button>
+                      <Button size="sm" variant="secondary" onClick={reloadVllmModel} loading={busy === 'vllm-reload'}><RotateCcw size={13} /> Reload</Button>
                       <Button size="sm" variant="secondary" onClick={runVllmRca} loading={busy === 'vllm-rca'}><SearchCode size={13} /> Get Reason</Button>
                     </>
                   )}
@@ -363,6 +394,8 @@ export default function FabricMonitorPanel() {
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <Button variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'}><Play size={14} /> Start Model</Button>
+            <Button variant="secondary" onClick={warmupVllmModel} loading={busy === 'vllm-warmup'}><Cpu size={14} /> Warm Up Model</Button>
+            <Button variant="secondary" onClick={reloadVllmModel} loading={busy === 'vllm-reload'}><RotateCcw size={14} /> Reload Model</Button>
             <Button variant="secondary" onClick={stopVllm} loading={busy === 'vllm-stop'}><Square size={14} /> Stop</Button>
             <Button variant="secondary" onClick={runVllmRca} loading={busy === 'vllm-rca'}><SearchCode size={14} /> Run RCA</Button>
           </div>
