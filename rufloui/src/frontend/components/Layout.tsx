@@ -109,8 +109,8 @@ const styles = {
   } as React.CSSProperties,
 
   logo: {
-    padding: '10px 24px',
-    minHeight: 84,
+    padding: '12px 24px',
+    minHeight: 152,
     borderBottom: '1px solid var(--border)',
     userSelect: 'none',
     display: 'flex',
@@ -119,8 +119,8 @@ const styles = {
   } as React.CSSProperties,
 
   logoImage: {
-    width: 68,
-    height: 68,
+    width: 136,
+    height: 136,
     objectFit: 'contain',
     borderRadius: '50%',
     filter: 'drop-shadow(0 0 18px rgba(59, 130, 246, 0.28)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.18))',
