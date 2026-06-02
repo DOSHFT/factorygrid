@@ -4,7 +4,7 @@ This is the operating contract for the Revelation local software factory.
 
 ## Runtime URLs
 
-- vLLM model API: `http://localhost:8000/v1`
+- vLLM model API: `http://localhost:18000/v1`
 - LiteLLM gateway: `http://localhost:4000/v1`
 - Qdrant: `http://localhost:6333`
 - OpenHands: `http://localhost:3000`

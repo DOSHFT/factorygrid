@@ -8,24 +8,37 @@ export TMPDIR=${TMPDIR:-/tmp}
 export TEMP=${TEMP:-/tmp}
 export TMP=${TMP:-/tmp}
 
+ROOT="${FACTORYGRID_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
+if [[ -f "$ROOT/runtime/vllm-model.env" ]]; then
+  # shellcheck disable=SC1091
+  source "$ROOT/runtime/vllm-model.env"
+fi
 MODEL=${MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
 HOST=${HOST:-0.0.0.0}
-PORT=${PORT:-8000}
+PORT=${PORT:-18000}
 GPU_MEM=${GPU_MEM:-0.86}
 MAX_MODEL_LEN=${MAX_MODEL_LEN:-32768}
 MAX_NUM_SEQS=${MAX_NUM_SEQS:-4}
 MAX_BATCHED_TOKENS=${MAX_BATCHED_TOKENS:-32768}
 SWAP_SPACE_GB=${SWAP_SPACE_GB:-4}
 LOG_LEVEL=${VLLM_LOGGING_LEVEL:-info}
+QUANTIZATION=${QUANTIZATION:-}
 
 echo "Starting FactoryGrid vLLM"
-echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB"
+echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB quantization=${QUANTIZATION:-auto}"
 
-exec /home/revelation/vllm-env/bin/vllm serve "$MODEL" \
+VLLM_BIN="${VLLM_BIN:-/home/revelation/vllm-env/bin/vllm}"
+if [[ ! -x "$VLLM_BIN" ]]; then
+  echo "vLLM binary not executable: $VLLM_BIN" >&2
+  exit 127
+fi
+
+args=(
+  serve "$MODEL"
   --host "$HOST" \
   --port "$PORT" \
   --dtype auto \
-  --quantization awq_marlin \
   --gpu-memory-utilization "$GPU_MEM" \
   --max-model-len "$MAX_MODEL_LEN" \
   --max-num-seqs "$MAX_NUM_SEQS" \
@@ -34,3 +47,10 @@ exec /home/revelation/vllm-env/bin/vllm serve "$MODEL" \
   --uvicorn-log-level "$LOG_LEVEL" \
   --enable-prefix-caching \
   --disable-log-requests
+)
+
+if [[ -n "$QUANTIZATION" && "$QUANTIZATION" != "none" ]]; then
+  args+=(--quantization "$QUANTIZATION")
+fi
+
+exec "$VLLM_BIN" "${args[@]}"

@@ -23,7 +23,7 @@ The RuFloUI container currently has the Docker socket mounted but does not inclu
 
 `/api/system/factory-runtime` checks service endpoints that RuFloUI must directly depend on:
 
-- vLLM model server: tries configured `VLLM_HOST`, then `127.0.0.1:8000`, then `localhost:8000`, then `host.docker.internal:8000`.
+- vLLM model server: tries configured `VLLM_HOST`, then `127.0.0.1:18000`, then `localhost:18000`, then `host.docker.internal:18000`.
 - LiteLLM gateway: tries local host mapping and Docker service name.
 - OpenHands: tries local host mapping and Docker service name.
 - RuFlo orchestrator: reported from Docker healthcheck status.
@@ -45,17 +45,27 @@ Production Docker rows can be restarted from Fabric through `/api/fabric/restart
 vLLM is a native WSL GPU process, not a Docker container. Fabric controls it through the host-control bridge:
 
 - host-control service: `bin/factory-host-control.py`
-- default URL from RuFloUI: `http://host.docker.internal:28601`
+- RuFloUI host-control candidates: configured `FACTORY_HOST_CONTROL_URL`, then `http://172.18.0.1:28601`, `http://host.docker.internal:28601`, `http://127.0.0.1:28601`, `http://localhost:28601`
 - start script: `bin/start-factory-host-control.sh`
 - vLLM launcher: `bin/restart-vllm-factory.sh`
 - warm-up endpoint: `POST /vllm/warmup`
 - RCA reports: `workspace/reports/vllm-rca/`
 
+`bin/factory-start.sh` starts the host-control bridge as part of the normal stack startup and fails the startup health check if `/health` is unavailable. The bridge must run in the native WSL environment that owns the GPU vLLM virtualenv; Fabric then reaches it from Docker through the host-control candidate list above.
+
+The Fabric vLLM readiness probe checks `/v1/models` through the configured `VLLM_HOST` and Docker gateway fallback `http://172.18.0.1:18000/v1/models`. If all candidates fail, the red Fabric line must show each failed URL so the operator can distinguish a dead model process from a container-to-host routing problem.
+
 Fabric exposes three separate vLLM operator actions:
 
 - **Start Model** starts the selected model if vLLM is stopped.
-- **Warm Up Model** sends a real OpenAI-compatible chat completion request directly to `http://127.0.0.1:8000/v1/chat/completions`. This forces the selected model through an inference pass and writes GPU-before/GPU-after evidence to `workspace/reports/vllm-warmup/`.
+- **Warm Up Model** sends a real OpenAI-compatible chat completion request directly to `http://127.0.0.1:18000/v1/chat/completions`. This forces the selected model through an inference pass and writes GPU-before/GPU-after evidence to `workspace/reports/vllm-warmup/`.
 - **Reload Model** restarts the native WSL vLLM process with the selected model.
+
+The model dropdown is populated from the current default model, `FACTORY_VLLM_MODELS` when provided to host-control, and cached Hugging Face model directories under `~/.cache/huggingface/hub`. If only one model is installed/configured, the dropdown intentionally shows one option.
+
+Host-control attaches a safe launch preset to each model candidate before Fabric displays it. The preset controls `GPU_MEM`, `MAX_MODEL_LEN`, `MAX_NUM_SEQS`, `MAX_BATCHED_TOKENS`, `SWAP_SPACE_GB`, and `QUANTIZATION`. AWQ models use `awq_marlin`; non-AWQ models do not get forced AWQ quantization. Non-quantized 70B-class models are blocked on the RTX 4090 24GB path because they are likely to OOM.
+
+Changing or reloading the selected model persists the model and safety preset to `runtime/vllm-model.env`, restarts native vLLM, then restarts model-call dependencies through Fabric: `factory_litellm`, `factory_ruflo`, `agent_qwen_code`, and `agent_openhands`.
 
 The RCA action now also runs the same small inference probe. A PID, listening port, or `/v1/models` response is not enough to mark vLLM healthy; the useful health signal is whether the model can complete a request and whether GPU evidence is captured in the report.
 

@@ -62,6 +62,10 @@ ruflo_project/ruvector.db
 FIXReaper/runtime/
 
 # local generated backups/runtime discovered during UAT packaging
+*.bak.*
+*bak.*
+runtime/
+workspace/reports/
 .gitignore.bak.*
 ruflo_project/.claude-flow/daemon-state.json
 ruflo_project/.claude-flow/metrics/

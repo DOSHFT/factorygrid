@@ -119,6 +119,13 @@ kill_stale_listeners
 log "starting services: $SERVICES"
 docker compose up -d --build $SERVICES
 
+if [ -x ./bin/start-factory-host-control.sh ]; then
+  log "starting native host-control bridge"
+  if ! FACTORYGRID_ROOT="$ROOT" ./bin/start-factory-host-control.sh; then
+    warn "host-control bridge did not start; Fabric vLLM actions will be unavailable"
+  fi
+fi
+
 log "waiting for health checks"
 for _ in $(seq 1 60); do
   neo4j="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' factory_neo4j 2>/dev/null || true)"
@@ -135,6 +142,7 @@ docker compose ps
 fail=0
 check_endpoint "RuFloUI API" "http://127.0.0.1:${RUFLOUI_API_PORT:-28580}/api/system/info" || fail=1
 check_endpoint "RuFloUI Fabric" "http://127.0.0.1:${RUFLOUI_VITE_PORT:-28588}/monitoring/fabric" || fail=1
+check_endpoint "Factory host-control" "http://127.0.0.1:${FACTORY_HOST_CONTROL_PORT:-28601}/health" || fail=1
 check_endpoint "Qdrant" "http://127.0.0.1:${QDRANT_HTTP_PORT:-6333}/collections" || fail=1
 check_endpoint "Neo4j HTTP" "http://127.0.0.1:${NEO4J_HTTP_PORT:-7474}" || true
 

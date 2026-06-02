@@ -4,5 +4,7 @@ if [ $# -lt 1 ]; then
   echo "usage: $0 <huggingface-model-id>" >&2
   exit 2
 fi
-cd /home/revelation/factorygrid
-MODEL="$1" ./bin/restart-vllm-factory.sh
+
+ROOT="${FACTORYGRID_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+cd "$ROOT"
+MODEL="$1" FACTORYGRID_ROOT="$ROOT" ./bin/restart-vllm-factory.sh

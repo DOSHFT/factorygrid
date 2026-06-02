@@ -20,6 +20,9 @@ TOKEN = os.environ.get("FACTORY_HOST_CONTROL_TOKEN", "factory-local-control")
 DEFAULT_MODEL = os.environ.get("VLLM_MODEL", "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ")
 LOG_PATH = ROOT / "logs" / "vllm-factory.log"
 PID_PATH = ROOT / "logs" / "vllm-factory.pid"
+MODEL_ENV_PATH = ROOT / "runtime" / "vllm-model.env"
+VLLM_PORT = int(os.environ.get("VLLM_PORT", "18000"))
+VLLM_BASE_URL = f"http://127.0.0.1:{VLLM_PORT}"
 
 
 def now_iso():
@@ -61,6 +64,78 @@ def pid_alive(pid):
 
 def probe(url):
     return run(["bash", "-lc", f"curl -sS --max-time 3 {url}"], timeout=5)
+
+
+def gpu_total_mb():
+    output = run(["bash", "-lc", "nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -n 1"], timeout=10)["output"].strip()
+    try:
+        return int(float(output.splitlines()[0].strip()))
+    except Exception:
+        return 0
+
+
+def model_size_hint(model):
+    lower = model.lower()
+    for size in (110, 72, 70, 65, 34, 32, 30, 22, 20, 14, 13, 12, 8, 7, 4, 3, 1):
+        if f"{size}b" in lower or f"-{size}-" in lower:
+            return size
+    return 14
+
+
+def model_safe_settings(model):
+    lower = model.lower()
+    size_b = model_size_hint(model)
+    quantization = "awq_marlin" if "awq" in lower else ""
+    quantized = bool(quantization or any(tag in lower for tag in ("gptq", "gguf", "bnb", "4bit", "int4", "fp8")))
+
+    if size_b >= 70:
+        settings = {"gpuMem": "0.72", "maxModelLen": 8192, "maxNumSeqs": 1, "maxBatchedTokens": 8192, "swapSpaceGb": 12}
+    elif size_b >= 30:
+        settings = {"gpuMem": "0.78", "maxModelLen": 16384, "maxNumSeqs": 2, "maxBatchedTokens": 16384, "swapSpaceGb": 8}
+    elif size_b >= 13:
+        settings = {"gpuMem": "0.86", "maxModelLen": 32768 if quantized else 16384, "maxNumSeqs": 4 if quantized else 2, "maxBatchedTokens": 32768 if quantized else 16384, "swapSpaceGb": 4}
+    else:
+        settings = {"gpuMem": "0.82", "maxModelLen": 32768, "maxNumSeqs": 4, "maxBatchedTokens": 32768, "swapSpaceGb": 4}
+
+    settings["quantization"] = quantization
+    settings["estimatedSizeB"] = size_b
+    settings["policy"] = "blocked" if size_b >= 70 and not quantized else "allowed"
+    settings["reason"] = (
+        "Blocked on 24GB GPU unless the model is explicitly quantized."
+        if settings["policy"] == "blocked"
+        else "Safe preset selected for RTX 4090 24GB to reduce OOM risk."
+    )
+    return settings
+
+
+def current_vllm_model():
+    result = probe(f"{VLLM_BASE_URL}/v1/models")
+    if result.get("code") != 0:
+        return ""
+    try:
+        parsed = json.loads(result.get("output") or "{}")
+        data = parsed.get("data") or []
+        if data and isinstance(data[0], dict):
+            return str(data[0].get("id") or "")
+    except Exception:
+        return ""
+    return ""
+
+
+def persist_model_selection(model, settings):
+    selected = model or DEFAULT_MODEL
+    MODEL_ENV_PATH.parent.mkdir(parents=True, exist_ok=True)
+    escaped = selected.replace("'", "'\"'\"'")
+    lines = [
+        f"MODEL='{escaped}'",
+        f"GPU_MEM='{settings['gpuMem']}'",
+        f"MAX_MODEL_LEN='{settings['maxModelLen']}'",
+        f"MAX_NUM_SEQS='{settings['maxNumSeqs']}'",
+        f"MAX_BATCHED_TOKENS='{settings['maxBatchedTokens']}'",
+        f"SWAP_SPACE_GB='{settings['swapSpaceGb']}'",
+        f"QUANTIZATION='{settings['quantization']}'",
+    ]
+    MODEL_ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def post_json(url, payload, timeout=300):
@@ -117,7 +192,7 @@ def warmup_vllm(model=None, write_report=True, report_kind="vllm-warmup"):
         "temperature": 0,
         "max_tokens": 8,
     }
-    result = post_json("http://127.0.0.1:8000/v1/chat/completions", payload, timeout=300)
+    result = post_json(f"{VLLM_BASE_URL}/v1/chat/completions", payload, timeout=300)
     after = gpu_snapshot()
     text = ""
     try:
@@ -193,7 +268,15 @@ def discover_models():
             if model and model not in models:
                 models.append(model)
 
-    return [{"id": item, "path": "native WSL vLLM", "source": "host-control"} for item in models]
+    return [
+        {
+            "id": item,
+            "path": "native WSL vLLM",
+            "source": "host-control",
+            "safeSettings": model_safe_settings(item),
+        }
+        for item in models
+    ]
 
 
 def stop_vllm():
@@ -202,13 +285,40 @@ def stop_vllm():
 
 def start_vllm(model):
     (ROOT / "logs").mkdir(parents=True, exist_ok=True)
-    result = run(["bash", "-lc", "./bin/restart-vllm-factory.sh"], timeout=20, env={"MODEL": model or DEFAULT_MODEL})
+    selected = model or DEFAULT_MODEL
+    settings = model_safe_settings(selected)
+    total_mb = gpu_total_mb()
+    if settings["policy"] != "allowed":
+        return {
+            "command": "",
+            "result": {"code": 2, "output": settings["reason"]},
+            "pid": read_pid(),
+            "alive": pid_alive(read_pid()),
+            "blocked": True,
+            "safeSettings": settings,
+            "gpuTotalMb": total_mb,
+        }
+    persist_model_selection(selected, settings)
+    env = {
+        "MODEL": selected,
+        "GPU_MEM": str(settings["gpuMem"]),
+        "MAX_MODEL_LEN": str(settings["maxModelLen"]),
+        "MAX_NUM_SEQS": str(settings["maxNumSeqs"]),
+        "MAX_BATCHED_TOKENS": str(settings["maxBatchedTokens"]),
+        "SWAP_SPACE_GB": str(settings["swapSpaceGb"]),
+        "QUANTIZATION": str(settings["quantization"]),
+        "PORT": str(VLLM_PORT),
+    }
+    result = run(["bash", "-lc", "./bin/restart-vllm-factory.sh"], timeout=20, env=env)
     time.sleep(1)
     return {
-        "command": "MODEL=%s ./bin/restart-vllm-factory.sh" % (model or DEFAULT_MODEL),
+        "command": "MODEL=%s ./bin/restart-vllm-factory.sh" % selected,
         "result": result,
         "pid": read_pid(),
         "alive": pid_alive(read_pid()),
+        "modelEnv": str(MODEL_ENV_PATH),
+        "safeSettings": settings,
+        "gpuTotalMb": total_mb,
     }
 
 
@@ -222,14 +332,14 @@ def build_rca():
     sections = []
     sections.append(("# vLLM RCA", f"Generated: {now_iso()}\nRoot: `{ROOT}`\nPID file: `{PID_PATH}`\nRecorded PID: `{pid}`\nPID alive: `{pid_alive(pid)}`"))
     sections.append(("## Endpoint Probes", json.dumps({
-        "vllm": probe("http://127.0.0.1:8000/v1/models"),
+        "vllm": probe(f"{VLLM_BASE_URL}/v1/models"),
         "litellm_host": probe("http://127.0.0.1:4000/v1/models"),
         "litellm_published": probe("http://127.0.0.1:4001/v1/models"),
     }, indent=2)))
     warmup = warmup_vllm(DEFAULT_MODEL, write_report=False)
     sections.append(("## Inference Warm-up Probe", json.dumps(warmup, indent=2)))
     sections.append(("## GPU", run(["bash", "-lc", "nvidia-smi || true"], timeout=10)["output"]))
-    sections.append(("## Listening Ports", run(["bash", "-lc", "ss -ltnp | grep -E ':(8000|4000|4001)' || true"], timeout=10)["output"]))
+    sections.append(("## Listening Ports", run(["bash", "-lc", "ss -ltnp | grep -E ':(18000|8000|4000|4001)' || true"], timeout=10)["output"]))
     sections.append(("## vLLM Processes", run(["bash", "-lc", "ps -ef | grep -i '[v]llm' || true"], timeout=10)["output"]))
     sections.append(("## Recent vLLM Log", run(["bash", "-lc", "tail -240 logs/vllm-factory.log 2>/dev/null || true"], timeout=10)["output"]))
     sections.append(("## Recent LiteLLM Log", run(["bash", "-lc", "docker logs --tail 180 factory_litellm 2>&1 || true"], timeout=20)["output"]))
@@ -277,7 +387,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(401, {"error": "unauthorized"})
             return
         if parsed.path == "/vllm/models":
-            self._json(200, {"current": DEFAULT_MODEL if probe("http://127.0.0.1:8000/v1/models")["code"] == 0 else "", "requested": DEFAULT_MODEL, "models": discover_models()})
+            self._json(200, {"current": current_vllm_model(), "requested": current_vllm_model() or DEFAULT_MODEL, "models": discover_models()})
             return
         self._json(404, {"error": "not found"})
 

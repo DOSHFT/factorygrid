@@ -3331,6 +3331,7 @@ interface FabricContainer {
   image: string
   status: string
   ports: string
+  urls: Array<{ label: string; url: string }>
   role: string
   kind: FabricComponentKind
   memoryRelated: boolean
@@ -3353,6 +3354,7 @@ interface FabricNode {
   kind: string
   state: FabricState
   detail: string
+  urls: Array<{ label: string; url: string }>
   restartable: boolean
   restartType?: string
 }
@@ -3398,8 +3400,20 @@ function classifyFabricContainer(name: string, image: string, status: string): O
       agent_qwen_code: 'Detached code worker runtime.',
       agent_openhands: 'OpenHands engineering runtime.',
     }
+    const urls: Record<string, Array<{ label: string; url: string }>> = {
+      factory_rufloui: [
+        { label: 'Dashboard', url: `http://192.168.178.20:${process.env.RUFLOUI_VITE_PORT || '28589'}` },
+        { label: 'API', url: `http://192.168.178.20:${process.env.RUFLOUI_API_PORT || '28580'}/api/system/info` },
+      ],
+      agent_openhands: [{ label: 'OpenHands', url: 'http://192.168.178.20:3001' }],
+      factory_litellm: [{ label: 'Models', url: 'http://192.168.178.20:4001/v1/models' }],
+      factory_qdrant: [{ label: 'Collections', url: 'http://192.168.178.20:6333/collections' }],
+      factory_neo4j: [{ label: 'Neo4j Browser', url: 'http://192.168.178.20:7474' }],
+      factory_ruflo: [{ label: 'Health', url: 'http://192.168.178.20:3011/health' }],
+    }
     return {
       role: roles[name] || 'FactoryGrid production component.',
+      urls: urls[name] || [],
       kind: running ? 'production' : 'support',
       memoryRelated,
       production: true,
@@ -3411,6 +3425,7 @@ function classifyFabricContainer(name: string, image: string, status: string): O
       role: memoryRelated
         ? 'Legacy or experimental memory-related container; not part of the current production memory path.'
         : 'Legacy stopped runtime; not part of current production stack.',
+      urls: [],
       kind: 'legacy',
       memoryRelated,
       production: false,
@@ -3419,6 +3434,7 @@ function classifyFabricContainer(name: string, image: string, status: string): O
 
   return {
     role: 'Support runtime discovered from Docker.',
+    urls: [],
     kind: 'support',
     memoryRelated,
     production: false,
@@ -3446,6 +3462,7 @@ async function listDockerFabricContainers(): Promise<FabricContainer[]> {
       image: '',
       status: 'error',
       ports: '',
+      urls: [],
       role: err instanceof Error ? err.message : String(err),
       kind: 'legacy',
       memoryRelated: false,
@@ -3550,23 +3567,35 @@ async function restartDockerProductionTarget(target: string): Promise<FabricActi
   return { ok: true, action: 'docker-socket-restart', target, detail: `Restarted container ${target} through /var/run/docker.sock` }
 }
 
-const HOST_CONTROL_URL = (process.env.FACTORY_HOST_CONTROL_URL || 'http://host.docker.internal:28601').replace(/\/$/, '')
+const HOST_CONTROL_URLS = [...new Set([
+  process.env.FACTORY_HOST_CONTROL_URL,
+  'http://172.18.0.1:28601',
+  'http://host.docker.internal:28601',
+  'http://127.0.0.1:28601',
+  'http://localhost:28601',
+].filter(Boolean).map((url) => String(url).replace(/\/$/, '')))]
 const HOST_CONTROL_TOKEN = process.env.FACTORY_HOST_CONTROL_TOKEN || 'factory-local-control'
 
 async function callHostControl(pathname: string, method: 'GET' | 'POST' = 'GET', body?: unknown): Promise<any> {
-  const response = await fetch(`${HOST_CONTROL_URL}${pathname}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Factory-Token': HOST_CONTROL_TOKEN,
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
-  const payload = await response.json().catch(() => ({}))
-  if (!response.ok) {
-    throw new Error(payload?.error || `${method} ${pathname} returned ${response.status}`)
+  const errors: string[] = []
+  for (const baseUrl of HOST_CONTROL_URLS) {
+    try {
+      const response = await fetch(`${baseUrl}${pathname}`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Factory-Token': HOST_CONTROL_TOKEN,
+        },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (response.ok) return payload
+      errors.push(`${baseUrl}${pathname}: ${payload?.error || response.status}`)
+    } catch (err) {
+      errors.push(`${baseUrl}${pathname}: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
-  return payload
+  throw new Error(`host-control unavailable: ${errors.join(' | ')}`)
 }
 
 async function readVllmModelCatalog(runtime: Awaited<ReturnType<typeof getFactoryRuntimeSnapshot>>) {
@@ -3578,7 +3607,7 @@ async function readVllmModelCatalog(runtime: Awaited<ReturnType<typeof getFactor
     return {
       current: vllm?.status === 'ok' ? fallback : '',
       requested: fallback,
-      models: [{ id: fallback, path: 'native WSL vLLM', source: vllm?.url || HOST_CONTROL_URL }],
+      models: [{ id: fallback, path: 'native WSL vLLM', source: vllm?.url || HOST_CONTROL_URLS[0] || 'host-control' }],
     }
   }
 }
@@ -3609,9 +3638,32 @@ function buildFabricNodes(containers: FabricContainer[]): FabricNode[] {
       container.ports ? `Ports: ${container.ports}` : '',
       container.image ? `Image: ${container.image}` : '',
     ].filter(Boolean).join(' | '),
+    urls: container.urls,
     restartable: container.production && container.name !== 'docker-unavailable',
     restartType: container.production ? 'docker-compose-service' : undefined,
   }))
+}
+
+async function restartModelCallDependencies(): Promise<Array<{ target: string; ok: boolean; detail: string }>> {
+  const targets = ['factory_litellm', 'factory_ruflo', 'agent_qwen_code', 'agent_openhands']
+  const results: Array<{ target: string; ok: boolean; detail: string }> = []
+  for (const target of targets) {
+    try {
+      const result = await restartDockerProductionTarget(target)
+      results.push({ target, ok: true, detail: result.detail })
+    } catch (err) {
+      results.push({ target, ok: false, detail: err instanceof Error ? err.message : String(err) })
+    }
+  }
+  return results
+}
+
+async function startVllmAndRestartDependencies(model: string) {
+  const result = await callHostControl('/vllm/start', 'POST', { model })
+  if (!result?.blocked) {
+    result.dependencyRestarts = await restartModelCallDependencies()
+  }
+  return result
 }
 
 async function buildFabricSnapshot() {
@@ -3711,18 +3763,18 @@ function fabricRoutes(): Router {
       res.status(400).json({ error: 'model is required' })
       return
     }
-    res.json(await callHostControl('/vllm/start', 'POST', { model }))
+    res.json(await startVllmAndRestartDependencies(model))
   }))
   r.post('/vllm/start', h(async (req, res) => {
     const model = String(req.body?.model || process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ').trim()
-    res.json(await callHostControl('/vllm/start', 'POST', { model }))
+    res.json(await startVllmAndRestartDependencies(model))
   }))
   r.post('/vllm/stop', h(async (_req, res) => {
     res.json(await callHostControl('/vllm/stop', 'POST', {}))
   }))
   r.post('/vllm/restart', h(async (req, res) => {
     const model = String(req.body?.model || process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ').trim()
-    res.json(await callHostControl('/vllm/restart', 'POST', { model }))
+    res.json(await startVllmAndRestartDependencies(model))
   }))
   r.post('/vllm/warmup', h(async (req, res) => {
     const model = String(req.body?.model || process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ').trim()

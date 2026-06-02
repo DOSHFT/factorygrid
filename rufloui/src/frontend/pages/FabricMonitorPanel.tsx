@@ -13,6 +13,7 @@ interface FabricNode {
   kind: string
   state: State
   detail: string
+  urls?: Array<{ label: string; url: string }>
   restartable: boolean
   restartType?: string
 }
@@ -111,7 +112,7 @@ export default function FabricMonitorPanel() {
   const [snapshot, setSnapshot] = useState<FabricSnapshot | null>(null)
   const [loading, setLoading] = useState(false)
   const [busy, setBusy] = useState<string | null>(null)
-  const [vllmModels, setVllmModels] = useState<Array<{ id: string; path: string; source: string }>>([])
+  const [vllmModels, setVllmModels] = useState<Array<{ id: string; path: string; source: string; safeSettings?: Record<string, unknown> }>>([])
   const [currentModel, setCurrentModel] = useState('')
   const [requestedModel, setRequestedModel] = useState('')
   const [selectedModel, setSelectedModel] = useState('')
@@ -163,6 +164,8 @@ export default function FabricMonitorPanel() {
       .map((link) => ({ id: `link-${link.id}`, label: `${link.from} -> ${link.to}`, type: 'Runtime connection', state: link.state, detail: link.detail, restartTarget: runtimeTargets[link.to] || '', isVllm: link.to === 'vLLM' }))
     return [...nodeItems, ...linkItems]
   }, [snapshot])
+  const selectedModelMeta = useMemo(() => vllmModels.find((model) => model.id === selectedModel), [selectedModel, vllmModels])
+  const selectedSafeSettings = selectedModelMeta?.safeSettings || null
 
   async function restart(node: FabricNode) {
     if (!node.restartType) return
@@ -363,11 +366,18 @@ export default function FabricMonitorPanel() {
                     </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 5, wordBreak: 'break-word' }}>{node.detail}</div>
                   </div>
-                  {node.restartable && (
-                    <Button size="sm" variant="secondary" onClick={() => restart(node)} loading={busy === node.id}>
-                      <RotateCcw size={13} /> Restart
-                    </Button>
-                  )}
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    {node.restartable && (
+                      <Button size="sm" variant="secondary" onClick={() => restart(node)} loading={busy === node.id}>
+                        <RotateCcw size={13} /> Restart
+                      </Button>
+                    )}
+                    {node.urls?.map((link) => (
+                        <a key={link.url} href={link.url} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-blue)', fontSize: 12, textDecoration: 'none', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '6px 8px' }}>
+                          {link.label}
+                        </a>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -391,6 +401,11 @@ export default function FabricMonitorPanel() {
             <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 8, wordBreak: 'break-word' }}>
               Loaded: {currentModel || 'unknown'} | Requested: {requestedModel || 'unknown'}
             </div>
+            {selectedSafeSettings && (
+              <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 8, wordBreak: 'break-word' }}>
+                Safe launch: GPU {String(selectedSafeSettings.gpuMem || 'auto')} | context {String(selectedSafeSettings.maxModelLen || 'auto')} | seqs {String(selectedSafeSettings.maxNumSeqs || 'auto')} | batched {String(selectedSafeSettings.maxBatchedTokens || 'auto')} | quantization {String(selectedSafeSettings.quantization || 'auto')} | {String(selectedSafeSettings.reason || '')}
+              </div>
+            )}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <Button variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'}><Play size={14} /> Start Model</Button>
