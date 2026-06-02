@@ -1,0 +1,1769 @@
+{
+  "/tasks": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "Clean",
+        "title": ""
+      }
+    ],
+    "inputs": [],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nCreate Task\nExpand\nTask Board\nPending\n0\nNo tasks\nIn Progress\n0\nNo tasks\nCompleted\n0\nNo tasks\nFailed / Cancelled\nClean\n1\n[test/webhook-test#0] Test webhook event\nHIGH\n1m ago\nError:\nFailed to clone repository test/webhook-test: Command failed: git clone \"https://github.com/test/webhook-test.git\" .\nCloning into '.'...\nfatal: could not read Username for 'https://github.com': No such device or address\n\nTask Summary\n1\nTotal Tasks\n0%\nCompletion Rate\n0\nCompleted\n--\nAvg Time\nRecent Activity\n(135 entries)"
+  },
+  "/memory": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "Refresh",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 1,
+        "text": "Search",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 2,
+        "text": "Expand",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 3,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 4,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 5,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 6,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 7,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 8,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 9,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 10,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 11,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 12,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 13,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 14,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 15,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 16,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 17,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 18,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 19,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 20,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 21,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 22,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 23,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 24,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 25,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 26,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 27,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 28,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 29,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 30,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 31,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 32,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 33,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 34,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 35,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 36,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 37,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 38,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 39,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 40,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 41,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 42,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 43,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 44,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 45,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 46,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 47,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 48,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 49,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 50,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 51,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 52,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 53,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 54,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 55,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 56,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 57,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 58,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 59,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 60,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 61,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 62,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 63,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 64,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 65,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 66,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 67,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 68,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 69,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 70,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 71,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 72,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 73,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 74,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 75,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 76,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 77,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 78,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 79,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 80,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 81,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 82,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 83,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 84,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 85,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 86,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 87,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 88,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 89,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 90,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 91,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 92,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 93,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 94,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 95,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 96,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 97,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 98,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 99,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 100,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 101,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 102,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 103,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 104,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 105,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 106,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 107,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 108,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 109,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 110,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 111,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 112,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 113,
+        "text": "",
+        "title": ""
+      }
+    ],
+    "inputs": [
+      {
+        "disabled": false,
+        "i": 0,
+        "placeholder": "Search memory entries...",
+        "tag": "INPUT",
+        "type": "",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "i": 1,
+        "placeholder": "",
+        "tag": "SELECT",
+        "type": "",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "i": 2,
+        "placeholder": "",
+        "tag": "INPUT",
+        "type": "number",
+        "value": "20"
+      }
+    ],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nTotal Entries\n111\nNamespaces\n8\nStorage Size\n107.0 KB\nIndexed Vectors\n111\nHNSW Active\nSearch Memory\nRefresh\nQuery\nNamespace\nAll\nfactory-brain/agents\nfactory-brain/graph\nfactory-brain/learning\nfactory-brain/runs\nresearch/agent-growth\nresearch/blue-team-cell\nresearch/fix44-market-data-restreamer\nresearch/fix44-market-data-restreamer_research_brief.md\nLimit\nSearch\nStore New Entry\nExpand\nClick \"Expand\" to add a new memory entry.\nMemory Entries (111)\nIdle\nAll (111)\nfactory-brain/agents (9)\nfactory-brain/graph (2)\nfactory-brain/learning (1)\nfactory-brain/runs (5)\nresearch/agent-growth (85)\nresearch/blue-team-cell (3)\nresearch/fix44-market-data-restreamer (5)\nresearch/fix44-market-data-restreamer_research_brief.md (1)\nKEY\tVALUE\tNAMESPACE\tTAGS\tCREATED\tACTIONS\nworkspace/factory-brain/pages/agents/architect.md\tarchitect owns bounded topology, interface contracts, dependency maps, and path ...\tfactory-brain/agents\tfactory-brainagents\t5/30/2026, 11:51:16 AM\t\n\nworkspace/factory-brain/pages/agents/blue-team-cell.md\tblue-team-cell owns defensive cellular security, 5G/O-RAN lab validation, and le...\tfactory-brain/agents\tfactory-brainagents\t5/30/2026, 11:51:16 AM\t\n\nworkspace/factory-brain/pages/agents/coder.md\tcoder owns scoped implementation, idiomatic code synthesis, and local runtime fi...\tfactory-brain/agents\tfactory-brainagents\t5/30/2026, 11:51:16 AM\t\n\nworkspace/factory-brain/pages/agents/documenter.md\tdocumenter owns handoff summaries, memory triplets, docs drift control, and oper...\tfactory-brain/agents\tfactory-brainagents\t5/30/2026, 11:51:16 AM\t\n\nworkspace/factory-brain/pages/agents/pinescript.md\tpinescript owns Pine Script indicator and strategy engineering, TradingView aler...\tfactory-brain/agents\tfactory-brainagents\t5/30/2026, 11:51:16 AM\t\n\nworkspace/factory-brain/pages/agents/queen.md\tqueen owns orchestration, task routing, mode gates, and multi-agent operating di...\tfactory-brain/agents\tfactory-brainagents\t5/30/2026, 11:51:16 AM\t\n\nworkspace/factory-brain/pages/agents/researcher.md\tresearcher owns current-source research, evidence capture, web ingestion, and co...\tfactory-brain/agents\tfactory-brainagents\t5/30/2026, 11:51:16 AM\t\n\nworkspace/factory-brain/pages/agents/reviewer.md\treviewer owns secur"
+  },
+  "/workflows": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "New Workflow",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 1,
+        "text": "Execute",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 2,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 3,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 4,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 5,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 6,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 7,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 8,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 9,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 10,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 11,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 12,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 13,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 14,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 15,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 16,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 17,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 18,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 19,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 20,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 21,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 22,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 23,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 24,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 25,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 26,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 27,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 28,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 29,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 30,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 31,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 32,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 33,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 34,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 35,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 36,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 37,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 38,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 39,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 40,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 41,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 42,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 43,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 44,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 45,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 46,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 47,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 48,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 49,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 50,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 51,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 52,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 53,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 54,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 55,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 56,
+        "text": "Delete",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 57,
+        "text": "Use Template",
+        "title": ""
+      }
+    ],
+    "inputs": [],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nWorkflows\nNew Workflow\nNAME\tSTATUS\tSTEPS\tCREATED\tACTIONS\nFactoryGrid Default Software Factory\t\nDraft\n\t9\tMay 27, 10:53 AM\t\nExecute\nDelete\n\nResearch component updates and rollback plan (continued)\t\nFailed\n\t0\tMay 24, 07:13 AM\t\nDelete\n\nResearch component updates and rollback plan\t\nFailed\n\t1\tMay 24, 07:47 AM\t\nDelete\n\nClaude local runner smoke test\t\nCompleted\n\t2\tMay 24, 09:21 AM\t\nDelete\n\nClaude local runner smoke test\t\nCompleted\n\t2\tMay 24, 04:52 PM\t\nDelete\n\nResearch component updates and rollback plan\t\nCompleted\n\t2\tMay 24, 07:05 PM\t\nDelete\n\nQueen verified component update review\t\nCompleted\n\t2\tMay 24, 07:10 PM\t\nDelete\n\nQueen verified component update review after workspace-context fix\t\nCompleted\n\t2\tMay 24, 07:12 PM\t\nDelete\n\nResearch component updates and rollback plan\t\nFailed\n\t1\tMay 25, 10:49 AM\t\nDelete\n\nRuFloUI API smoke\t\nFailed\n\t1\tMay 25, 11:16 AM\t\nDelete\n\nResearch component updates and rollback plan (continued)\t\nFailed\n\t1\tMay 25, 12:08 PM\t\nDelete\n\nClaude local runner smoke test\t\nFailed\n\t1\tMay 25, 12:08 PM\t\nDelete\n\nQueen verified component update review\t\nFailed\n\t1\tMay 25, 12:08 PM\t\nDelete\n\nClaude local runner smoke test\t\nFailed\n\t1\tMay 25, 12:08 PM\t\nDelete\n\nQueen verified component update review after workspace-context fix\t\nFailed\n\t1\tMay 25, 12:08 PM\t\nDelete\n\nFactory real route verification\t\nFailed\n\t1\tMay 25, 12:19 PM\t\nDelete\n\nFactory real route verification after LiteLLM repair\t\nCompleted\n\t2\tMay 25, 12:30 PM\t\nDelete\n\nFactory doctor verification\t\nCompleted\n\t2\tMay 25, 12:31 PM\t\nDelete\n\nFactory doctor verification\t\nFailed\n\t2\tMay 25, 12:38 PM\t\nDelete\n\nFactory doctor verification\t\nCompleted\n\t2\tMay 25, 12:43 PM\t\nDelete\n\nFactory doctor verification\t\nCompleted\n\t2\tMay 25, 12:44 PM\t\nDelete\n\nFactory doctor verification\t\nCompleted\n\t2\tMay 25, 12:49 PM\t\nDelete\n\nFactory doctor verification\t\nFailed\n\t2\tMay 25, 12:50 PM\t\nDelete\n\nReview FactoryGrid component updates\t\nFailed\n\t1\tMay 25, 12:54 PM\t\nDelete\n\nReview FactoryGrid component updates\t\nFailed\n\t1\tMay 25, 01:03 PM\t\nDelete\n\nReview FactoryGrid component updates\t\nCompleted\n\t1\tMay 25, 01:06 PM\t\nDelete\n\nFactory doctor verification\t\nFailed\n\t2\tMay 25, 01:08 PM\t\nDelete\n\nFactory doctor verification\t\nCompleted\n\t1\tMay 25, 01:11 PM\t\nDelete\n\nFactory doctor verification\t\nComp"
+  },
+  "/sessions": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "Save Current",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 1,
+        "text": "",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 2,
+        "text": "Refresh",
+        "title": ""
+      }
+    ],
+    "inputs": [],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nNo Active Session\nSave your current state or restore a previous session.\nSave Current\nSessions (0)\nRefresh\nNo saved sessions yet. Save your current state to get started.\nRecent Activity\n(127 entries)"
+  },
+  "/webhooks": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "GitHub",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 1,
+        "text": "GitLab",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 2,
+        "text": "Edit",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 3,
+        "text": "Send Test",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 4,
+        "text": "Refresh",
+        "title": ""
+      }
+    ],
+    "inputs": [],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nWebhooks\nReceive events from external services and trigger swarm tasks\nGitHub\nGitLab\nGitHub Integration\nEdit\nEnabled\nRepos: DOSHFT/factorygrid\nAuto-assign: Yes\nSend Test\nWebhook URL\nCopy this URL into your GitHub repo settings under Settings > Webhooks > Add webhook. Set content type to application/json and select Issues events.\nhttp://192.168.178.20:28589/api/webhooks/github\nRecent Events\nRefresh\nGHtest/webhook-test#0 — Test webhook event\nissues.opened by rufloui-test — 6/2/2026, 7:20:29 PM — Task: task-1780420829271-7lig11\nreceived\nRecent Activity\n(131 entries)"
+  },
+  "/agents": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "Terminate All",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 1,
+        "text": "Spawn Agent",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 2,
+        "text": "Table",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 3,
+        "text": "Grid",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 4,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 5,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 6,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 7,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 8,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 9,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 10,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 11,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 12,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 13,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 14,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 15,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 16,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 17,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 18,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 19,
+        "text": "Terminate",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 20,
+        "text": "Status",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 21,
+        "text": "Terminate",
+        "title": ""
+      }
+    ],
+    "inputs": [
+      {
+        "disabled": false,
+        "i": 0,
+        "placeholder": "",
+        "tag": "SELECT",
+        "type": "",
+        "value": "coder"
+      },
+      {
+        "disabled": false,
+        "i": 1,
+        "placeholder": "my-agent",
+        "tag": "INPUT",
+        "type": "",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "i": 2,
+        "placeholder": "",
+        "tag": "SELECT",
+        "type": "",
+        "value": "all"
+      },
+      {
+        "disabled": false,
+        "i": 3,
+        "placeholder": "",
+        "tag": "SELECT",
+        "type": "",
+        "value": "name"
+      }
+    ],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nAgents Management\n9 total agents\nTerminate All\nSpawn Agent\nAGENT TYPE\ncoder\nAgent - PineScript\nresearcher\ntester\nreviewer\narchitect\ncoordinator\nanalyst\noptimizer\nsecurity-architect\nsecurity-auditor\nmemory-specialist\nswarm-specialist\nperformance-engineer\ncore-architect\ntest-architect\nNAME\nSpawn Agent\nFILTER STATUS\nall\nidle\nrunning\ncompleted\nerror\nterminated\nSORT BY\nName\nType\nStatus\nTable\nGrid\nNAME\tTYPE\tSTATUS\tCURRENT ACTIVITY\tTASKS\tACTIONS\nanalyst\tanalyst\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\narchitect\tarchitect\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\naudit-agent-1780420758464\tcoder\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\ncoder\tcoder\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\ncoordinator\tcoordinator\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\nresearcher\tresearcher\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\nreviewer\treviewer\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\nreviewer\treviewer\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\n\ntester\ttester\t\nIdle\n\tIdle\t0\t\nStatus\nTerminate\nRecent Activity\n(127 entries)"
+  },
+  "/swarm-monitor": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "Purge All Agents",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 1,
+        "text": "Refresh",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 2,
+        "text": "Output",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 3,
+        "text": "Output",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 4,
+        "text": "Output",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 5,
+        "text": "Output",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 6,
+        "text": "Output",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 7,
+        "text": "Output",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 8,
+        "text": "Output",
+        "title": ""
+      }
+    ],
+    "inputs": [
+      {
+        "disabled": false,
+        "i": 0,
+        "placeholder": "",
+        "tag": "INPUT",
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "disabled": false,
+        "i": 1,
+        "placeholder": "",
+        "tag": "INPUT",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nSwarm Monitor\nREADY\nCurrent swarm only\nAuto-refresh\nPurge All Agents\nRefresh\nTopology\nhierarchical\nStrategy\nspecialized\nAgents\n7(0 active)\nConsensus\n0 rounds\nNo active objective\n5%\nAgents (7)\nCOORDINATOR\nidle\nagent-1780420749681-ofsgiq\nTasks: 0\nCPU: 1%\nMem: 9%\nOutput\nARCHITECT\nidle\nagent-1780420749809-ta5fgt\nTasks: 0\nCPU: 1%\nMem: 9%\nOutput\nRESEARCHER\nidle\nagent-1780420749936-h1vfc2\nTasks: 0\nCPU: 1%\nMem: 9%\nOutput\nCODER\nidle\nagent-1780420750063-crrxfs\nTasks: 0\nCPU: 1%\nMem: 9%\nOutput\nTESTER\nidle\nagent-1780420750192-ugmeo3\nTasks: 0\nCPU: 1%\nMem: 9%\nOutput\nREVIEWER\nidle\nagent-1780420750319-d3gefr\nTasks: 0\nCPU: 1%\nMem: 9%\nOutput\nANALYST\nidle\nagent-1780420750449-bnzem5\nTasks: 0\nCPU: 1%\nMem: 9%\nOutput\nRecent Activity\n(127 entries)"
+  },
+  "/hive-mind": {
+    "buttons": [
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 0,
+        "text": "Shutdown",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": true,
+        "i": 1,
+        "text": "Join",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 2,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 3,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 4,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 5,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 6,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 7,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 8,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 9,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 10,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 11,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 12,
+        "text": "Leave",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 13,
+        "text": "+ Add Option",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": true,
+        "i": 14,
+        "text": "Run Consensus",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": true,
+        "i": 15,
+        "text": "Broadcast",
+        "title": ""
+      },
+      {
+        "aria": "",
+        "disabled": false,
+        "i": 16,
+        "text": "Refresh",
+        "title": ""
+      }
+    ],
+    "inputs": [
+      {
+        "disabled": false,
+        "i": 0,
+        "placeholder": "",
+        "tag": "SELECT",
+        "type": "",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "i": 1,
+        "placeholder": "Enter topic...",
+        "tag": "INPUT",
+        "type": "",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "i": 2,
+        "placeholder": "Option 1",
+        "tag": "INPUT",
+        "type": "",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "i": 3,
+        "placeholder": "Option 2",
+        "tag": "INPUT",
+        "type": "",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "i": 4,
+        "placeholder": "Message to broadcast...",
+        "tag": "INPUT",
+        "type": "",
+        "value": ""
+      }
+    ],
+    "text": "OVERVIEW\nDashboard\nFactory\nORCHESTRATION\nSwarm\nAgents\nSwarm Monitor\nTasks\nWorkspace\nINTELLIGENCE\nLearning\nHive Mind\nNeural\nMemory\nOPERATIONS\nWorkflows\nHooks\nSessions\nWebhooks\nMONITORING\nFabric\nPerformance\nConfig\nLogs\nDecima Intelligence - Counter SIGINT Branch\nConnected\nActive\nMembers: 11\nProtocol: artifact-gated\nShutdown\nMembers\nSelect agent to join...\nreviewer (agent-0)\ncoordinator (agent-1)\narchitect (agent-2)\nresearcher (agent-3)\ncoder (agent-4)\ntester (agent-5)\nreviewer (agent-6)\nanalyst (agent-7)\naudit-agent-1780420758464 (agent-1780420759295-5jk9qk)\nJoin\narchitect\nLeave\nblue-team-cell\nLeave\ncoder\nLeave\ndocumenter\nLeave\ngithub-risk-scout\nLeave\nperformance-engineer\nLeave\nqueen\nLeave\nresearcher\nLeave\nreviewer\nLeave\ntechnology-strategist\nLeave\ntester\nLeave\nConsensus\nTopic\nOptions\n+ Add Option\nRun Consensus\nBroadcast\nBroadcast\nShared Memory\nRefresh\nworkspace/factory-brain/pages/agents/architect.md\narchitect owns bounded topology, interface contracts, dependency maps, and path safety. Its initial growth loop is seeded with 10 GitHub repositories selected for directly reusable patterns, tooling, ...\nworkspace/factory-brain/pages/agents/blue-team-cell.md\nblue-team-cell owns defensive cellular security, 5G/O-RAN lab validation, and legacy GSM risk mapping. Its initial growth loop is seeded with 10 GitHub repositories selected for directly reusable patt...\nworkspace/factory-brain/pages/agents/coder.md\ncoder owns scoped implementation, idiomatic code synthesis, and local runtime fixes. Its initial growth loop is seeded with 10 GitHub repositories selected for directly reusable patterns, tooling, or ...\nworkspace/factory-brain/pages/agents/documenter.md\ndocumenter owns handoff summaries, memory triplets, docs drift control, and operator runbooks. Its initial growth loop is seeded with 10 GitHub repositories selected for directly reusable patterns, to...\nworkspace/factory-brain/pages/agents/pinescript.md\npinescript owns Pine Script indicator and strategy engineering, TradingView alert automation, Telegram routing, and browser companion integration discipline. Its initial growth loop is seeded with 10 ...\nworkspace/factory-brain/pages/agents/queen.md\nqueen owns orchestration, task routing, mode gates, and multi-agent operating discipline. Its initial growth loop is seeded with 10 GitHub repositories selected for directly reusable patterns, tooling...\nworkspace/factory-brain/pages/agents/researcher.md\nresearcher owns current-source research, evidence capture, web "
+  }
+}

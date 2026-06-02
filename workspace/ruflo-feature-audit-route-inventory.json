@@ -1,0 +1,5786 @@
+[
+  {
+    "name": "Dashboard",
+    "path": "/",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Initialize Swarm",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Init Swarm",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Run Benchmark",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "System Health",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Memory Stats",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/"
+    },
+    "logs": []
+  },
+  {
+    "name": "Factory",
+    "path": "/factory",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Use Template",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": true,
+          "idx": 1,
+          "text": "Create Spec Intake",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Run Now",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Search",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "Short build request name",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "PLAN - read-only spec and research"
+        },
+        {
+          "disabled": false,
+          "idx": 2,
+          "placeholder": "Describe the product, change, or research target.",
+          "tag": "TEXTAREA",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 3,
+          "placeholder": "What must be true before this is considered shipped?",
+          "tag": "TEXTAREA",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 4,
+          "placeholder": "Protected files, network impact, credentials, repo boundaries, anything dangerous.",
+          "tag": "TEXTAREA",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 5,
+          "placeholder": "Search compiled truth and timelines",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/factory"
+    },
+    "logs": []
+  },
+  {
+    "name": "Swarm",
+    "path": "/swarm",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Start / Restart Swarm",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Shutdown Swarm",
+          "title": ""
+        }
+      ],
+      "h1": [
+        "Topology View",
+        "Active Agents (7)"
+      ],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/swarm"
+    },
+    "logs": []
+  },
+  {
+    "name": "Agents",
+    "path": "/agents",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Terminate All",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Spawn Agent",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Table",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Grid",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 12,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 14,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 15,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 16,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 17,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 18,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 19,
+          "text": "Terminate",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 20,
+          "text": "Status",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 21,
+          "text": "Terminate",
+          "title": ""
+        }
+      ],
+      "h1": [
+        "Spawn Agent"
+      ],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "coder"
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "my-agent",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 2,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "all"
+        },
+        {
+          "disabled": false,
+          "idx": 3,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "Name"
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/agents"
+    },
+    "logs": []
+  },
+  {
+    "name": "Swarm Monitor",
+    "path": "/swarm-monitor",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Purge All Agents",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Refresh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Output",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Output",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Output",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "Output",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Output",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "Output",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "Output",
+          "title": ""
+        }
+      ],
+      "h1": [
+        "Swarm Monitor"
+      ],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "",
+          "tag": "INPUT",
+          "type": "checkbox",
+          "value": "on"
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "",
+          "tag": "INPUT",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/swarm-monitor"
+    },
+    "logs": []
+  },
+  {
+    "name": "Tasks",
+    "path": "/tasks",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Clean",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/tasks"
+    },
+    "logs": []
+  },
+  {
+    "name": "Workspace",
+    "path": "/workspace",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Refresh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "bin",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "docker",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "docs",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "FIXReaper",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "logs",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "openhands_state",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "qdrant_storage",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "qdrant_storage.broken-",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "ruflo_project",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "rufloui",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "runtime",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 12,
+          "text": "scripts",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "server",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 14,
+          "text": "workspace",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 15,
+          "text": ".env",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 16,
+          "text": ".env.bak.20260520-185910",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 17,
+          "text": ".env.bak.vllm-port-20260602-060943",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 18,
+          "text": ".env.example",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 19,
+          "text": ".gitignore",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 20,
+          "text": ".gitignore.bak.20260520-163636",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 21,
+          "text": "Architecture.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 22,
+          "text": "docker-compose.yml",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 23,
+          "text": "docker-compose.yml.bak.20260517-055041",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 24,
+          "text": "Guidelines.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 25,
+          "text": "instructions.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 26,
+          "text": "litellm_config.yaml",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 27,
+          "text": "litellm_config.yaml.bak.20260517-055041",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 28,
+          "text": "litellm_config.yaml.bak.20260525-122858",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 29,
+          "text": "litellm_config.yaml.bak.20260525-124415",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 30,
+          "text": "litellm_config.yaml.bak.20260525-152324",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 31,
+          "text": "litellm_config.yaml.bak.20260525-152428",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 32,
+          "text": "litellm_config.yaml.bak.20260525-152558",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 33,
+          "text": "litellm_config.yaml.bak.20260525-152653",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 34,
+          "text": "litellm_config.yaml.bak.20260528-211652",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 35,
+          "text": "litellm_config.yaml.bak.vllm-port-20260602-060943",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 36,
+          "text": "openhands_config.toml",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 37,
+          "text": "openhands_config.toml.bak.20260517-055041",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 38,
+          "text": "README.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 39,
+          "text": "todo-factory.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 40,
+          "text": "createdbin/apply-decima-rufloui-branding.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 41,
+          "text": "createdbin/change-vllm-model.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 42,
+          "text": "createdbin/change-vllm-model.sh.bak.20260528-211652",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 43,
+          "text": "createdbin/factory-action-self-test.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 44,
+          "text": "modifiedbin/factory-agent-growth.mjs",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 45,
+          "text": "createdbin/factory-claude-local.mjs",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 46,
+          "text": "createdbin/factory-doctor.sh.bak.20260520-182053",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 47,
+          "text": "modifiedbin/factory-expose-lan.ps1",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 48,
+          "text": "createdbin/factory-host-control.py",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 49,
+          "text": "createdbin/factory-host-control.py.bak.20260602-055634",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 50,
+          "text": "createdbin/factory-host-control.py.bak.vllm-port-20260602-060943",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 51,
+          "text": "createdbin/factory-self-test-job.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 52,
+          "text": "modifiedbin/factory-stack-health.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 53,
+          "text": "createdbin/factory-status.sh.bak.20260520-182053",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 54,
+          "text": "modifiedbin/factory-urls.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 55,
+          "text": "createdbin/production-restart-rufloui.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 56,
+          "text": "createdbin/rufloui-wsl-server.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 57,
+          "text": "createdbin/start-factory-host-control.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 58,
+          "text": "modifiedbin/start-vllm-factory.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 59,
+          "text": "createdbin/start-vllm-factory.sh.bak.20260602-055634",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 60,
+          "text": "createdbin/start-vllm-factory.sh.bak.vllm-port-20260602-060943",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 61,
+          "text": "modifiedbin/stop-vllm-factory.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 62,
+          "text": "createdbin/stop-vllm-factory.sh.bak.20260528-211652",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 63,
+          "text": "modifieddocker/rufloui/Dockerfile",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 64,
+          "text": "modifieddocker/rufloui/entrypoint.sh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 65,
+          "text": "modifieddocs/agents/capability_matrix.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 66,
+          "text": "createddocs/agents/capability_matrix.md.bak.20260528-214139",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 67,
+          "text": "modifieddocs/agents/deployment_orchestration.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 68,
+          "text": "modifieddocs/FACTORYGRID_WORKFLOW_SPEC.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 69,
+          "text": "createddocs/monitoring/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 70,
+          "text": "modifieddocs/runbooks/FACTORY_UAT_AND_GITHUB_BACKUP.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 71,
+          "text": "createddocs/runbooks/RUFLO_AGENT_READINESS.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 72,
+          "text": "createddocs/runbooks/RUFLO_AGENT_READINESS.md.bak.20260528-214508",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 73,
+          "text": "createddocs/runbooks/SPEC_KIT_QUEEN_VALIDATION.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 74,
+          "text": "modifiedlitellm_config.yaml",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 75,
+          "text": "createdlitellm_config.yaml.bak.20260525-122858",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 76,
+          "text": "createdlitellm_config.yaml.bak.20260525-124415",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 77,
+          "text": "createdlitellm_config.yaml.bak.20260525-152324",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 78,
+          "text": "createdlitellm_config.yaml.bak.20260525-152428",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 79,
+          "text": "createdlitellm_config.yaml.bak.20260525-152558",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 80,
+          "text": "createdlitellm_config.yaml.bak.20260525-152653",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 81,
+          "text": "createdlitellm_config.yaml.bak.20260528-211652",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 82,
+          "text": "createdlitellm_config.yaml.bak.vllm-port-20260602-060943",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 83,
+          "text": "createdqdrant_storage.broken-/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 84,
+          "text": "createdruflo_project/.agents/skills/agent-pinescript/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 85,
+          "text": "modifiedruflo_project/.claude-flow/agents/store.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 86,
+          "text": "createdruflo_project/.claude-flow/tasks/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 87,
+          "text": "modifiedrufloui",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 88,
+          "text": "createdruntime/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 89,
+          "text": "modifiedworkspace/.factory-agent-growth-seeded.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 90,
+          "text": "modifiedworkspace/factory-brain/pages/agents/architect.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 91,
+          "text": "modifiedworkspace/factory-brain/pages/agents/blue-team-cell.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 92,
+          "text": "modifiedworkspace/factory-brain/pages/agents/coder.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 93,
+          "text": "modifiedworkspace/factory-brain/pages/agents/documenter.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 94,
+          "text": "createdworkspace/factory-brain/pages/agents/pinescript.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 95,
+          "text": "modifiedworkspace/factory-brain/pages/agents/queen.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 96,
+          "text": "modifiedworkspace/factory-brain/pages/agents/researcher.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 97,
+          "text": "modifiedworkspace/factory-brain/pages/agents/reviewer.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 98,
+          "text": "modifiedworkspace/factory-brain/pages/agents/tester.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 99,
+          "text": "createdworkspace/factory-brain/pages/learning/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 100,
+          "text": "createdworkspace/factory-brain/pages/runs/run-ruflo-agent-readiness-smoke-9f4b4dd8.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 101,
+          "text": "createdworkspace/factory-brain/pages/runs/run-ruflo-production-readiness-smoke-20260528t220603z-7f29df0d.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 102,
+          "text": "createdworkspace/factory-brain/pages/runs/run-spec-kit-queen-smoke-build-0a111ccb.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 103,
+          "text": "createdworkspace/memory/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 104,
+          "text": "createdworkspace/reports/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 105,
+          "text": "createdworkspace/research/agent-growth/architect/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 106,
+          "text": "createdworkspace/research/agent-growth/architect/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 107,
+          "text": "createdworkspace/research/agent-growth/architect/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 108,
+          "text": "createdworkspace/research/agent-growth/architect/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 109,
+          "text": "createdworkspace/research/agent-growth/architect/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 110,
+          "text": "createdworkspace/research/agent-growth/architect/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 111,
+          "text": "modifiedworkspace/research/agent-growth/architect/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 112,
+          "text": "createdworkspace/research/agent-growth/blue-team-cell/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 113,
+          "text": "createdworkspace/research/agent-growth/blue-team-cell/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 114,
+          "text": "createdworkspace/research/agent-growth/blue-team-cell/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 115,
+          "text": "createdworkspace/research/agent-growth/blue-team-cell/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 116,
+          "text": "createdworkspace/research/agent-growth/blue-team-cell/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 117,
+          "text": "createdworkspace/research/agent-growth/blue-team-cell/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 118,
+          "text": "modifiedworkspace/research/agent-growth/blue-team-cell/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 119,
+          "text": "createdworkspace/research/agent-growth/coder/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 120,
+          "text": "createdworkspace/research/agent-growth/coder/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 121,
+          "text": "createdworkspace/research/agent-growth/coder/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 122,
+          "text": "createdworkspace/research/agent-growth/coder/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 123,
+          "text": "createdworkspace/research/agent-growth/coder/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 124,
+          "text": "createdworkspace/research/agent-growth/coder/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 125,
+          "text": "modifiedworkspace/research/agent-growth/coder/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 126,
+          "text": "createdworkspace/research/agent-growth/documenter/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 127,
+          "text": "createdworkspace/research/agent-growth/documenter/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 128,
+          "text": "createdworkspace/research/agent-growth/documenter/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 129,
+          "text": "createdworkspace/research/agent-growth/documenter/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 130,
+          "text": "createdworkspace/research/agent-growth/documenter/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 131,
+          "text": "createdworkspace/research/agent-growth/documenter/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 132,
+          "text": "modifiedworkspace/research/agent-growth/documenter/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 133,
+          "text": "createdworkspace/research/agent-growth/pinescript/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 134,
+          "text": "createdworkspace/research/agent-growth/queen/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 135,
+          "text": "createdworkspace/research/agent-growth/queen/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 136,
+          "text": "createdworkspace/research/agent-growth/queen/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 137,
+          "text": "createdworkspace/research/agent-growth/queen/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 138,
+          "text": "createdworkspace/research/agent-growth/queen/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 139,
+          "text": "createdworkspace/research/agent-growth/queen/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 140,
+          "text": "modifiedworkspace/research/agent-growth/queen/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 141,
+          "text": "createdworkspace/research/agent-growth/researcher/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 142,
+          "text": "createdworkspace/research/agent-growth/researcher/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 143,
+          "text": "createdworkspace/research/agent-growth/researcher/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 144,
+          "text": "createdworkspace/research/agent-growth/researcher/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 145,
+          "text": "createdworkspace/research/agent-growth/researcher/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 146,
+          "text": "createdworkspace/research/agent-growth/researcher/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 147,
+          "text": "modifiedworkspace/research/agent-growth/researcher/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 148,
+          "text": "createdworkspace/research/agent-growth/reviewer/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 149,
+          "text": "createdworkspace/research/agent-growth/reviewer/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 150,
+          "text": "createdworkspace/research/agent-growth/reviewer/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 151,
+          "text": "createdworkspace/research/agent-growth/reviewer/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 152,
+          "text": "createdworkspace/research/agent-growth/reviewer/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 153,
+          "text": "createdworkspace/research/agent-growth/reviewer/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 154,
+          "text": "modifiedworkspace/research/agent-growth/reviewer/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 155,
+          "text": "createdworkspace/research/agent-growth/tester/2026-05-20_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 156,
+          "text": "createdworkspace/research/agent-growth/tester/2026-05-24_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 157,
+          "text": "createdworkspace/research/agent-growth/tester/2026-05-25_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 158,
+          "text": "createdworkspace/research/agent-growth/tester/2026-05-27_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 159,
+          "text": "createdworkspace/research/agent-growth/tester/2026-05-28_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 160,
+          "text": "createdworkspace/research/agent-growth/tester/2026-05-30_seed.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 161,
+          "text": "modifiedworkspace/research/agent-growth/tester/source_manifest.json",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 162,
+          "text": "createdworkspace/spec-kit/checklists/",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 163,
+          "text": "createdworkspace/spec-kit/intake/20260527-spec-kit-queen-smoke-build-0a111ccb_request.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 164,
+          "text": "createdworkspace/spec-kit/intake/20260528-ruflo-agent-readiness-smoke-9f4b4dd8_request.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 165,
+          "text": "createdworkspace/spec-kit/intake/20260528-ruflo-production-readiness-smoke-20260528t220603z-7f29df0d_request.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 166,
+          "text": "modifiedworkspace/spec-kit/intake/agent-growth-seed_request.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 167,
+          "text": "createdworkspace/spec-kit/specs/20260527-spec-kit-queen-smoke-build-0a111ccb_spec.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 168,
+          "text": "createdworkspace/spec-kit/specs/20260528-ruflo-agent-readiness-smoke-9f4b4dd8_spec.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 169,
+          "text": "createdworkspace/spec-kit/specs/20260528-ruflo-production-readiness-smoke-20260528t220603z-7f29df0d_spec.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 170,
+          "text": "createdworkspace/spec-kit/tasks/2026-05-24-agent-pinescript-training.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 171,
+          "text": "modifiedworkspace/work-orders/2026-05-24-component-update-review.md",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 172,
+          "text": "Preview",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 173,
+          "text": "Diff",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/workspace"
+    },
+    "logs": []
+  },
+  {
+    "name": "Learning",
+    "path": "/learning",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Refresh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Run Growth",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/learning"
+    },
+    "logs": []
+  },
+  {
+    "name": "Hive Mind",
+    "path": "/hive-mind",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Shutdown",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": true,
+          "idx": 1,
+          "text": "Join",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 12,
+          "text": "Leave",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "+ Add Option",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": true,
+          "idx": 14,
+          "text": "Run Consensus",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": true,
+          "idx": 15,
+          "text": "Broadcast",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 16,
+          "text": "Refresh",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "Select agent to join..."
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "Enter topic...",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 2,
+          "placeholder": "Option 1",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 3,
+          "placeholder": "Option 2",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 4,
+          "placeholder": "Message to broadcast...",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/hive-mind"
+    },
+    "logs": []
+  },
+  {
+    "name": "Neural",
+    "path": "/neural",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Optimize",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Compress",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Refresh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Train",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Predict",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "Train",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Predict",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "Train",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "Predict",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "Train",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "Predict",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "Start Training",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": true,
+          "idx": 12,
+          "text": "Predict",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "Refresh",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "qwen-coder-14b"
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "{\"features\": [...], \"labels\": [...]}",
+          "tag": "TEXTAREA",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 2,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "qwen-coder-14b"
+        },
+        {
+          "disabled": false,
+          "idx": 3,
+          "placeholder": "{\"input\": [1, 2, 3]}",
+          "tag": "TEXTAREA",
+          "type": "",
+          "value": ""
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/neural"
+    },
+    "logs": []
+  },
+  {
+    "name": "Memory",
+    "path": "/memory",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Refresh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Search",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Expand",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 12,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 14,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 15,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 16,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 17,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 18,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 19,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 20,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 21,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 22,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 23,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 24,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 25,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 26,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 27,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 28,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 29,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 30,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 31,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 32,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 33,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 34,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 35,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 36,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 37,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 38,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 39,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 40,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 41,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 42,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 43,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 44,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 45,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 46,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 47,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 48,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 49,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 50,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 51,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 52,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 53,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 54,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 55,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 56,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 57,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 58,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 59,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 60,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 61,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 62,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 63,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 64,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 65,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 66,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 67,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 68,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 69,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 70,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 71,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 72,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 73,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 74,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 75,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 76,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 77,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 78,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 79,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 80,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 81,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 82,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 83,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 84,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 85,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 86,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 87,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 88,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 89,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 90,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 91,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 92,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 93,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 94,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 95,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 96,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 97,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 98,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 99,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 100,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 101,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 102,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 103,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 104,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 105,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 106,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 107,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 108,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 109,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 110,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 111,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 112,
+          "text": "",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "Search memory entries...",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "All"
+        },
+        {
+          "disabled": false,
+          "idx": 2,
+          "placeholder": "",
+          "tag": "INPUT",
+          "type": "number",
+          "value": "20"
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/memory"
+    },
+    "logs": []
+  },
+  {
+    "name": "Workflows",
+    "path": "/workflows",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "New Workflow",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Execute",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 12,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 14,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 15,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 16,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 17,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 18,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 19,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 20,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 21,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 22,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 23,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 24,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 25,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 26,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 27,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 28,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 29,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 30,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 31,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 32,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 33,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 34,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 35,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 36,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 37,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 38,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 39,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 40,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 41,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 42,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 43,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 44,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 45,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 46,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 47,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 48,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 49,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 50,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 51,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 52,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 53,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 54,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 55,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 56,
+          "text": "Delete",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 57,
+          "text": "Use Template",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/workflows"
+    },
+    "logs": []
+  },
+  {
+    "name": "Hooks",
+    "path": "/hooks",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Initialize Hooks",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Explain",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Explain",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Explain",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Explain",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "Explain",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Explain",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "Explain",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "Explain",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/hooks"
+    },
+    "logs": []
+  },
+  {
+    "name": "Sessions",
+    "path": "/sessions",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Save Current",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Refresh",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/sessions"
+    },
+    "logs": []
+  },
+  {
+    "name": "Webhooks",
+    "path": "/webhooks",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "GitHub",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "GitLab",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Send Test",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Refresh",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/webhooks"
+    },
+    "logs": []
+  },
+  {
+    "name": "Fabric",
+    "path": "/monitoring/fabric",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Update Work Order",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Refresh",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Work Order",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Restart",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Restart",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 5,
+          "text": "Restart",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Restart",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "Restart",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "Restart",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "Start Model",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "Warm Up Model",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "Reload Model",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 12,
+          "text": "Stop",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "Run RCA",
+          "title": ""
+        }
+      ],
+      "h1": [
+        "Fabric Monitor"
+      ],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "",
+          "tag": "SELECT",
+          "type": "",
+          "value": "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ"
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        },
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 19,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28580/api/system/info",
+          "idx": 20,
+          "text": "API"
+        },
+        {
+          "href": "http://192.168.178.20:3001/",
+          "idx": 21,
+          "text": "OpenHands"
+        },
+        {
+          "href": "http://192.168.178.20:3011/health",
+          "idx": 22,
+          "text": "Health"
+        },
+        {
+          "href": "http://192.168.178.20:4001/v1/models",
+          "idx": 23,
+          "text": "Models"
+        },
+        {
+          "href": "http://192.168.178.20:6333/collections",
+          "idx": 24,
+          "text": "Collections"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/monitoring/fabric"
+    },
+    "logs": []
+  },
+  {
+    "name": "Performance",
+    "path": "/performance",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Run Benchmark",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Detect Bottlenecks",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Optimize",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "Generate Profile",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "Full Report",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/performance"
+    },
+    "logs": []
+  },
+  {
+    "name": "Config",
+    "path": "/config",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Export Config",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Import Config",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Reset All",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 3,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 4,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": true,
+          "idx": 5,
+          "text": "Save & Connect",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 6,
+          "text": "Send Test",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 7,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 8,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 9,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 10,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 11,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 12,
+          "text": "",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 13,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 14,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 15,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 16,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 17,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 18,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 19,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 20,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 21,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 22,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 23,
+          "text": "Edit",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 24,
+          "text": "Edit",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "Enter new token to change...",
+          "tag": "INPUT",
+          "type": "password",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "Your Telegram chat ID (e.g. 123456789)",
+          "tag": "INPUT",
+          "type": "",
+          "value": "-1003823206436"
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/config"
+    },
+    "logs": []
+  },
+  {
+    "name": "Logs",
+    "path": "/logs",
+    "snapshotOk": true,
+    "info": {
+      "buttons": [
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 0,
+          "text": "Auto-scroll ON",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 1,
+          "text": "Export",
+          "title": ""
+        },
+        {
+          "aria": "",
+          "disabled": false,
+          "idx": 2,
+          "text": "Clear",
+          "title": ""
+        }
+      ],
+      "h1": [],
+      "inputs": [
+        {
+          "disabled": false,
+          "idx": 0,
+          "placeholder": "Filter source...",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "idx": 1,
+          "placeholder": "Search messages...",
+          "tag": "INPUT",
+          "type": "",
+          "value": ""
+        }
+      ],
+      "links": [
+        {
+          "href": "http://192.168.178.20:28589/",
+          "idx": 0,
+          "text": "Dashboard"
+        },
+        {
+          "href": "http://192.168.178.20:28589/factory",
+          "idx": 1,
+          "text": "Factory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm",
+          "idx": 2,
+          "text": "Swarm"
+        },
+        {
+          "href": "http://192.168.178.20:28589/agents",
+          "idx": 3,
+          "text": "Agents"
+        },
+        {
+          "href": "http://192.168.178.20:28589/swarm-monitor",
+          "idx": 4,
+          "text": "Swarm Monitor"
+        },
+        {
+          "href": "http://192.168.178.20:28589/tasks",
+          "idx": 5,
+          "text": "Tasks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workspace",
+          "idx": 6,
+          "text": "Workspace"
+        },
+        {
+          "href": "http://192.168.178.20:28589/learning",
+          "idx": 7,
+          "text": "Learning"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hive-mind",
+          "idx": 8,
+          "text": "Hive Mind"
+        },
+        {
+          "href": "http://192.168.178.20:28589/neural",
+          "idx": 9,
+          "text": "Neural"
+        },
+        {
+          "href": "http://192.168.178.20:28589/memory",
+          "idx": 10,
+          "text": "Memory"
+        },
+        {
+          "href": "http://192.168.178.20:28589/workflows",
+          "idx": 11,
+          "text": "Workflows"
+        },
+        {
+          "href": "http://192.168.178.20:28589/hooks",
+          "idx": 12,
+          "text": "Hooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/sessions",
+          "idx": 13,
+          "text": "Sessions"
+        },
+        {
+          "href": "http://192.168.178.20:28589/webhooks",
+          "idx": 14,
+          "text": "Webhooks"
+        },
+        {
+          "href": "http://192.168.178.20:28589/monitoring/fabric",
+          "idx": 15,
+          "text": "Fabric"
+        },
+        {
+          "href": "http://192.168.178.20:28589/performance",
+          "idx": 16,
+          "text": "Performance"
+        },
+        {
+          "href": "http://192.168.178.20:28589/config",
+          "idx": 17,
+          "text": "Config"
+        },
+        {
+          "href": "http://192.168.178.20:28589/logs",
+          "idx": 18,
+          "text": "Logs"
+        }
+      ],
+      "title": "Decima Intelligence - Counter SIGINT Branch",
+      "url": "http://192.168.178.20:28589/logs"
+    },
+    "logs": []
+  }
+]
