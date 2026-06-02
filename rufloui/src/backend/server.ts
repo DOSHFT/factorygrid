@@ -1157,6 +1157,24 @@ async function launchWorkflowForTask(taskId: string, title: string, description:
     broadcast('task:output', { id: taskId, workflowId, type: 'stderr', content: msg.slice(0, 1000) })
     return
   }
+  const claudePath = process.env.LOCALAPPDATA
+    ? `${process.env.USERPROFILE}\\.local\\bin\\claude.exe`
+    : 'claude'
+  if (!commandAvailable(claudePath)) {
+    console.warn(`[TASK ${taskId}] Claude Code CLI unavailable (${claudePath}); using local fallback before swarm dispatch`)
+    completeTaskViaLocalFallback(taskId, task, taskDesc, wf, workflowId).catch((err) => {
+      const msg = err instanceof Error ? err.message : String(err)
+      task.status = 'failed'
+      task.result = `Local fallback failed: ${msg.slice(0, 1000)}`
+      wf.status = 'failed'
+      wf.result = task.result
+      broadcast('task:updated', { ...task, id: taskId })
+      broadcast('workflow:updated', wf)
+      broadcast('task:output', { id: taskId, workflowId, type: 'stderr', content: task.result })
+      broadcast('task:output', { id: taskId, workflowId, type: 'done', code: 1 })
+    })
+    return
+  }
   if (!swarmShutdown && activeAgents.length > 0) {
     console.log(`[TASK ${taskId}] Multi-agent pipeline with ${activeAgents.length} agents`)
     launchSwarmPipeline(taskId, task, taskDesc, title, wf, workflowId, activeAgents)
@@ -1335,6 +1353,129 @@ async function ensureTaskModelPathReady(): Promise<void> {
   }
 }
 
+function commandAvailable(command: string): boolean {
+  if (command.includes(path.sep) || command.includes('/')) return fs.existsSync(command)
+  const pathEnv = process.env.PATH || ''
+  const exts = process.platform === 'win32' ? ['', '.exe', '.cmd', '.bat'] : ['']
+  for (const dir of pathEnv.split(path.delimiter)) {
+    for (const ext of exts) {
+      if (fs.existsSync(path.join(dir, command + ext))) return true
+    }
+  }
+  return false
+}
+
+async function runLiteLlmTaskCompletion(taskDesc: string): Promise<string> {
+  const base = (process.env.OPENAI_API_BASE || process.env.LITELLM_BASE_URL || 'http://litellm:4000/v1').replace(/\/$/, '')
+  const url = base.endsWith('/v1') ? `${base}/chat/completions` : `${base}/v1/chat/completions`
+  const model = process.env.ANTHROPIC_MODEL || process.env.CLAUDE_CODE_MODEL || 'qwen-coder-14b'
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY || process.env.FACTORY_API_KEY || 'factory-secret-key'}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are a local FactoryGrid task agent. Be concise, factual, and do not claim file edits or command execution unless provided explicit command output.' },
+        { role: 'user', content: taskDesc },
+      ],
+      max_tokens: 900,
+      temperature: 0.1,
+    }),
+  })
+  const text = await response.text()
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${text.slice(0, 500)}`)
+  const payload = JSON.parse(text) as { choices?: Array<{ message?: { content?: string } }> }
+  return payload.choices?.[0]?.message?.content?.trim() || text.slice(0, 2000)
+}
+
+async function runLocalVulnerabilityAudit(): Promise<string> {
+  const sections: string[] = ['LOCAL_CODEBASE_VULNERABILITY_AUDIT']
+  const auditRoots = [
+    { label: 'rufloui', cwd: process.cwd() },
+    { label: 'factorygrid/rufloui', cwd: path.join(factoryRoot(), 'rufloui') },
+  ].filter((item, index, all) => fs.existsSync(path.join(item.cwd, 'package.json')) && all.findIndex(other => other.cwd === item.cwd) === index)
+
+  for (const root of auditRoots) {
+    try {
+      const { stdout } = await execFileAsync('npm', ['audit', '--json'], {
+        cwd: root.cwd,
+        timeout: 120_000,
+        maxBuffer: 4 * 1024 * 1024,
+        windowsHide: true,
+      })
+      const parsed = JSON.parse(stdout || '{}') as { metadata?: { vulnerabilities?: Record<string, number> } }
+      sections.push(`${root.label} npm audit: ${JSON.stringify(parsed.metadata?.vulnerabilities || {})}`)
+    } catch (err) {
+      const out = (err as { stdout?: string }).stdout || ''
+      if (out.trim()) {
+        try {
+          const parsed = JSON.parse(out) as { metadata?: { vulnerabilities?: Record<string, number> } }
+          sections.push(`${root.label} npm audit: ${JSON.stringify(parsed.metadata?.vulnerabilities || {})}`)
+        } catch {
+          sections.push(`${root.label} npm audit raw: ${out.slice(0, 1200)}`)
+        }
+      } else {
+        sections.push(`${root.label} npm audit failed: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+  }
+
+  try {
+    const { stdout } = await execFileAsync('git', [
+      'grep', '-n', '-I', '-E',
+      '(api[_-]?key|secret|password|token)[[:space:]]*[:=]',
+      '--', ':!node_modules', ':!.git', ':!qdrant_storage', ':!logs',
+    ], {
+      cwd: factoryRoot(),
+      timeout: 60_000,
+      maxBuffer: 512 * 1024,
+      windowsHide: true,
+    })
+    const redacted = stdout
+      .split('\n')
+      .filter(Boolean)
+      .slice(0, 40)
+      .map((line) => line.replace(/([:=]\s*).+$/i, '$1[REDACTED]'))
+    sections.push(`secret-pattern scan: ${redacted.length} candidate lines\n${redacted.join('\n')}`)
+  } catch {
+    sections.push('secret-pattern scan: no tracked candidate lines found or git grep returned no matches')
+  }
+
+  sections.push('RCA: task ran through the local audit fallback because Claude Code CLI is not installed inside factory_rufloui; LiteLLM/vLLM model path remains available for model-backed summaries.')
+  return sections.join('\n\n').slice(0, 4000)
+}
+
+async function completeTaskViaLocalFallback(
+  taskId: string, task: TaskRecord, taskDesc: string,
+  wf: WorkflowRecord, workflowId: string,
+): Promise<void> {
+  const isSecurityAudit = /vulnerab|security|codebase\s+for\s+vuln|npm\s+audit|secret/i.test(taskDesc)
+  const result = isSecurityAudit
+    ? await runLocalVulnerabilityAudit()
+    : await runLiteLlmTaskCompletion(taskDesc)
+  wf.steps.push({
+    id: `step-${wf.steps.length + 1}`,
+    name: isSecurityAudit ? 'Local vulnerability audit' : 'LiteLLM task completion',
+    status: 'completed',
+    agent: isSecurityAudit ? 'security-audit-fallback' : 'litellm-agent',
+    detail: isSecurityAudit ? 'npm audit plus tracked secret-pattern scan' : 'Completed through qwen-coder-14b via LiteLLM',
+  })
+  task.status = 'completed'
+  task.completedAt = new Date().toISOString()
+  task.result = result.slice(0, 2000)
+  wf.status = 'completed'
+  wf.completedAt = task.completedAt
+  wf.result = task.result
+  await storeHiveMindMemory(`task-result-${taskId}`, `${task.title}: ${task.result.slice(0, 500)}`)
+  broadcast('task:updated', { ...task, id: taskId })
+  broadcast('workflow:updated', wf)
+  broadcast('task:output', { id: taskId, workflowId, type: 'text', content: task.result.slice(0, 1000) })
+  broadcast('task:output', { id: taskId, workflowId, type: 'done', code: 0 })
+}
+
 // Get active agents from registry, excluding terminated
 function getActiveSwarmAgents(): Array<{ id: string; name: string; type: string }> {
   return Array.from(agentRegistry.entries())
@@ -1423,6 +1564,21 @@ async function launchSwarmPipeline(
   const claudePath = process.env.LOCALAPPDATA
     ? `${process.env.USERPROFILE}\\.local\\bin\\claude.exe`
     : 'claude'
+  if (!commandAvailable(claudePath)) {
+    console.warn(`[TASK ${taskId}] Claude Code CLI unavailable (${claudePath}); using local fallback`)
+    completeTaskViaLocalFallback(taskId, task, taskDesc, wf, workflowId).catch((err) => {
+      const msg = err instanceof Error ? err.message : String(err)
+      task.status = 'failed'
+      task.result = `Local fallback failed: ${msg.slice(0, 1000)}`
+      wf.status = 'failed'
+      wf.result = task.result
+      broadcast('task:updated', { ...task, id: taskId })
+      broadcast('workflow:updated', wf)
+      broadcast('task:output', { id: taskId, workflowId, type: 'stderr', content: task.result })
+      broadcast('task:output', { id: taskId, workflowId, type: 'done', code: 1 })
+    })
+    return
+  }
   const mcpConfigPath = path.join(process.cwd(), '.mcp.json')
   const mcpArgs = fs.existsSync(mcpConfigPath) ? ['--mcp-config', mcpConfigPath] : []
 
