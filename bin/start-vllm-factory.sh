@@ -26,7 +26,7 @@ LOG_LEVEL=${VLLM_LOGGING_LEVEL:-info}
 QUANTIZATION=${QUANTIZATION:-}
 
 echo "Starting FactoryGrid vLLM"
-echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB quantization=${QUANTIZATION:-auto}"
+echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB quantization=${QUANTIZATION:-auto} + auto-tool-choice + hermes parser (for Hermes tool calling)"
 
 VLLM_BIN="${VLLM_BIN:-/home/revelation/vllm-env/bin/vllm}"
 if [[ ! -x "$VLLM_BIN" ]]; then
@@ -46,7 +46,9 @@ args=(
   --swap-space "$SWAP_SPACE_GB" \
   --uvicorn-log-level "$LOG_LEVEL" \
   --enable-prefix-caching \
-  --disable-log-requests
+  --disable-log-requests \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes
 )
 
 if [[ -n "$QUANTIZATION" && "$QUANTIZATION" != "none" ]]; then

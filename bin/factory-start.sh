@@ -141,10 +141,18 @@ docker compose ps
 
 fail=0
 check_endpoint "RuFloUI API" "http://127.0.0.1:${RUFLOUI_API_PORT:-28580}/api/system/info" || fail=1
-check_endpoint "RuFloUI Fabric" "http://127.0.0.1:${RUFLOUI_VITE_PORT:-28588}/monitoring/fabric" || fail=1
+public_rufloui_port="$(docker port factory_rufloui 28588/tcp 2>/dev/null | sed -n 's/.*:\([0-9][0-9]*\)$/\1/p' | head -1)"
+public_rufloui_port="${public_rufloui_port:-${RUFLOUI_VITE_PORT:-28589}}"
+if [ "$public_rufloui_port" != "${RUFLOUI_VITE_PORT:-28589}" ]; then
+  warn "factory_rufloui published port is $public_rufloui_port but RUFLOUI_VITE_PORT=${RUFLOUI_VITE_PORT:-28589}"
+fi
+if [ "$public_rufloui_port" != "28589" ]; then
+  die "RuFloUI public port drifted to $public_rufloui_port; expected 28589. Set RUFLOUI_VITE_PORT=28589 and recreate rufloui."
+fi
+check_endpoint "RuFloUI Fabric" "http://127.0.0.1:${public_rufloui_port}/monitoring/fabric" || fail=1
 check_endpoint "Factory host-control" "http://127.0.0.1:${FACTORY_HOST_CONTROL_PORT:-28601}/health" || fail=1
 check_endpoint "Qdrant" "http://127.0.0.1:${QDRANT_HTTP_PORT:-6333}/collections" || fail=1
 check_endpoint "Neo4j HTTP" "http://127.0.0.1:${NEO4J_HTTP_PORT:-7474}" || true
 
 [ "$fail" -eq 0 ] || die "stack started with endpoint failures"
-log "stack ready: http://192.168.178.20:${RUFLOUI_VITE_PORT:-28588}/monitoring/fabric"
+log "stack ready: http://192.168.178.20:${public_rufloui_port}/monitoring/fabric"

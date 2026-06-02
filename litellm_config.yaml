@@ -4,3 +4,25 @@ model_list:
       model: openai/Qwen/Qwen2.5-Coder-14B-Instruct-AWQ
       api_base: http://host.docker.internal:18000/v1
       api_key: "not-needed"
+
+  # Aliases for Anthropic-format clients (Claude Code CLI, Hermes, etc.)
+  # Point ANTHROPIC_BASE_URL=http://<litellm>:4000 (or :4000/anthropic) and use one of these as model / CLAUDE_CODE_MODEL
+  - model_name: qwen-coder-14b-anthropic
+    litellm_params:
+      model: openai/Qwen/Qwen2.5-Coder-14B-Instruct-AWQ
+      api_base: http://host.docker.internal:18000/v1
+      api_key: "not-needed"
+
+  - model_name: mode-a-research
+    litellm_params:
+      model: openai/Qwen/Qwen2.5-Coder-14B-Instruct-AWQ
+      api_base: http://host.docker.internal:18000/v1
+      api_key: "not-needed"
+      supports_auto_tool_choice: true
+      supports_parallel_tool_calls: true
+
+  - model_name: local-qwen
+    litellm_params:
+      model: openai/Qwen/Qwen2.5-Coder-14B-Instruct-AWQ
+      api_base: http://host.docker.internal:18000/v1
+      api_key: "not-needed"
