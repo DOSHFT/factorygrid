@@ -91,7 +91,7 @@ services:
       - .env
     environment:
       OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
-      OPENAI_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      OPENAI_API_KEY: ${FACTORY_API_KEY:?Set FACTORY_API_KEY in .env}
       RUFLO_MCP_PORT: ${RUFLO_MCP_PORT:-3010}
       NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
       NEO4J_USER: ${NEO4J_USER:-neo4j}
@@ -142,7 +142,7 @@ services:
       RUFLOUI_SKIP_PERMISSIONS: ${RUFLOUI_SKIP_PERMISSIONS:-true}
       RUFLOUI_CORS_ORIGIN: ${RUFLOUI_CORS_ORIGIN:-http://localhost:28589}
       OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
-      OPENAI_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      OPENAI_API_KEY: ${FACTORY_API_KEY:?Set FACTORY_API_KEY in .env}
       FACTORYGRID_ROOT: /factorygrid
       NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
       NEO4J_USER: ${NEO4J_USER:-neo4j}
@@ -177,7 +177,7 @@ services:
       - .env
     environment:
       OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
-      OPENAI_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      OPENAI_API_KEY: ${FACTORY_API_KEY:?Set FACTORY_API_KEY in .env}
       FACTORY_WORKER_ROLE: qwen-code-idle
     command: tail -f /dev/null
     networks:
@@ -212,7 +212,7 @@ services:
       LLM_PROVIDER: openai
       LLM_MODEL: openai/qwen-coder-14b
       LLM_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
-      LLM_API_KEY: ${FACTORY_API_KEY:-factory-secret-key}
+      LLM_API_KEY: ${FACTORY_API_KEY:?Set FACTORY_API_KEY in .env}
       TAVILY_API_KEY: ${TAVILY_API_KEY:-}
       SANDBOX_USER_ID: 0
       SANDBOX_TIMEOUT: 120
