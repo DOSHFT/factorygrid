@@ -1,42 +1,67 @@
 # FactoryGrid Fabric Monitoring
 
-Date: 2026-05-27
+Last verified: 2026-06-06
 
 ## Purpose
 
-The Fabric page is the operator view for FactoryGrid runtime state. It should show production containers, task state, memory state, and service reachability without mixing old experimental memory containers into the active path.
+The Fabric page is the operator view for FactoryGrid runtime state. It should show production containers, task state, memory state, GPU/model state, and service reachability without mixing old experimental memory containers into the active path.
+
+Fabric must reflect the current runtime split:
+
+- WSL `Revelation`: vLLM, LiteLLM, RuFlo, RuFloUI, Qdrant, Neo4j, OpenHands, Qwen worker.
+- WSL `decima-intelligence-it`: Hermes dashboard/chat, Hermes CLI, claude-code CLI, agent-server.
+- Windows host: `D:\Hermes-Desktop`, browser/operator access, LAN portproxy.
 
 ## Data Sources
 
 - Docker container inventory: `docker ps -a --format`, with fallback to the mounted Docker Engine socket at `/var/run/docker.sock`.
 - Task state: RuFloUI task store.
-- Memory state: Factory Brain entries plus memory API stats.
+- Memory state: Factory Brain, Qdrant recall, and Neo4j shadow graph.
 - Runtime endpoints: `/api/system/factory-runtime`.
 - GPU state: `nvidia-smi`.
 - Fabric page snapshot: `/api/fabric/snapshot`.
+- Decima Hermes reachability: `http://172.20.86.232:9119/logs`.
+- Windows Hermes Desktop status: filesystem checks under `D:\Hermes-Desktop` when inspected from the host.
 
-`/api/monitoring/fabric` returns the full production report. `/api/fabric/snapshot` adapts the same live data into the node/link/count shape consumed by the existing Fabric page.
-
-The RuFloUI container currently has the Docker socket mounted but does not include a `docker` binary. Fabric monitoring therefore must use the Docker socket fallback when running in the live container; otherwise the page collapses to `docker-unavailable`.
+`/api/monitoring/fabric` returns the full production report. `/api/fabric/snapshot` adapts the same live data into the node/link/count shape consumed by the Fabric page.
 
 ## Service Checks
 
 `/api/system/factory-runtime` checks service endpoints that RuFloUI must directly depend on:
 
-- vLLM model server: tries configured `VLLM_HOST`, then `127.0.0.1:18000`, then `localhost:18000`, then `host.docker.internal:18000`.
-- LiteLLM gateway: tries local host mapping and Docker service name.
-- OpenHands: tries local host mapping and Docker service name.
-- RuFlo orchestrator: reported from Docker healthcheck status.
+- vLLM model server: configured `VLLM_HOST`, `127.0.0.1:18000`, `localhost:18000`, `host.docker.internal:18000`.
+- LiteLLM gateway: Docker service name and host mapping.
+- OpenHands: Docker service name and host mapping.
+- RuFlo orchestrator: Docker healthcheck status.
+- Qdrant: production container and memory API behavior.
+- Neo4j: container status and HTTP/Bolt health; currently running but unhealthy.
 
-The Fabric page now also shows a **Degraded States** section. Every yellow or red node/link must be listed there with:
+The Fabric page shows a **Degraded States** section. Every yellow or red node/link must list:
 
-- the affected component or connection,
-- the raw probe detail,
-- a restart action when the target is a production Docker container,
-- vLLM start, warm-up, reload, and RCA actions when the model endpoint is down or suspect,
-- RCA output that includes an inference probe instead of only reporting that a PID exists.
+- affected component or connection,
+- raw probe detail,
+- restart action when target is a production Docker container,
+- vLLM start/warm-up/reload/RCA actions when the model endpoint is down or suspect,
+- RCA output with inference evidence, not only PID/port evidence.
 
-The RuFlo orchestrator runtime line is green when the `factory_ruflo` production container is healthy. It should not show vague yellow `unknown` while Docker health is green.
+The RuFlo orchestrator runtime line is green when `factory_ruflo` is healthy. It should not show vague yellow `unknown` while Docker health is green.
+
+## Live Status Snapshot
+
+Verified on 2026-06-06:
+
+| Component | Status |
+| --- | --- |
+| `factory_qdrant` | healthy |
+| `factory_litellm` | healthy |
+| `factory_ruflo` | healthy |
+| `factory_rufloui` | healthy |
+| `agent_qwen_code` | healthy |
+| `agent_openhands` | healthy |
+| `factory_neo4j` | running but unhealthy |
+| native vLLM | serves `Qwen/Qwen2.5-Coder-14B-Instruct-AWQ` on port `18000` |
+| Decima Hermes | reachable on `http://172.20.86.232:9119/` |
+| Windows Hermes Desktop | installed under `D:\Hermes-Desktop` |
 
 ## Operator Actions
 
@@ -45,45 +70,56 @@ Production Docker rows can be restarted from Fabric through `/api/fabric/restart
 vLLM is a native WSL GPU process, not a Docker container. Fabric controls it through the host-control bridge:
 
 - host-control service: `bin/factory-host-control.py`
-- RuFloUI host-control candidates: configured `FACTORY_HOST_CONTROL_URL`, then `http://172.18.0.1:28601`, `http://host.docker.internal:28601`, `http://127.0.0.1:28601`, `http://localhost:28601`
 - start script: `bin/start-factory-host-control.sh`
 - vLLM launcher: `bin/restart-vllm-factory.sh`
 - warm-up endpoint: `POST /vllm/warmup`
 - RCA reports: `workspace/reports/vllm-rca/`
 
-`bin/factory-start.sh` starts the host-control bridge as part of the normal stack startup and fails the startup health check if `/health` is unavailable. The bridge must run in the native WSL environment that owns the GPU vLLM virtualenv; Fabric then reaches it from Docker through the host-control candidate list above.
-
-The Fabric vLLM readiness probe checks `/v1/models` through the configured `VLLM_HOST` and Docker gateway fallback `http://172.18.0.1:18000/v1/models`. If all candidates fail, the red Fabric line must show each failed URL so the operator can distinguish a dead model process from a container-to-host routing problem.
-
-Fabric exposes three separate vLLM operator actions:
+Fabric exposes three vLLM operator actions:
 
 - **Start Model** starts the selected model if vLLM is stopped.
-- **Warm Up Model** sends a real OpenAI-compatible chat completion request directly to `http://127.0.0.1:18000/v1/chat/completions`. This forces the selected model through an inference pass and writes GPU-before/GPU-after evidence to `workspace/reports/vllm-warmup/`.
-- **Reload Model** restarts the native WSL vLLM process with the selected model.
+- **Warm Up Model** sends a real OpenAI-compatible chat completion request directly to vLLM and writes GPU-before/GPU-after evidence.
+- **Reload Model** restarts native WSL vLLM with the selected model.
 
-The model dropdown is populated from the current default model, `FACTORY_VLLM_MODELS` when provided to host-control, and cached Hugging Face model directories under `~/.cache/huggingface/hub`. If only one model is installed/configured, the dropdown intentionally shows one option.
+Changing or reloading the selected model persists the model and safety preset to `runtime/vllm-model.env`, restarts native vLLM, then restarts model-call dependencies: `factory_litellm`, `factory_ruflo`, `agent_qwen_code`, and `agent_openhands`.
 
-Host-control attaches a safe launch preset to each model candidate before Fabric displays it. The preset controls `GPU_MEM`, `MAX_MODEL_LEN`, `MAX_NUM_SEQS`, `MAX_BATCHED_TOKENS`, `SWAP_SPACE_GB`, and `QUANTIZATION`. AWQ models use `awq_marlin`; non-AWQ models do not get forced AWQ quantization. Non-quantized 70B-class models are blocked on the RTX 4090 24GB path because they are likely to OOM.
+## True Memory Path
 
-Changing or reloading the selected model persists the model and safety preset to `runtime/vllm-model.env`, restarts native vLLM, then restarts model-call dependencies through Fabric: `factory_litellm`, `factory_ruflo`, `agent_qwen_code`, and `agent_openhands`.
+Fabric must show current authoritative memory nodes:
 
-The RCA action now also runs the same small inference probe. A PID, listening port, or `/v1/models` response is not enough to mark vLLM healthy; the useful health signal is whether the model can complete a request and whether GPU evidence is captured in the report.
+- `Factory Brain`: readable source of truth from `workspace/factory-brain/pages`.
+- `Qdrant Recall`: production vector recall store.
+- `Neo4j Shadow Graph`: temporal graph candidate, currently degraded.
 
-Qdrant is not checked as a direct RuFloUI-to-Qdrant connection line. That edge caused false red Fabric lines when RuFloUI was served from WSL while Qdrant was Docker-scoped. Qdrant remains monitored as:
-
-- the `factory_qdrant` production container,
-- memory API stats,
-- Factory Brain and Qdrant-backed memory behavior.
+Graphiti is not authoritative yet. It remains the future activation path over Neo4j once local chat and embedding endpoints are fully configured and Neo4j health is green.
 
 ## Container Classification
 
-- `production`: current FactoryGrid services such as RuFloUI, RuFlo, LiteLLM, Qdrant, Neo4j, OpenHands, and Qwen worker.
-- `legacy`: stopped or old memory-related containers, including old experimental memory/gateway containers.
+- `production`: RuFloUI, RuFlo, LiteLLM, Qdrant, Neo4j, OpenHands, Qwen worker.
+- `legacy`: stopped or old memory-related containers.
 - `support`: discovered containers that are not production-authoritative.
 
-Legacy memory-related containers are intentionally highlighted in orange so they are visible but not mistaken for the live memory path.
+Legacy and stopped containers are intentionally omitted from the Fabric graph. They are not production-authoritative and should not create degraded rows for the current stack.
 
 ## Windows Portproxy
+
+Revelation LAN exposure should include FactoryGrid services only:
+
+- `22`
+- `28589`
+- `28580`
+- `3001`
+- `3011`
+- `4001`
+- `6333`
+- `18000`
+
+Hermes is Decima-owned and must be shown separately:
+
+- Hermes dashboard/chat/logs: `http://172.20.86.232:9119/`
+- Hermes CLI ttyd: `http://172.20.86.232:7681`
+- claude-code ttyd: `http://172.20.86.232:7682`
+- agent-server helper: `http://172.20.86.232:8000`
 
 If the public LAN page shows stale Fabric data, check Windows portproxy rules from elevated PowerShell:
 
@@ -99,9 +135,9 @@ foreach ($p in 28580,28588,28589,3001,3011,4001,6333,6334) {
 }
 ```
 
-Then restart from WSL:
+Then restart from WSL `Revelation`:
 
 ```bash
-cd /mnt/d/UAT/factorygrid
+cd /home/revelation/factorygrid
 ./bin/factory-start.sh
 ```

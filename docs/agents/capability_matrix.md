@@ -1,55 +1,60 @@
 # Revelation Factory Agent Capability Matrix
 
-Date: 2026-05-18
+Last verified: 2026-06-06
 
-## Policy
+## Runtime Policy
 
-This is a development factory. Agents operate in YOLO mode after a DR snapshot exists for the run. YOLO does not mean unbounded writes. It means no per-step approval inside declared boundaries.
+FactoryGrid is a local development factory. Agents may run in YOLO mode only inside declared run boundaries after a DR snapshot exists. YOLO means no per-step approval; it does not mean unbounded writes, secret access, production network actions, or bypassing gates.
 
-## Agent Capabilities
+The current execution split is:
+
+| Runtime | Live Responsibility |
+| --- | --- |
+| WSL `Revelation` | RuFlo, RuFloUI, vLLM, LiteLLM, Qdrant, Neo4j, OpenHands, Qwen worker, Factory Brain |
+| WSL `decima-intelligence-it` | Hermes dashboard/chat, Hermes CLI, claude-code CLI, research sidecar, ttyd consoles |
+| Windows host | `D:\Hermes-Desktop`, browser/operator access, Git/PowerShell, LAN portproxy |
+
+## Live Agent Capabilities
+
+These are configured in `ruflo_project/ruflo.config.js` with `maxAgents: 11`.
 
 | Agent | Primary Role | Allowed Capabilities | Blocked Capabilities | Required Input | Required Output |
 | --- | --- | --- | --- | --- | --- |
-| Queen | State-machine orchestration | create run id, trigger snapshot, route stages, enforce gates | direct code writes, bypassing failed gates | user request | `workspace/manifests/<run_id>_task_manifest.json` |
-| Researcher | Current-source evidence | Tavily, Firecrawl when configured, source manifests, summaries | uncited claims, raw page dumps into prompt | manifest | research brief and source manifest |
-| Architect | Workspace topology and interfaces | shallow reads, blueprint generation, allowed path definition | deep broad scans, write operations | research brief | architecture blueprint |
-| Coder | Scoped implementation | write only allowed paths, local tests, small diffs | protected file edits unless `infrastructure_run=true`, broad refactors | architecture blueprint | code diff |
-| Tester | Runtime validation | run commands, capture exit codes, stack traces | guessed results, success claims without output | code diff and blueprint | validation report |
-| Reviewer | Safety and compliance | diff review, CodeRabbit when available, static/security review | approving out-of-scope diffs, ignoring failed tests | blueprint and validation report | review log |
-| Documenter | Durable memory and handoff | handoff docs, changelog updates, memory prep | raw secret/log ingestion, vague summaries | review log | handoff summary |
-| MemoryReader | Evidence retrieval | Graphiti/Qdrant/Factory Brain lookup, evidence-chain summaries | uncited recall, mixing superseded facts silently | operator request or task context | evidence chain + stale-memory warnings |
-| MemoryWriter | Provenance-rich memory write | Graphiti episode write, Qdrant/file fallback, source hash capture | raw secret/log ingestion, untraceable summaries | accepted artifact or handoff summary | memory id + source path + content hash |
-| MemoryChecker | SAGE-style validation | contradiction detection, repair-task creation, superseded/invalidated relation requests | deleting old memory, unreviewed automatic truth replacement | task result + validation/review artifacts | contradiction report + repair tasks |
+| Queen | State-machine orchestration | create run id, trigger snapshot, route stages, enforce gates, require export coverage for UAT/PROD updates | direct code writes, bypassing failed gates, unbounded task spawning | user request | task manifest, state transitions, task graph |
+| Architect | System design | shallow workspace mapping, interface design, allowed write path definition, protected-file detection | broad repo dumps, write operations, unapproved dependency/config edits | research brief + constraints | `architecture_blueprint.json` |
+| Researcher | Current-source evidence | Tavily search, source manifests, freshness checks, provenance summaries | uncited claims, raw page dumps into prompts, credentialed scraping without scope | manifest or operator request | `research_brief.md`, `source_manifest.json` |
+| Coder | Scoped implementation | edit allowed paths, follow local patterns, keep diffs attributable, run local commands | protected file edits unless `infrastructure_run=true`, broad refactors, secret ingestion | approved blueprint | bounded diff |
+| Tester | Runtime validation | run declared commands, capture exit codes, stack traces, endpoint probes | guessed results, stale test output, success claims without command evidence | diff + blueprint | `validation_report.md` |
+| Reviewer | Safety and code review | diff review, scope review, security/performance/missing-test review | approving out-of-scope diffs, ignoring failed tests, normalizing unsafe autonomy | blueprint + validation report | `review_log.json` |
+| Documenter | Durable documentation | handoff summaries, run pages, docs/runbook updates, memory-ready summaries | raw secret/log ingestion, vague summaries, untraceable memory writes | review log + artifacts | `handoff_summary.md`, Factory Brain updates |
+| Technology-Strategist | Adversarial technology selection | compare stacks, document reversal triggers, block weak technology choices | rubber-stamping preferred tools, unresearched dependency choices | goal + constraints | technology decision note |
+| GitHub-Risk-Scout | Upstream failure intelligence | mine upstream docs/issues/releases for setup/protocol/performance risks | relying on stale recalled package behavior, uncited upstream claims | dependency or integration target | risk brief + source manifest |
+| Performance-Engineer | Latency and throughput validation | define p50/p95/p99, throughput, allocation, backpressure, soak requirements | accepting functional-only validation for performance-sensitive work | architecture + target SLOs | performance profile + validation plan |
+| Blue-Team-CELL | Defensive cellular security research | lab-only 2G-6G/O-RAN threat modeling, detection/control matrices, validation plans | live-network interception, jamming, rogue base stations, subscriber capture, unauthorized RF activity | source manifest + operator request | cellular blue-team brief + lab plan |
 
-## Live Swarm Validation
+## Memory Roles
 
-Last verified: 2026-05-27.
+MemoryReader, MemoryWriter, and MemoryChecker are design responsibilities, not currently separate healthy production containers. Their live behavior is implemented through:
 
-RuFloUI task `task-1779871888034-2ca023` completed with `QUEEN_SPEC_KIT_VALIDATION_OK` after the Queen-led swarm validated Spec-Kit intake artifacts for run `20260527-spec-kit-queen-smoke-build-0a111ccb`.
+- Factory Brain markdown under `workspace/factory-brain/pages`.
+- Qdrant collections including `factory_context_index`, `factory_research_sources`, and `factory_run_artifacts`.
+- Documenter/Queen-managed run pages and handoff summaries.
+- Neo4j as a shadow graph only; it is running but currently reports unhealthy.
 
-The live swarm roster available to the task was:
+Do not document MemoryReader/Writer/Checker as live services until their endpoints and health checks are green.
 
-- Queen/coordinator
-- Architect/architect
-- Researcher/researcher
-- Coder/coder
-- Tester/tester
-- Reviewer/reviewer
-- Analyst/analyst
+## Live Runtime Validation
 
-Registry bug fixed during this validation: agents spawned within the same second were previously keyed by display time, causing most specialists to be overwritten. The registry now keys API-spawned agents by stable agent id.
+Verified on 2026-06-06:
 
-## Production Readiness Executor
-
-Last verified: 2026-05-28.
-
-RuFloUI now short-circuits explicit operator smoke tasks before the LLM planner when the requested operation is deterministic and safety-bounded:
-
-- `Reply exactly <TOKEN>` returns the token directly.
-- `Create/write the file /factorygrid/workspace/... containing exactly <TOKEN>` writes only under `workspace/`, reads the file back, and records Queen/Coder/Tester/Reviewer workflow steps.
-- Spec-Kit Queen validation checks the real generated request/spec/checklist/brain artifacts before completing.
-
-This exists because local LLM planning can describe tool calls without actually executing them. Deterministic, bounded tasks must prove execution through filesystem state, not prose.
+- Native vLLM serves `Qwen/Qwen2.5-Coder-14B-Instruct-AWQ` on `Revelation:18000`.
+- LiteLLM exposes `qwen-coder-14b`, `qwen-coder-14b-anthropic`, `mode-a-research`, and `local-qwen`.
+- `factory_ruflo` runs RuFlo `3.7.0-alpha.44` and exposes MCP on host port `3011`.
+- `factory_rufloui` exposes API `28580` and frontend `28589`.
+- `factory_qdrant`, `factory_litellm`, `factory_ruflo`, `factory_rufloui`, `agent_qwen_code`, and `agent_openhands` are healthy.
+- `factory_neo4j` is running but unhealthy; graph memory remains non-authoritative.
+- Decima Hermes dashboard runs on `http://172.20.86.232:9119/`.
+- Decima claude-code and Hermes shells are exposed on ttyd ports `7682` and `7681`.
 
 ## Protected Paths
 
@@ -60,9 +65,13 @@ These require explicit `infrastructure_run=true` in the architecture blueprint:
 - `litellm_config.yaml`
 - `openhands_state/settings.json`
 - `bin/start-vllm-factory.sh`
+- `bin/restart-vllm-factory.sh`
+- `runtime/vllm-model.env`
 - dependency manifests and lockfiles
 - model launchers
 - credentials and secret stores
+- Windows portproxy scripts
+- Decima Hermes launchers
 
 ## Gate Chain
 
@@ -78,13 +87,15 @@ pre_work_snapshot.sh
   -> Reviewer
   -> gate_review.py
   -> Documenter
+  -> gate_export_coverage.py when UAT/PROD/runtime contracts change
 ```
 
 ## Runtime Notes
 
-- Stable model: `qwen-coder-14b` through LiteLLM.
+- Default model alias for factory work: `qwen-coder-14b`.
+- Default research/Hermes/claude-code alias: `mode-a-research`.
 - Context cap: 32k.
 - Parallel vLLM sequences: 4.
-- OpenHands correction loop guard: 40 max iterations, 3 factory correction cycles.
-
-| Blue-Team-CELL | Defensive cellular security research | lab-only 2G-6G/O-RAN threat modeling, source ingestion, control matrices, validation plans | live-network interception, jamming, rogue base stations, subscriber capture, unauthorized RF activity | source manifest + operator request | cellular blue-team brief + lab plan |
+- OpenHands correction loop guard: 40 max iterations.
+- Factory correction cycles: 3.
+- Decima is the only Hermes runtime documented for the dashboard URL; do not attach Hermes to Revelation port-forward status.
