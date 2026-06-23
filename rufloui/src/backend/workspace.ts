@@ -92,6 +92,15 @@ export interface WorkspaceFile {
   truncated: boolean
 }
 
+export interface WorkspacePushResult {
+  ok: boolean
+  branch: string
+  commit: string
+  files: string[]
+  stdout: string
+  stderr: string
+}
+
 export async function listWorkspaceTree(root: string, limit = 800): Promise<WorkspaceTree> {
   const resolvedRoot = await resolveWorkspaceRoot(root)
   const nodes: WorkspaceTreeNode[] = []
@@ -202,6 +211,49 @@ export async function getWorkspaceFile(root: string, filePath: string): Promise<
     }
   } finally {
     await handle.close()
+  }
+}
+
+export async function pushWorkspaceFiles(root: string, files: string[], message?: string): Promise<WorkspacePushResult> {
+  const resolvedRoot = await resolveWorkspaceRoot(root)
+  const safeFiles = [...new Set(files.map((file) => sanitizeRelativePath(file)).filter(Boolean))]
+  if (safeFiles.length === 0) throw new Error('At least one changed file must be selected')
+
+  const status = await getWorkspaceStatus(resolvedRoot)
+  const changed = new Set(status.files.map((file) => file.path))
+  const missing = safeFiles.filter((file) => !changed.has(file))
+  if (missing.length) throw new Error(`Selected path is not currently changed: ${missing.join(', ')}`)
+
+  const env = gitEnv(resolvedRoot)
+  const branch = (await execFileAsync('git', ['branch', '--show-current'], { cwd: resolvedRoot, env })).stdout.trim()
+  if (!branch) throw new Error('Cannot push from detached HEAD')
+
+  await execFileAsync('git', ['add', '--', ...safeFiles], { cwd: resolvedRoot, env })
+  const staged = (await execFileAsync('git', ['diff', '--cached', '--name-only', '--', ...safeFiles], { cwd: resolvedRoot, env })).stdout
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+  if (staged.length === 0) throw new Error('Selected files produced no staged changes')
+
+  const commitMessage = (message || `sync workspace changes: ${staged.slice(0, 3).join(', ')}${staged.length > 3 ? ` and ${staged.length - 3} more` : ''}`).slice(0, 180)
+  await execFileAsync('git', ['commit', '-m', commitMessage], {
+    cwd: resolvedRoot,
+    env,
+    maxBuffer: 1024 * 1024,
+  })
+  const commit = (await execFileAsync('git', ['rev-parse', '--short', 'HEAD'], { cwd: resolvedRoot, env })).stdout.trim()
+  const pushed = await execFileAsync('git', ['push', 'origin', branch], {
+    cwd: resolvedRoot,
+    env,
+    maxBuffer: 2 * 1024 * 1024,
+  })
+  return {
+    ok: true,
+    branch,
+    commit,
+    files: staged,
+    stdout: pushed.stdout,
+    stderr: pushed.stderr,
   }
 }
 

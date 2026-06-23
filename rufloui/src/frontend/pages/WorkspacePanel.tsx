@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, Eye, FileText, Folder, GitCompare, RefreshCw } from 'lucide-react'
+import { ChevronDown, ChevronRight, Eye, FileText, Folder, GitCompare, RefreshCw, UploadCloud } from 'lucide-react'
 import { api } from '@/api'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -102,6 +102,10 @@ export default function WorkspacePanel() {
   const [diff, setDiff] = useState('')
   const [mode, setMode] = useState<ViewMode>('preview')
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [markedForPush, setMarkedForPush] = useState<Set<string>>(new Set())
+  const [pushMessage, setPushMessage] = useState('')
+  const [pushStatus, setPushStatus] = useState('')
+  const [pushing, setPushing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [contentLoading, setContentLoading] = useState(false)
 
@@ -112,6 +116,7 @@ export default function WorkspacePanel() {
   }, [statusFiles])
 
   const roots = useMemo(() => buildTree(tree?.nodes ?? []), [tree])
+  const selectedPushFiles = useMemo(() => statusFiles.filter((file) => markedForPush.has(file.path)), [markedForPush, statusFiles])
 
   const refresh = async () => {
     setLoading(true)
@@ -119,6 +124,11 @@ export default function WorkspacePanel() {
       const [treeRes, statusRes] = await Promise.all([api.workspace.tree(2000), api.workspace.status()])
       setTree(treeRes)
       setStatusFiles(statusRes.files)
+      setMarkedForPush((current) => {
+        const changed = new Set(statusRes.files.map((file) => file.path))
+        if (current.size) return new Set([...current].filter((file) => changed.has(file)))
+        return new Set(statusRes.files.filter((file) => file.status === 'modified' || file.status === 'deleted').map((file) => file.path))
+      })
       setExpanded((current) => current.size ? current : defaultExpanded(treeRes.nodes))
       if (!selectedPath && statusRes.files[0]) {
         setSelectedPath(statusRes.files[0].path)
@@ -159,6 +169,39 @@ export default function WorkspacePanel() {
   const selectFile = (path: string, nextMode: ViewMode = 'preview') => {
     setSelectedPath(path)
     setMode(nextMode)
+  }
+
+  const toggleMarkedForPush = (path: string) => {
+    setMarkedForPush((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) next.delete(path)
+      else next.add(path)
+      return next
+    })
+  }
+
+  const markModifiedDeleted = () => {
+    setMarkedForPush(new Set(statusFiles.filter((file) => file.status === 'modified' || file.status === 'deleted').map((file) => file.path)))
+  }
+
+  const pushSelected = async () => {
+    if (selectedPushFiles.length === 0) {
+      setPushStatus('Select at least one modified/deleted/created file to push.')
+      return
+    }
+    setPushing(true)
+    setPushStatus('')
+    try {
+      const result = await api.workspace.pushSelected(selectedPushFiles.map((file) => file.path), pushMessage.trim() || undefined)
+      setPushStatus(`Pushed ${result.commit} to ${result.branch}: ${result.files.join(', ')}`)
+      setPushMessage('')
+      setMarkedForPush(new Set())
+      await refresh()
+    } catch (err) {
+      setPushStatus((err as Error).message)
+    } finally {
+      setPushing(false)
+    }
   }
 
   const renderNode = (node: TreeItem, depth = 0) => {
@@ -207,8 +250,31 @@ export default function WorkspacePanel() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0, minHeight: 0 }}>
-        <Card title={`Git Changes (${statusFiles.length})`}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 16px 16px' }}>
+        <Card
+          title={`Git Changes (${statusFiles.length})`}
+          actions={statusFiles.length > 0 && (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <Button size="sm" variant="secondary" onClick={markModifiedDeleted}>Mark modified/deleted</Button>
+              <Button size="sm" onClick={pushSelected} loading={pushing} disabled={selectedPushFiles.length === 0}>
+                <UploadCloud size={14} /> Commit & Push selected
+              </Button>
+            </div>
+          )}
+        >
+          <div style={{ display: 'grid', gap: 10, padding: '0 16px 16px' }}>
+            {statusFiles.length > 0 && (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <input
+                  value={pushMessage}
+                  onChange={(event) => setPushMessage(event.target.value)}
+                  placeholder="Commit message (optional)"
+                  style={inputStyle}
+                />
+                <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>{selectedPushFiles.length} marked</span>
+              </div>
+            )}
+            {pushStatus && <div style={{ color: pushStatus.startsWith('Pushed ') ? 'var(--accent-green)' : 'var(--accent-red)', fontSize: 12 }}>{pushStatus}</div>}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {statusFiles.length === 0 ? (
               <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>No git changes detected.</span>
             ) : statusFiles.map((file) => (
@@ -222,11 +288,22 @@ export default function WorkspacePanel() {
                   color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', maxWidth: 360,
                 }}
               >
+                <input
+                  type="checkbox"
+                  checked={markedForPush.has(file.path)}
+                  onChange={(event) => {
+                    event.stopPropagation()
+                    toggleMarkedForPush(file.path)
+                  }}
+                  onClick={(event) => event.stopPropagation()}
+                  title="Mark for commit and push"
+                />
                 <GitCompare size={13} color={STATUS_COLORS[file.status]} />
                 <span style={{ color: STATUS_COLORS[file.status], textTransform: 'uppercase', fontSize: 10, fontWeight: 700 }}>{file.status}</span>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.path}</span>
               </button>
             ))}
+            </div>
           </div>
         </Card>
 
@@ -251,6 +328,18 @@ export default function WorkspacePanel() {
       </div>
     </div>
   )
+}
+
+const inputStyle = {
+  minWidth: 280,
+  flex: '1 1 320px',
+  height: 30,
+  border: '1px solid var(--border)',
+  borderRadius: 'var(--radius)',
+  background: 'var(--bg-secondary)',
+  color: 'var(--text-primary)',
+  padding: '0 10px',
+  fontSize: 12,
 }
 
 function toggleStyle(active: boolean) {

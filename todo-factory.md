@@ -1,9 +1,11 @@
 # Revelation Factory TODO
 
-Date: 2026-05-17
+Date: 2026-06-23 (reprioritized with Jarvis lifecycle)
 Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 
 ## Top 360-Degree Weakness Checklist
+
+**Jarvis + Full Lifecycle Reference (high-priority P1 enabler, added after review of open items):** See `workspace/handover_to_codex/JARVIS_LIFECYCLE_HANDOVER.md` for assessment, implementation status, matrix, planner, and detailed phased checklist with propose/review/gates. This work directly addresses verbal goal intake, context-engineering, task state machine, research provenance, governance, and observability. Reprioritized above lower P1s as the vehicle for complex/ambitious projects (e.g. secure GrapheneOS apps). Cross-refs added throughout.
 
 - [x] P0: Rotate the exposed Tavily key and move all secrets out of `docker-compose.yml` and committed state files into `.env` or Docker secrets. Repo-side cleanup is complete: tracked Tavily/key literals were scrubbed, committed `.bak` files with secrets were removed, and `bin/factory-secret-scan.sh` is wired into `factory-doctor`. Operator still must rotate the previously exposed Tavily key in the Tavily console.
 - [x] P0: Fix WSL resource mismatch. Current live `revelation` runtime now verifies about 47 GiB RAM and 24 GiB swap via `bin/factory-doctor.sh`.
@@ -15,8 +17,10 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 - [ ] P0: Add per-agent workspace guardrails: git snapshot before each run, allowlisted write paths, config-file HITL gate, and rollback instructions. Progress: RuFloUI task launches now require a git worktree, refuse protected config/dependency path mentions with HITL-required output, and create pre-run snapshots. Deterministic bounded file-write tasks also enforce the write allowlist, refuse protected paths, create pre-write snapshots, and return rollback instructions.
 - [x] P0: Reduce Docker socket blast radius. RuFlo no longer mounts `/var/run/docker.sock`; RuFloUI keeps it for Fabric monitoring but Docker restart actions require `FACTORY_ALLOW_DOCKER_RESTARTS=true`; OpenHands retains it for sandbox/runtime control. See `docs/runbooks/DOCKER_SOCKET_BOUNDARY.md`.
 - [ ] P1: Implement a real context-engineering layer. The model is intentionally capped at 32k context, so every run needs context packs, summaries, exact evidence, and Qdrant recall instead of raw log/file flooding.
+- [ ] P1: Jarvis + Planning Agent + full input matrix for verbal goals (spec-kit superset with threat/platform/security sections). Entry via RuFloUI FactoryPanel or Hermes. Creates project item + starts gated Research phase. **Primary reference: `workspace/handover_to_codex/JARVIS_LIFECYCLE_HANDOVER.md` (full spec, implementation status, continuation guide) + `docs/jarvis/INPUT_MATRIX.md` (schema + GrapheneOS example) + `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` (phases, propose/review/gates, checklist).** This is the verbal entry + lifecycle driver that enables context-engineering and the desired task state machine (INTAKE → RESEARCH → ... → SHIP).
+- [ ] P1: Full lifecycle stack (Research phase with deep research + agent propose/review/iterate + gates → Dev/Engineering → Production/Release). Queen + planner agent owns propose/review loops and phase transitions. Follow the explicit checklist in `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` (referenced from handover). High priority enabler for multiple P1s below (context packs, provenance, governance, observability with phase progress, git-in-workspace for DR).
 - [ ] P1: Add research provenance. Firecrawl/Tavily outputs must store URL, fetch time, title, extracted markdown, citation hash, and run id.
-- [ ] P1: Add observability: GPU/VRAM, WSL RAM/swap, token throughput, queue depth, request latency, OpenHands iterations, RuFlo task status, and browser/UI stream pressure.
+- [ ] P1: Add observability: GPU/VRAM, WSL RAM/swap, token throughput, queue depth, request latency, OpenHands iterations, RuFlo task status, and browser/UI stream pressure. **Phase progress visible in Jarvis/Fabric** (tied to Jarvis lifecycle phases per `JARVIS_LIFECYCLE_HANDOVER.md`). Critical for Research/Dev/Release visibility.
 - [x] P1: Add backup/restore scripts for Qdrant, RuFlo project state, RuFlo UI persistence, OpenHands state, LiteLLM config, and vLLM scripts. Verified with `/home/revelation/factorygrid_backups/factorygrid-20260623T015331Z.tar.gz`; includes manifest/checksum, Qdrant snapshot, dry-run restore, and excludes secrets by default.
 - [x] P1: Decide the `agent_qwen_code` container purpose. Removed the idle `qwen_code_worker` / `agent_qwen_code` service from Compose and Fabric topology instead of keeping a tail-only worker with no contract.
 - [ ] P1: Initialize/require git in active workspaces before autonomous edits. RuFlo UI currently needs reliable diff/commit/rollback visibility.
@@ -92,7 +96,9 @@ The PDF contains useful intent but should not be copied directly into production
   - [x] `runtime/systemd/factory-vllm.service`
   - [x] Red-team profile corrected to use the vLLM/LiteLLM OpenAI-compatible harness instead of a separate Ollama runtime
 
-## P1 - Context Engineering Layer
+## P1 - Context Engineering Layer (Core enabler; now driven by Jarvis lifecycle - see JARVIS_LIFECYCLE_HANDOVER.md)
+
+The Jarvis Input Matrix + Planning Agent + phased lifecycle (with early context-pack emission and gates) directly implements and prioritizes this. Cross-reference the handover for how verbal goals produce context-aware project items.
 
 - [ ] Evaluate `context-mode` locally in a separate test folder first:
   - [ ] install with Node 20-compatible path
@@ -119,6 +125,8 @@ The PDF contains useful intent but should not be copied directly into production
 
 ## P1 - Research Ingestion With Firecrawl
 
+**Note (from Jarvis lifecycle reprioritization):** Research phase in `JARVIS_LIFECYCLE_HANDOVER.md` + checklist mandates provenance + source manifests with hashes/timestamps for *every* artifact. This P1 is now a direct dependency/gate for Jarvis-driven projects.
+
 - [ ] Decide hosted Firecrawl API vs self-hosted Firecrawl. Hosted is faster; self-hosted has AGPL and operational overhead.
 - [ ] Add `research_provider` abstraction: Tavily for quick search, Firecrawl for page extraction/crawling, Qdrant for retained knowledge.
 - [ ] Store every research artifact with URL, title, fetched_at, extractor, raw hash, markdown path, summary path, and originating task id.
@@ -127,7 +135,9 @@ The PDF contains useful intent but should not be copied directly into production
 - [ ] Add Qdrant collection `factory_research_sources`.
 - [ ] Add a RuFlo `Researcher` worker that produces `research_brief.md` and `source_manifest.json`.
 
-## P1 - Agent Roles And Governance
+## P1 - Agent Roles And Governance (Task state machine + propose/review now framed by Jarvis full lifecycle)
+
+The `JARVIS_LIFECYCLE_HANDOVER.md` + `STACK_LIFECYCLE_CHECKLIST.md` provide the concrete implementation of the desired state machine (INTAKE → RESEARCH → SPEC → PLAN → IMPLEMENT → VERIFY → REVIEW → DOCUMENT → SHIP) using Planner + Queen with explicit propose/review/iterate + gates at transitions. Reprioritized as the vehicle for these items. Jarvis matrix supplies the initial "idea" + requirements.
 
 - [ ] Import selected `agency-agents` ideas as local prompt references, not as direct runtime dependencies.
 - [ ] Start with these roles:
@@ -154,6 +164,7 @@ The PDF contains useful intent but should not be copied directly into production
   - [ ] `DOCUMENT`
   - [ ] `SHIP`
 - [ ] Require artifacts at every transition.
+  **Implemented via Jarvis/Planner + Queen per `workspace/handover_to_codex/JARVIS_LIFECYCLE_HANDOVER.md` and `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` (propose/review/gates + matrix as contract). Prioritize completing the planner wiring and phase UI.**
 
 ## P2 - RuFlo UI And Agent Visibility
 

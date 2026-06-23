@@ -35,6 +35,24 @@ export interface SpecKitIntakeInput {
   requestedMode?: 'PLAN' | 'DEV' | 'UAT' | 'PROD'
 }
 
+export interface JarvisInputMatrix {
+  title: string
+  vision: string
+  endGoal?: string
+  platforms?: string[]
+  hardConstraints?: string[]
+  threatModel?: string
+  securityProperties?: string[]
+  successCriteria?: string
+  requestedMode?: 'PLAN' | 'DEV' | 'UAT' | 'PROD'
+  recommendedModelProfile?: string
+  memoryNamespaces?: string[]
+  assumptions?: string[]
+  openQuestions?: string[]
+  validationCommands?: string[]
+  sourceVerbal?: string
+}
+
 export interface SpecKitIntakeResult {
   runId: string
   requestPath: string
@@ -42,6 +60,8 @@ export interface SpecKitIntakeResult {
   checklistPath: string
   brainPath: string
   nextGate: string
+  phase?: string
+  matrixPath?: string
 }
 
 export interface FactoryWorkflowGuide {
@@ -191,6 +211,61 @@ export function createSpecKitIntake(input: SpecKitIntakeInput, root = factoryRoo
     checklistPath,
     brainPath: brain.path,
     nextGate: 'Review the generated spec and approval checklist before research or implementation.',
+  }
+}
+
+// Jarvis-aware richer creator (supports full matrix + initial phase for lifecycle)
+export function createJarvisProjectFromMatrix(matrix: JarvisInputMatrix, root = factoryRoot(), now = new Date()): SpecKitIntakeResult {
+  const runId = createRunId(matrix.title, now)
+  const base = path.join(root, 'workspace', 'spec-kit')
+  const intakeDir = path.join(base, 'intake')
+  const requestPath = path.join('workspace', 'spec-kit', 'intake', `${runId}_request.md`)
+  const matrixPath = path.join('workspace', 'spec-kit', 'intake', `${runId}_matrix.json`)
+  const specPath = path.join('workspace', 'spec-kit', 'specs', `${runId}_spec.md`)
+  const checklistPath = path.join('workspace', 'spec-kit', 'checklists', `${runId}_approval.md`)
+
+  ensureDir(intakeDir)
+  ensureDir(path.join(base, 'specs'))
+  ensureDir(path.join(base, 'checklists'))
+
+  const mode = matrix.requestedMode || 'PLAN'
+  const initialPhase = 'research'
+
+  const matrixJson = JSON.stringify(matrix, null, 2)
+  fs.writeFileSync(path.join(root, matrixPath), matrixJson)
+
+  const request = `# Jarvis Project Request: ${matrix.title}\n\n- Run ID: ${runId}\n- Initial Phase: ${initialPhase}\n- Mode: ${mode}\n- Created: ${now.toISOString()}\n\n## Vision (user)\n${(matrix.vision || '').trim()}\n\n## End Goal\n${(matrix.endGoal || 'TBD from planning').trim()}\n\n## Platforms & Constraints\n${(matrix.platforms || []).join(', ')}\n${(matrix.hardConstraints || []).map(c => `- ${c}`).join('\n')}\n\n## Threat Model & Security\n${matrix.threatModel || 'See matrix'}\nProperties: ${(matrix.securityProperties || []).join('; ')}\n\n## Success Criteria\n${(matrix.successCriteria || 'Operator + phase gates').trim()}\n\n## Recommended Execution\n- Model profile: ${matrix.recommendedModelProfile || 'default (matrix-driven)'}\n- Memory: ${(matrix.memoryNamespaces || []).join(', ')}\n\n## Open Questions (from planner)\n${(matrix.openQuestions || []).map(q => `- ${q}`).join('\n') || '- None recorded'}\n\n## Next Gate\nPlanning matrix approved. Enter Research phase (deep research + propose/review gates). Queen will advance phases with recorded outcomes.\n`
+
+  const spec = `# Spec (Jarvis-initiated): ${matrix.title}\n\n> Status: DRAFT from Jarvis matrix. Phase: ${initialPhase}. Do not implement until research gate passes.\n\nSee ${requestPath} and ${matrixPath} for full matrix (threat model, security props, platforms, evidence needs).\n\n## Requirements (lifecycle)\n- Complete Research phase with provenance + review gates before Architecture/Dev.\n- Update matrix and brain at every phase transition.\n- Produce release artifacts only after Production gate.\n`
+
+  const checklist = `# Phase Checklist (Jarvis project): ${matrix.title}\n\n- Run: ${runId}\n- Current: ${initialPhase}\n\n## Research Gate\n- [ ] Deep research + source manifests with hashes/timestamps\n- [ ] Propose/Review loop recorded (brain timeline)\n- [ ] Threat model + security properties satisfied or updated\n- [ ] Context pack emitted\n\n## Dev Gate\n- [ ] Guardrail snapshot\n- [ ] Tests + validation against matrix success\n\n## Release Gate\n- [ ] Portable product + export bundle\n- [ ] Security properties verified\n- [ ] Handoff + brain complete\n`
+
+  fs.writeFileSync(path.join(root, requestPath), request)
+  fs.writeFileSync(path.join(root, specPath), spec)
+  fs.writeFileSync(path.join(root, checklistPath), checklist)
+
+  const brain = writeBrainPage({
+    type: 'run',
+    title: matrix.title,
+    compiledTruth: `Jarvis project ${runId} started in ${initialPhase} phase from verbal/matrix. Full matrix at ${matrixPath}. Lifecycle: Research (propose/review) → Dev → Release.`,
+    timeline: [
+      { at: now.toISOString(), event: 'Jarvis matrix + project item created', evidence: matrixPath },
+      { at: now.toISOString(), event: `Phase set to ${initialPhase}`, evidence: requestPath }
+    ],
+    entities: ['Jarvis', 'Planning Agent', 'FactoryGrid', 'Spec Kit'],
+    tags: ['jarvis', 'matrix', 'lifecycle', initialPhase, mode.toLowerCase()],
+    source: matrixPath,
+  }, root, now)
+
+  return {
+    runId,
+    requestPath,
+    specPath,
+    checklistPath,
+    brainPath: brain.path,
+    nextGate: 'Enter Research phase. Run deep research + agent propose/review until Research gate passes.',
+    phase: initialPhase,
+    matrixPath,
   }
 }
 

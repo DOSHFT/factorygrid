@@ -133,6 +133,7 @@ export interface FabricContainer {
   status: string
   ports: string
   role: string
+  urls?: Array<{ label: string; url: string }>
   kind: 'production' | 'legacy' | 'support'
   memoryRelated: boolean
   production: boolean
@@ -154,6 +155,18 @@ export interface FabricSnapshot {
     pending: number
     failed: number
     componentUpdateTask?: Task | null
+    componentUpdateReport?: {
+      path: string
+      exists: boolean
+      counts: Record<string, number>
+      findings: Array<{
+        component: string
+        current: string
+        available: string
+        classification: string
+        reason: string
+      }>
+    }
   }
   containers: FabricContainer[]
   notes: string[]
@@ -323,4 +336,13 @@ export interface WorkspaceFile {
 export interface WorkspaceDiff {
   path: string
   diff: string
+}
+
+export interface WorkspacePushResult {
+  ok: boolean
+  branch: string
+  commit: string
+  files: string[]
+  stdout: string
+  stderr: string
 }

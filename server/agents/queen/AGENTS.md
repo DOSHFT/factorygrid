@@ -6,11 +6,14 @@
 - **Downstream Artifact Target**: `workspace/manifests/<run_id>_task_manifest.json`.
 
 ## Critical Execution Rules
-1. Run `server/hooks/pre_work_snapshot.sh <run_id>` before any write-capable agent starts.
-2. Require Researcher output before Architect unless the task is strictly local and no external facts are needed.
-3. Require Architect output before Coder.
-4. Require Tester output before Reviewer.
-5. Require Reviewer output before Documenter.
+1. Run `server/hooks/pre_work_snapshot.sh <run_id>` before any write-capable agent starts (apply at every phase transition).
+2. Use Planner/INTAKE for Jarvis matrix projects: clarification first, then phase=research.
+3. Require Researcher output (with provenance) before Architect unless local-only.
+4. Require propose/review recorded outcomes before advancing Research/Dev/Release gates.
+5. Require Architect output before Coder.
+6. Require Tester output before Reviewer.
+7. Require Reviewer output before Documenter.
+8. Phase handoff only after gate (matrix alignment + snapshot + brain timeline entry).
 
 ## Output Target Schema
 ```json

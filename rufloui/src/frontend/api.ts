@@ -1,5 +1,5 @@
 import { useStore } from './store'
-import type { FabricSnapshot, WebhookEvent, GitHubWebhookStatus, GitLabWebhookStatus, WorkspaceDiff, WorkspaceFile, WorkspaceStatus, WorkspaceTree } from './types'
+import type { FabricSnapshot, WebhookEvent, GitHubWebhookStatus, GitLabWebhookStatus, WorkspaceDiff, WorkspaceFile, WorkspacePushResult, WorkspaceStatus, WorkspaceTree } from './types'
 
 export interface PreflightCheck {
   id: string
@@ -242,7 +242,7 @@ export const api = {
 
   factory: {
     guide: () => request<FactoryWorkflowGuide>('/factory/guide'),
-    createIntake: (input: { title: string; vision: string; successCriteria?: string; cautions?: string; requestedMode?: 'PLAN' | 'DEV' | 'UAT' | 'PROD' }) =>
+    createIntake: (input: { title?: string; vision?: string; successCriteria?: string; cautions?: string; requestedMode?: 'PLAN' | 'DEV' | 'UAT' | 'PROD'; matrix?: any }) =>
       request<SpecKitIntakeResult>('/factory/intake', { method: 'POST', body: JSON.stringify(input) }),
     searchBrain: (query: string) => request<{ results: Array<{ id: string; title: string; compiledTruth: string; path: string }> }>(`/factory/brain/search?${new URLSearchParams({ q: query })}`),
     agentGrowthStatus: () => request<{ running: boolean; startedAt: string | null; finishedAt: string | null; exitCode: number | null; output: string; error: string | null }>('/factory/agent-growth/status'),
@@ -303,6 +303,8 @@ export const api = {
     status: () => request<WorkspaceStatus>('/workspace/status'),
     file: (path: string) => request<WorkspaceFile>(`/workspace/file?${new URLSearchParams({ path })}`),
     diff: (path?: string) => request<WorkspaceDiff>(`/workspace/diff${path ? `?${new URLSearchParams({ path })}` : ''}`),
+    pushSelected: (files: string[], message?: string) =>
+      request<WorkspacePushResult>('/workspace/push-selected', { method: 'POST', body: JSON.stringify({ files, message }), timeout: 120_000 }),
     pushMemoryEvolution: (data?: any) => request('/workspace/push-memory-evolution', { method: 'POST', body: JSON.stringify(data || {}) }),
   },
 

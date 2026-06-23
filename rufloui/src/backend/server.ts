@@ -12,10 +12,10 @@ import { startMonitoring, stopMonitoring, getSessionTree, getAllMonitoredSession
 import { initTelegramBot, TelegramConfig, TelegramHandle } from './telegram-bot'
 import { loadGitHubWebhookConfig, saveGitHubWebhookConfig, githubWebhookRoutes, updateWebhookEventByTaskId } from './webhook-github'
 import { loadGitLabWebhookConfig, saveGitLabWebhookConfig, gitlabWebhookRoutes, updateGitLabEventByTaskId } from './webhook-gitlab'
-import { getWorkspaceDiff, getWorkspaceFile, getWorkspaceStatus, listWorkspaceTree } from './workspace'
+import { getWorkspaceDiff, getWorkspaceFile, getWorkspaceStatus, listWorkspaceTree, pushWorkspaceFiles } from './workspace'
 import { agentAllowedWritePrefixes, createWorkspaceGuardrailSnapshot, evaluateAgentWriteRequest, evaluateTaskLaunchGuardrails } from './workspace-guardrails'
 import { classifyProtectedPath, getFactoryRuntimeSnapshot, protectedFilePatterns, summarizeDockerPortBinding } from './factory-runtime'
-import { getFactoryWorkflowGuide, createSpecKitIntake, searchBrain, factoryRoot } from './factory-brain'
+import { getFactoryWorkflowGuide, createSpecKitIntake, createJarvisProjectFromMatrix, searchBrain, factoryRoot } from './factory-brain'
 import { factoryBottleneckReport, factoryHiveMindStatus, factoryMemoryStats, factoryNeuralPatterns, factoryNeuralStatus, listFactoryConfigEntries, listFactoryHooks, listFactoryMemoryEntries, listFactoryWorkflowTemplates, listFactoryWorkflows, predictFactoryNeural, searchFactoryMemory } from './factory-state'
 
 const execAsync = promisify(exec)
@@ -3371,7 +3371,13 @@ function factoryRoutes(): Router {
     res.json(getFactoryWorkflowGuide())
   })
   r.post('/intake', h(async (req, res) => {
-    const { title, vision, successCriteria, cautions, requestedMode } = req.body || {}
+    const { title, vision, successCriteria, cautions, requestedMode, matrix } = req.body || {}
+    if (matrix && typeof matrix === 'object' && matrix.title) {
+      // Jarvis matrix path: richer project item with phase + matrix.json
+      const result = createJarvisProjectFromMatrix(matrix, factoryRoot())
+      res.json(result)
+      return
+    }
     if (typeof title !== 'string' || !title.trim()) {
       res.status(400).json({ error: 'title is required' })
       return
@@ -3706,13 +3712,12 @@ function classifyFabricContainer(name: string, image: string, status: string): O
     const urls: Record<string, Array<{ label: string; url: string }>> = {
       factory_rufloui: [
         { label: 'Dashboard', url: `http://192.168.178.20:${process.env.RUFLOUI_VITE_PORT || '28589'}` },
-        { label: 'API', url: `http://192.168.178.20:${process.env.RUFLOUI_API_PORT || '28580'}/api/system/info` },
       ],
-      agent_openhands: [{ label: 'OpenHands', url: 'http://192.168.178.20:3001' }],
+      agent_openhands: [],
       factory_litellm: [{ label: 'Models', url: 'http://192.168.178.20:4001/v1/models' }],
-      factory_qdrant: [{ label: 'Collections', url: 'http://192.168.178.20:6333/collections' }],
-      factory_neo4j: [{ label: 'Neo4j Browser', url: 'http://192.168.178.20:7474' }],
-      factory_ruflo: [{ label: 'Health', url: 'http://192.168.178.20:3011/health' }],
+      factory_qdrant: [],
+      factory_neo4j: [{ label: 'Neo4j Browser', url: 'http://127.0.0.1:7474' }],
+      factory_ruflo: [],
     }
     return {
       role: roles[name] || 'FactoryGrid production component.',
@@ -4039,7 +4044,7 @@ async function buildTrueMemoryFabricNodes(): Promise<FabricNode[]> {
       kind: 'Production Memory',
       state: memoryStats.totalEntries > 0 ? 'green' : 'yellow',
       detail: `Readable source of truth | ${memoryStats.totalEntries} entries | ${memoryStats.storageSize}`,
-      urls: [{ label: 'Memory API', url: 'http://192.168.178.20:28580/api/memory/stats' }],
+      urls: [{ label: 'Memory API', url: '/api/memory/stats' }],
       restartable: false,
     },
     {
@@ -4047,8 +4052,8 @@ async function buildTrueMemoryFabricNodes(): Promise<FabricNode[]> {
       label: 'Qdrant Recall',
       kind: 'Production Memory',
       state: qdrant.ok ? 'green' : 'red',
-      detail: `Vector recall store | ${qdrant.detail} | indexed vectors: ${memoryStats.indexedVectors}`,
-      urls: [{ label: 'Collections', url: 'http://192.168.178.20:6333/collections' }],
+      detail: `Active internal vector recall store, not the primary readable memory UI | ${qdrant.detail} | indexed vectors: ${memoryStats.indexedVectors}`,
+      urls: [],
       restartable: false,
     },
     {
@@ -4057,7 +4062,7 @@ async function buildTrueMemoryFabricNodes(): Promise<FabricNode[]> {
       kind: 'Memory Evolution',
       state: neo4j.ok ? 'green' : 'yellow',
       detail: `Temporal graph shadow store for Graphiti-compatible memory | ${neo4j.detail}`,
-      urls: [{ label: 'Neo4j Browser', url: 'http://192.168.178.20:7474' }],
+      urls: [{ label: 'Neo4j Browser', url: 'http://127.0.0.1:7474' }],
       restartable: false,
     },
   ]
@@ -4078,7 +4083,7 @@ function buildHermesFabricNode(runtime: Awaited<ReturnType<typeof getFactoryRunt
     ].filter(Boolean).join(' | '),
     urls: [
       { label: 'Dashboard', url: 'http://192.168.178.20:9119' },
-      { label: 'Console', url: 'http://192.168.178.20:7681' },
+      { label: 'Console (ttyd)', url: 'http://192.168.178.20:7681' },
     ],
     restartable: false,
   }
@@ -4195,6 +4200,33 @@ async function buildFabricSnapshot() {
   }
 }
 
+function readComponentUpdateReport() {
+  const relPath = 'workspace/reports/component-updates/2026-05-26-factorygrid-component-updates.md'
+  const filePath = path.join(factoryRoot(), relPath)
+  if (!fs.existsSync(filePath)) {
+    return { path: relPath, exists: false, counts: {}, findings: [] }
+  }
+  const content = fs.readFileSync(filePath, 'utf-8')
+  const counts: Record<string, number> = {}
+  for (const match of content.matchAll(/^- ([^:]+):\s*(\d+)/gm)) {
+    counts[match[1].trim()] = Number(match[2])
+  }
+  const findings: Array<{ component: string; current: string; available: string; classification: string; reason: string }> = []
+  for (const line of content.split(/\r?\n/)) {
+    if (!line.startsWith('| ') || line.includes('---') || line.includes('Component | Current')) continue
+    const cells = line.split('|').slice(1, -1).map((cell) => cell.trim())
+    if (cells.length < 5) continue
+    findings.push({
+      component: cells[0],
+      current: cells[1],
+      available: cells[2],
+      classification: cells[3],
+      reason: cells[4],
+    })
+  }
+  return { path: relPath, exists: true, counts, findings }
+}
+
 function monitoringRoutes(): Router {
   const r = Router()
   r.get('/fabric', h(async (_req, res) => {
@@ -4217,6 +4249,7 @@ function monitoringRoutes(): Router {
         pending: tasks.filter(t => t.status === 'pending').length,
         failed: tasks.filter(t => t.status === 'failed' || t.status === 'cancelled').length,
         componentUpdateTask: taskStore.get('task-update-20260526') || null,
+        componentUpdateReport: readComponentUpdateReport(),
       },
       containers,
       notes: [
@@ -4513,6 +4546,12 @@ function workspaceRoutes(): Router {
       return
     }
     res.json(await getWorkspaceFile(workspaceRoot(), filePath))
+  }))
+
+  r.post('/push-selected', h(async (req, res) => {
+    const files = Array.isArray(req.body?.files) ? req.body.files.map((file: unknown) => String(file)) : []
+    const message = typeof req.body?.message === 'string' ? req.body.message : undefined
+    res.json(await pushWorkspaceFiles(workspaceRoot(), files, message))
   }))
 
   // Production memory evolution push (gated high-impact activation of 2026-06 plan).

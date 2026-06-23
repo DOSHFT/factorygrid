@@ -28,6 +28,15 @@ function ContainerRow({ container }: { container: FabricContainer }) {
         </div>
       </div>
       <div style={s.role}>{container.role}</div>
+      {container.urls && container.urls.length > 0 && (
+        <div style={s.linkRow}>
+          {container.urls.map((link) => (
+            <a key={`${container.name}-${link.label}`} href={link.url} target="_blank" rel="noreferrer" style={s.linkButton}>
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
       <div style={s.metaGrid}>
         <div><span style={s.metaLabel}>Status</span>{container.status}</div>
         <div><span style={s.metaLabel}>Ports</span>{container.ports || 'none'}</div>
@@ -69,6 +78,10 @@ export default function FabricPanel() {
   }, [snapshot])
 
   const task = snapshot?.tasks.componentUpdateTask
+  const componentReport = snapshot?.tasks.componentUpdateReport
+  const criticalFindings = componentReport?.findings.filter((item) => item.classification === 'critical value') ?? []
+  const mediumFindings = componentReport?.findings.filter((item) => item.classification === 'medium value') ?? []
+  const noValueFindings = componentReport?.findings.filter((item) => item.classification === 'no value') ?? []
 
   return (
     <div style={s.page}>
@@ -97,7 +110,7 @@ export default function FabricPanel() {
             {(snapshot?.memory.productionPath ?? []).map(item => <span key={item} style={s.pathItem}>{item}</span>)}
           </div>
           <div style={s.note}>
-            Graphiti active: {snapshot?.memory.graphitiActive ? 'yes' : 'no'}; Neo4j shadow and Qdrant remain the production checked path.
+            Graphiti active: {snapshot?.memory.graphitiActive ? 'yes' : 'no'}; Qdrant is still active for internal vector recall, while Factory Brain remains the readable memory source of truth. Neo4j is a shadow graph.
           </div>
         </div>
       </Card>
@@ -111,6 +124,21 @@ export default function FabricPanel() {
                 <StatusBadge status={task.status} />
               </div>
               <div style={s.role}>{task.title}</div>
+              {componentReport?.exists ? (
+                <>
+                  <div style={s.reportHeader}>
+                    <span style={s.pathItem}>{componentReport.path}</span>
+                    <span>critical: {criticalFindings.length}</span>
+                    <span>medium: {mediumFindings.length}</span>
+                    <span>no value: {noValueFindings.length}</span>
+                  </div>
+                  <ComponentFindingTable title="Critical Value" rows={criticalFindings} />
+                  <ComponentFindingTable title="Medium Value" rows={mediumFindings} />
+                  <ComponentFindingTable title="No Value" rows={noValueFindings} />
+                </>
+              ) : (
+                <div style={s.error}>Report file missing: {componentReport?.path || 'workspace/reports/component-updates/2026-05-26-factorygrid-component-updates.md'}</div>
+              )}
               <pre style={s.result}>{task.result || 'No result recorded'}</pre>
             </>
           ) : (
@@ -139,6 +167,37 @@ export default function FabricPanel() {
   )
 }
 
+function ComponentFindingTable({ title, rows }: { title: string; rows: Array<{ component: string; current: string; available: string; classification: string; reason: string }> }) {
+  if (rows.length === 0) return null
+  return (
+    <div style={s.findingBlock}>
+      <div style={s.findingTitle}>{title} ({rows.length})</div>
+      <div style={s.tableWrap}>
+        <table style={s.table}>
+          <thead>
+            <tr>
+              <th style={s.th}>Component</th>
+              <th style={s.th}>Current</th>
+              <th style={s.th}>Available</th>
+              <th style={s.th}>Why</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={`${title}-${row.component}-${row.available}`}>
+                <td style={s.tdStrong}>{row.component}</td>
+                <td style={s.td}>{row.current}</td>
+                <td style={s.td}>{row.available}</td>
+                <td style={s.td}>{row.reason}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 const s: Record<string, any> = {
   page: { display: 'flex', flexDirection: 'column', gap: 16 },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 },
@@ -149,6 +208,8 @@ const s: Record<string, any> = {
   cardBody: { padding: '16px 20px' },
   pathList: { display: 'flex', flexWrap: 'wrap', gap: 8 },
   pathItem: { border: '1px solid var(--border)', background: 'var(--bg-primary)', padding: '6px 10px', borderRadius: 6, fontSize: 12, color: 'var(--text-primary)' },
+  linkRow: { display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 },
+  linkButton: { border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--accent-blue)', borderRadius: 6, padding: '5px 8px', fontSize: 12, textDecoration: 'none' },
   note: { marginTop: 12, fontSize: 13, color: 'var(--text-secondary)' },
   legacyHint: { marginBottom: 12, fontSize: 13, color: tone.legacy },
   list: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 12, padding: '16px 20px' },
@@ -164,6 +225,14 @@ const s: Record<string, any> = {
   metaLabel: { display: 'inline-block', color: 'var(--text-muted)', width: 52 },
   taskLine: { display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' },
   taskId: { fontFamily: 'monospace', color: 'var(--text-primary)' },
+  reportHeader: { display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' },
+  findingBlock: { marginTop: 14 },
+  findingTitle: { color: 'var(--text-primary)', fontWeight: 700, fontSize: 13, marginBottom: 8 },
+  tableWrap: { overflow: 'auto', border: '1px solid var(--border)', borderRadius: 6 },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
+  th: { textAlign: 'left', padding: '8px 10px', color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', background: 'var(--bg-primary)', whiteSpace: 'nowrap' },
+  td: { padding: '8px 10px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)', verticalAlign: 'top' },
+  tdStrong: { padding: '8px 10px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border)', verticalAlign: 'top', fontWeight: 600, whiteSpace: 'nowrap' },
   result: { marginTop: 12, maxHeight: 260, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 6, padding: 12, color: 'var(--text-secondary)', fontSize: 12 },
   error: { padding: 16, color: 'var(--accent-red)' },
 }

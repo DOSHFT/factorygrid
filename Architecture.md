@@ -703,6 +703,16 @@ The Factory UI writes:
 
 Spec Kit owns the context-engineering shape. RuFlo/Queen owns orchestration. OpenHands owns execution after the relevant gate is approved.
 
+## Jarvis + Full Lifecycle (Research → Dev → Release)
+Jarvis is the unified verbal front-end (evolves FactoryPanel + Hermes surfaces). Verbal goal → Planning Agent (clarification dialogue) → Jarvis Input Matrix (spec-kit superset with threat model, platforms, security properties, evidence needs) → project item.
+
+Phases with agent propose/review/gates (see docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md):
+- Research: deep research + provenance + propose (researcher) / review loops + gate.
+- Development: guarded impl + tester/reviewer loops + gate.
+- Production/Release: packaging (portable product root), export, final matrix validation + handoff.
+
+Planner persona (server/agents/planner) + Queen extension coordinate. Matrix drives model profile recommendation + Hermes work order. All surfaces feed the same traceable project item. DR snapshots + guardrails at transitions.
+
 ## Self-Evolving Memory Direction
 
 FactoryGrid currently uses Factory Brain markdown as readable truth and Qdrant as recall. The next architecture step is SAGE-inspired graph memory: typed entities, typed edges, evidence-chain retrieval, and reader feedback that creates memory repair tasks. Until a true embedding or graph-memory provider is wired in, Qdrant vectors are treated as recall hints rather than authoritative semantic memory.

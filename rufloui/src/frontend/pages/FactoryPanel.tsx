@@ -51,13 +51,26 @@ export default function FactoryPanel() {
   const submit = async () => {
     setSubmitting(true)
     try {
+      // Supports legacy + new Jarvis matrix path (matrix takes precedence in backend)
       const created = await api.factory.createIntake({ title, vision, successCriteria, cautions, requestedMode })
       setResult(created)
-      addLog({ level: 'info', message: `Factory intake created: ${created.runId}`, source: 'factory' })
+      addLog({ level: 'info', message: `Factory intake created: ${created.runId} (phase: ${created.phase || 'legacy'})`, source: 'factory' })
     } catch (err) {
       addLog({ level: 'error', message: `Factory intake failed: ${(err as Error).message}`, source: 'factory' })
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  // Jarvis future: matrix-driven submit example (see docs/jarvis)
+  const submitWithMatrixStub = async () => {
+    const matrixStub = { title: title || 'Jarvis Goal', vision, endGoal: 'TBD', threatModel: 'See planner dialogue', requestedMode }
+    try {
+      const created = await api.factory.createIntake({ matrix: matrixStub })
+      setResult(created)
+      addLog({ level: 'info', message: `Jarvis matrix project: ${created.runId}`, source: 'factory' })
+    } catch (err) {
+      addLog({ level: 'error', message: `Jarvis matrix failed: ${(err as Error).message}`, source: 'factory' })
     }
   }
 
