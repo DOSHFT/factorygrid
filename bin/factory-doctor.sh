@@ -135,7 +135,14 @@ else
 fi
 rm -f "$tmp_dir/factory-compose-config.$$.yml" "$tmp_dir/factory-compose-config.$$.err"
 docker compose ps || true
-
+neo4j_container_health=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' factory_neo4j 2>/dev/null || true)
+case "$neo4j_container_health" in
+  healthy) ok "Neo4j container health is healthy" ;;
+  unhealthy) bad "Neo4j container health is unhealthy; run bin/factory-neo4j-recover-password.sh if auth drift is reported" ;;
+  starting) warning "Neo4j container health is still starting" ;;
+  "") warning "Neo4j container not found" ;;
+  *) warning "Neo4j container health is $neo4j_container_health" ;;
+esac
 section "endpoints"
 vllm_port=$(port_from_file PORT runtime/vllm-model.env 18000)
 model_required=${FACTORY_REQUIRE_MODEL:-no}
