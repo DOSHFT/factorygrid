@@ -22,6 +22,7 @@ FactoryGrid must not run separate model servers per VM, WSL distro, agent, or ta
 - `runtime/vllm-model.env` is the active vLLM runtime file copied from the selected profile.
 - vLLM serves the selected backend model as stable id `factory-active`.
 - `litellm_config.yaml` maps stable aliases such as `qwen-coder-14b` to `openai/factory-active` on the active vLLM endpoint.
+- Hermes runs on the Decima WSL distro, but it is not a model server. Hermes must call the Revelation LiteLLM gateway at `http://172.20.86.232:4001/v1` with the stable alias `qwen-coder-14b`.
 - Red-team and blue-team models are profile choices behind the same vLLM/LiteLLM harness, not separate Ollama, Decima, Revelation, or per-agent daemons.
 
 Allowed model endpoints:
@@ -49,12 +50,35 @@ docker compose restart factory_litellm factory_ruflo agent_qwen_code agent_openh
 bin/factory-model-status.sh
 ```
 
+The Fabric page uses the same profile contract. Its Local vLLM dropdown must list every `runtime/model-profiles/*.env` profile first, then any cached host-control/Hugging Face candidates. Each entry must display its safe launch settings before start/reload:
+
+- `GPU_MEM`
+- `MAX_MODEL_LEN`
+- `MAX_NUM_SEQS`
+- `MAX_BATCHED_TOKENS`
+- `SWAP_SPACE_GB`
+- `QUANTIZATION`
+- policy/reason
+
+When Fabric starts or reloads a model/profile, it must also create a Hermes model-sync work order under `workspace/work-orders/`. Hermes normally does not change its model id because it talks to LiteLLM aliases, but the work order forces verification that:
+
+- Decima Hermes still uses `base_url: http://172.20.86.232:4001/v1`;
+- Hermes default model is still the stable alias `qwen-coder-14b`;
+- LiteLLM still maps Hermes aliases to `openai/factory-active`;
+- Decima environment metadata such as `FACTORY_VLLM_MODEL`/`VLLM_MODEL` is updated if it is shown to operators;
+- the Hermes dashboard still opens from Fabric.
+
 For containerized vLLM experiments, keep the same contract: one OpenAI-compatible backend exposed on the configured vLLM URL, one LiteLLM gateway in front of it, and no second backend in another WSL distro.
 
 ## Live Topology
 
 ```text
 Windows 11 BlackBeast
+  |
+  +-- WSL2 distro: decima-intelligence-it
+  |     |
+  |     +-- Hermes dashboard / CLI surface
+  |           calls Revelation LiteLLM 4001; does not serve models
   |
   +-- WSL2 distro: revelation
         |
@@ -100,6 +124,7 @@ Use this section as the source of truth for browser URLs, APIs, and health probe
 | LiteLLM chat completions | `http://192.168.178.20:4001/v1/chat/completions` | `http://127.0.0.1:4001/v1/chat/completions` | `http://litellm:4000/v1/chat/completions` | Chat/completion API |
 | vLLM models | `http://192.168.178.20:18000/v1/models` | `http://127.0.0.1:18000/v1/models` | LiteLLM reaches `http://host.docker.internal:18000/v1/models` | Active backend diagnostics only |
 | vLLM chat completions | `http://192.168.178.20:18000/v1/chat/completions` | `http://127.0.0.1:18000/v1/chat/completions` | LiteLLM reaches `http://host.docker.internal:18000/v1/chat/completions` | Backend warm-up/RCA only |
+| Hermes Dashboard | `http://192.168.178.20:9119` | Decima local `http://127.0.0.1:9119` | n/a | Hermes UI reachability, surfaced on Fabric |
 | RuFlo MCP health | `http://192.168.178.20:3011/health` | `http://127.0.0.1:3011/health` | `http://factory_ruflo:3010/health` | RuFlo orchestration API health |
 | RuFloUI API info | `http://192.168.178.20:28580/api/system/info` | `http://127.0.0.1:28580/api/system/info` | `http://factory_rufloui:28580/api/system/info` | UI backend health |
 | RuFloUI guide | `http://192.168.178.20:28580/api/factory/guide` | `http://127.0.0.1:28580/api/factory/guide` | `http://factory_rufloui:28580/api/factory/guide` | Factory guide payload |

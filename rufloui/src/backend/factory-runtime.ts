@@ -101,8 +101,7 @@ async function checkEndpoint(name: string, url: string): Promise<FactoryEndpoint
 
 async function checkEndpointCandidates(name: string, urls: string[]): Promise<FactoryEndpoint> {
   const results: FactoryEndpoint[] = []
-  const candidates = [...new Set(urls.filter(Boolean))]
-  for (const url of candidates) {
+  for (const url of urls) {
     const result = await checkEndpoint(name, url)
     if (result.status === 'ok') return result
     results.push(result)
@@ -110,7 +109,7 @@ async function checkEndpointCandidates(name: string, urls: string[]): Promise<Fa
   const detail = results.map((result) => `${result.url}: ${result.detail}`).join(' | ')
   return {
     name,
-    url: candidates[0] || '',
+    url: urls[0] || '',
     status: 'fail',
     detail,
   }
@@ -131,7 +130,6 @@ async function readGpuMetrics(): Promise<GpuMetrics | null> {
 export async function getFactoryRuntimeSnapshot(): Promise<FactoryRuntimeSnapshot> {
   const vllmUrls = [
     process.env.VLLM_HOST ? `${process.env.VLLM_HOST.replace(/\/$/, '')}/v1/models` : '',
-    'http://172.18.0.1:18000/v1/models',
     'http://127.0.0.1:18000/v1/models',
     'http://localhost:18000/v1/models',
     'http://host.docker.internal:18000/v1/models',
@@ -148,6 +146,13 @@ export async function getFactoryRuntimeSnapshot(): Promise<FactoryRuntimeSnapsho
       'http://127.0.0.1:13000/api/settings',
       'http://agent_openhands:3000/api/settings',
     ]),
+    checkEndpointCandidates('Hermes Dashboard', [
+      process.env.HERMES_DASHBOARD_URL || '',
+      'http://172.20.80.1:9119',
+      'http://host.docker.internal:9119',
+      'http://127.0.0.1:9119',
+      'http://192.168.178.20:9119',
+    ].filter(Boolean)),
     Promise.resolve({
       name: 'RuFlo orchestrator',
       url: 'docker compose service: ruflo_orchestrator',

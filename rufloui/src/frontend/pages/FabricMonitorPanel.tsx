@@ -112,7 +112,7 @@ export default function FabricMonitorPanel() {
   const [snapshot, setSnapshot] = useState<FabricSnapshot | null>(null)
   const [loading, setLoading] = useState(false)
   const [busy, setBusy] = useState<string | null>(null)
-  const [vllmModels, setVllmModels] = useState<Array<{ id: string; path: string; source: string; safeSettings?: Record<string, unknown> }>>([])
+  const [vllmModels, setVllmModels] = useState<Array<{ id: string; profile?: string; model?: string; path: string; source: string; safeSettings?: Record<string, unknown> }>>([])
   const [currentModel, setCurrentModel] = useState('')
   const [requestedModel, setRequestedModel] = useState('')
   const [selectedModel, setSelectedModel] = useState('')
@@ -166,6 +166,7 @@ export default function FabricMonitorPanel() {
   }, [snapshot])
   const selectedModelMeta = useMemo(() => vllmModels.find((model) => model.id === selectedModel), [selectedModel, vllmModels])
   const selectedSafeSettings = selectedModelMeta?.safeSettings || null
+  const selectedPolicy = String(selectedSafeSettings?.policy || 'allowed')
 
   async function restart(node: FabricNode) {
     if (!node.restartType) return
@@ -200,7 +201,7 @@ export default function FabricMonitorPanel() {
     setBusy('vllm-model')
     try {
       const result = await api.fabric.startVllm(selectedModel.trim())
-      addLog({ level: 'warn', source: 'fabric', message: `vLLM start requested for ${result.model}. PID ${result.pid || 'unknown'}` })
+      addLog({ level: result.blocked ? 'error' : 'warn', source: 'fabric', message: result.blocked ? `vLLM start blocked for ${selectedModel}: ${String(result.safeSettings?.reason || 'unsafe profile')}` : `vLLM start requested for ${result.model}. PID ${result.pid || 'unknown'}${result.hermesWorkOrder ? ` | Hermes sync: ${result.hermesWorkOrder}` : ''}` })
       await load()
     } catch (err) {
       addLog({ level: 'error', source: 'fabric', message: `vLLM start failed: ${(err as Error).message}` })
@@ -214,7 +215,7 @@ export default function FabricMonitorPanel() {
     setBusy('vllm-reload')
     try {
       const result = await api.fabric.restartVllm(selectedModel.trim())
-      addLog({ level: 'warn', source: 'fabric', message: `vLLM reload requested for ${result.model}. PID ${result.pid || 'unknown'}` })
+      addLog({ level: result.blocked ? 'error' : 'warn', source: 'fabric', message: result.blocked ? `vLLM reload blocked for ${selectedModel}: ${String(result.safeSettings?.reason || 'unsafe profile')}` : `vLLM reload requested for ${result.model}. PID ${result.pid || 'unknown'}${result.hermesWorkOrder ? ` | Hermes sync: ${result.hermesWorkOrder}` : ''}` })
       await load()
     } catch (err) {
       addLog({ level: 'error', source: 'fabric', message: `vLLM reload failed: ${(err as Error).message}` })
@@ -396,21 +397,21 @@ export default function FabricMonitorPanel() {
               onChange={(event) => setSelectedModel(event.target.value)}
               style={{ width: '100%', padding: '8px 10px', background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}
             >
-              {vllmModels.map((model) => <option key={model.id} value={model.id}>{model.id}</option>)}
+              {vllmModels.map((model) => <option key={model.id} value={model.id}>{model.profile || model.id}{model.model && model.model !== model.id ? ` -> ${model.model}` : ''}</option>)}
             </select>
             <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 8, wordBreak: 'break-word' }}>
               Loaded: {currentModel || 'unknown'} | Requested: {requestedModel || 'unknown'}
             </div>
             {selectedSafeSettings && (
               <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 8, wordBreak: 'break-word' }}>
-                Safe launch: GPU {String(selectedSafeSettings.gpuMem || 'auto')} | context {String(selectedSafeSettings.maxModelLen || 'auto')} | seqs {String(selectedSafeSettings.maxNumSeqs || 'auto')} | batched {String(selectedSafeSettings.maxBatchedTokens || 'auto')} | quantization {String(selectedSafeSettings.quantization || 'auto')} | {String(selectedSafeSettings.reason || '')}
+                Safe launch: {selectedPolicy.toUpperCase()} | GPU {String(selectedSafeSettings.gpuMem || 'auto')} | context {String(selectedSafeSettings.maxModelLen || 'auto')} | seqs {String(selectedSafeSettings.maxNumSeqs || 'auto')} | batched {String(selectedSafeSettings.maxBatchedTokens || 'auto')} | swap {String(selectedSafeSettings.swapSpaceGb || 'auto')}GB | quantization {String(selectedSafeSettings.quantization || 'auto')} | {String(selectedSafeSettings.reason || '')}
               </div>
             )}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <Button variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'}><Play size={14} /> Start Model</Button>
+            <Button variant="secondary" onClick={changeVllmModel} loading={busy === 'vllm-model'} disabled={selectedPolicy === 'blocked'}><Play size={14} /> Start Model</Button>
             <Button variant="secondary" onClick={warmupVllmModel} loading={busy === 'vllm-warmup'}><Cpu size={14} /> Warm Up Model</Button>
-            <Button variant="secondary" onClick={reloadVllmModel} loading={busy === 'vllm-reload'}><RotateCcw size={14} /> Reload Model</Button>
+            <Button variant="secondary" onClick={reloadVllmModel} loading={busy === 'vllm-reload'} disabled={selectedPolicy === 'blocked'}><RotateCcw size={14} /> Reload Model</Button>
             <Button variant="secondary" onClick={stopVllm} loading={busy === 'vllm-stop'}><Square size={14} /> Stop</Button>
             <Button variant="secondary" onClick={runVllmRca} loading={busy === 'vllm-rca'}><SearchCode size={14} /> Run RCA</Button>
           </div>

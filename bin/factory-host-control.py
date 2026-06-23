@@ -21,6 +21,7 @@ DEFAULT_MODEL = os.environ.get("VLLM_MODEL", "Qwen/Qwen2.5-Coder-14B-Instruct-AW
 LOG_PATH = ROOT / "logs" / "vllm-factory.log"
 PID_PATH = ROOT / "logs" / "vllm-factory.pid"
 MODEL_ENV_PATH = ROOT / "runtime" / "vllm-model.env"
+PROFILE_DIR = ROOT / "runtime" / "model-profiles"
 VLLM_PORT = int(os.environ.get("VLLM_PORT", "18000"))
 VLLM_BASE_URL = f"http://127.0.0.1:{VLLM_PORT}"
 
@@ -89,13 +90,13 @@ def model_safe_settings(model):
     quantized = bool(quantization or any(tag in lower for tag in ("gptq", "gguf", "bnb", "4bit", "int4", "fp8")))
 
     if size_b >= 70:
-        settings = {"gpuMem": "0.72", "maxModelLen": 8192, "maxNumSeqs": 1, "maxBatchedTokens": 8192, "swapSpaceGb": 12}
+        settings = {"gpuMem": "0.62", "maxModelLen": 4096, "maxNumSeqs": 1, "maxBatchedTokens": 4096, "swapSpaceGb": 12}
     elif size_b >= 30:
-        settings = {"gpuMem": "0.78", "maxModelLen": 16384, "maxNumSeqs": 2, "maxBatchedTokens": 16384, "swapSpaceGb": 8}
+        settings = {"gpuMem": "0.70", "maxModelLen": 8192, "maxNumSeqs": 1, "maxBatchedTokens": 8192, "swapSpaceGb": 8}
     elif size_b >= 13:
-        settings = {"gpuMem": "0.86", "maxModelLen": 32768 if quantized else 16384, "maxNumSeqs": 4 if quantized else 2, "maxBatchedTokens": 32768 if quantized else 16384, "swapSpaceGb": 4}
+        settings = {"gpuMem": "0.50" if quantized else "0.62", "maxModelLen": 8192, "maxNumSeqs": 1, "maxBatchedTokens": 8192, "swapSpaceGb": 4}
     else:
-        settings = {"gpuMem": "0.82", "maxModelLen": 32768, "maxNumSeqs": 4, "maxBatchedTokens": 32768, "swapSpaceGb": 4}
+        settings = {"gpuMem": "0.58", "maxModelLen": 8192, "maxNumSeqs": 1, "maxBatchedTokens": 8192, "swapSpaceGb": 4}
 
     settings["quantization"] = quantization
     settings["estimatedSizeB"] = size_b
@@ -122,20 +123,146 @@ def current_vllm_model():
     return ""
 
 
-def persist_model_selection(model, settings):
-    selected = model or DEFAULT_MODEL
+def resolve_profile_value(value):
+    raw = str(value or "").strip().strip('"').strip("'")
+    if raw.startswith("${") and raw.endswith("}") and ":-" in raw:
+        name, default = raw[2:-1].split(":-", 1)
+        return os.environ.get(name, default)
+    return os.path.expandvars(raw)
+
+
+def shell_quote(value):
+    return str(value or "").replace("'", "'\"'\"'")
+
+
+def read_profile_file(path):
+    profile = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        profile[key.strip()] = resolve_profile_value(value)
+    profile.setdefault("PROFILE_NAME", path.stem)
+    return profile
+
+
+def profile_safe_settings(profile):
+    model = profile.get("MODEL") or DEFAULT_MODEL
+    settings = model_safe_settings(model)
+    mapping = {
+        "GPU_MEM": "gpuMem",
+        "MAX_MODEL_LEN": "maxModelLen",
+        "MAX_NUM_SEQS": "maxNumSeqs",
+        "MAX_BATCHED_TOKENS": "maxBatchedTokens",
+        "SWAP_SPACE_GB": "swapSpaceGb",
+        "QUANTIZATION": "quantization",
+    }
+    for env_key, setting_key in mapping.items():
+        if env_key in profile and str(profile[env_key]).strip():
+            settings[setting_key] = profile[env_key]
+    for numeric_key in ("maxModelLen", "maxNumSeqs", "maxBatchedTokens", "swapSpaceGb"):
+        try:
+            settings[numeric_key] = int(str(settings[numeric_key]))
+        except Exception:
+            pass
+    settings["profileName"] = profile.get("PROFILE_NAME")
+    settings["model"] = model
+    settings["servedModelName"] = profile.get("SERVED_MODEL_NAME", "factory-active")
+    settings["engine"] = profile.get("ENGINE", "vllm")
+    settings["role"] = profile.get("ROLE", "coding")
+    settings["enforceEager"] = profile.get("ENFORCE_EAGER", "true")
+    if settings["engine"] != "vllm":
+        settings["policy"] = "blocked"
+        settings["reason"] = f"Profile engine is {settings['engine']}; configure provider routing before vLLM start."
+    else:
+        settings["policy"] = "allowed"
+        settings["reason"] = "Curated FactoryGrid profile settings selected for RTX 4090 stability."
+    return settings
+
+
+def discover_profile_entries():
+    entries = []
+    if not PROFILE_DIR.exists():
+        return entries
+    for path in sorted(PROFILE_DIR.glob("*.env")):
+        profile = read_profile_file(path)
+        profile_name = profile.get("PROFILE_NAME") or path.stem
+        model = profile.get("MODEL") or DEFAULT_MODEL
+        entries.append({
+            "id": profile_name,
+            "profile": profile_name,
+            "model": model,
+            "path": str(path),
+            "source": "model-profile",
+            "safeSettings": profile_safe_settings(profile),
+        })
+    return entries
+
+
+def resolve_model_selection(selection):
+    selected = selection or DEFAULT_MODEL
+    for entry in discover_profile_entries():
+        if selected in {entry.get("id"), entry.get("profile"), entry.get("model")}:
+            settings = entry["safeSettings"]
+            return {
+                "selection": selected,
+                "profile": entry.get("profile"),
+                "model": entry.get("model"),
+                "settings": settings,
+                "source": entry.get("source"),
+                "path": entry.get("path"),
+            }
+    settings = model_safe_settings(selected)
+    settings["profileName"] = ""
+    settings["model"] = selected
+    settings["servedModelName"] = "factory-active"
+    settings["engine"] = "vllm"
+    return {"selection": selected, "profile": "", "model": selected, "settings": settings, "source": "direct-model", "path": ""}
+
+
+def requested_vllm_profile():
+    if MODEL_ENV_PATH.exists():
+        try:
+            profile = read_profile_file(MODEL_ENV_PATH)
+            profile_name = profile.get("PROFILE_NAME")
+            if profile_name and profile_name != MODEL_ENV_PATH.stem:
+                return profile_name
+            for entry in discover_profile_entries():
+                settings = entry.get("safeSettings", {})
+                if (
+                    entry.get("model") == profile.get("MODEL")
+                    and str(settings.get("gpuMem")) == str(profile.get("GPU_MEM"))
+                    and str(settings.get("maxModelLen")) == str(profile.get("MAX_MODEL_LEN"))
+                    and str(settings.get("maxNumSeqs")) == str(profile.get("MAX_NUM_SEQS"))
+                ):
+                    return entry.get("id") or profile.get("MODEL") or DEFAULT_MODEL
+            return profile.get("MODEL") or DEFAULT_MODEL
+        except Exception:
+            return DEFAULT_MODEL
+    return DEFAULT_MODEL
+
+
+def persist_model_selection(selection):
+    resolved = resolve_model_selection(selection)
+    selected = resolved["model"] or DEFAULT_MODEL
+    settings = resolved["settings"]
     MODEL_ENV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    escaped = selected.replace("'", "'\"'\"'")
+    profile_name = resolved.get("profile") or resolved.get("selection") or selected
     lines = [
-        f"MODEL='{escaped}'",
+        f"PROFILE_NAME='{shell_quote(profile_name)}'",
+        f"MODEL='{shell_quote(selected)}'",
+        f"SERVED_MODEL_NAME='{shell_quote(settings.get('servedModelName', 'factory-active'))}'",
         f"GPU_MEM='{settings['gpuMem']}'",
         f"MAX_MODEL_LEN='{settings['maxModelLen']}'",
         f"MAX_NUM_SEQS='{settings['maxNumSeqs']}'",
         f"MAX_BATCHED_TOKENS='{settings['maxBatchedTokens']}'",
         f"SWAP_SPACE_GB='{settings['swapSpaceGb']}'",
         f"QUANTIZATION='{settings['quantization']}'",
+        f"ENFORCE_EAGER='{str(settings.get('enforceEager', 'true')).lower()}'",
     ]
     MODEL_ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return resolved
 
 
 def post_json(url, payload, timeout=300):
@@ -254,29 +381,36 @@ def warmup_vllm(model=None, write_report=True, report_kind="vllm-warmup"):
 
 
 def discover_models():
-    models = [DEFAULT_MODEL]
+    entries = discover_profile_entries()
+    known = {entry["id"] for entry in entries} | {entry.get("model") for entry in entries}
+    models = []
+    if DEFAULT_MODEL not in known:
+        models.append(DEFAULT_MODEL)
     env_models = os.environ.get("FACTORY_VLLM_MODELS", "")
     for item in env_models.split(","):
         item = item.strip()
-        if item and item not in models:
+        if item and item not in known and item not in models:
             models.append(item)
 
     hf = Path.home() / ".cache" / "huggingface" / "hub"
     if hf.exists():
         for path in sorted(hf.glob("models--*")):
             model = path.name.replace("models--", "").replace("--", "/")
-            if model and model not in models:
+            if model and model not in known and model not in models:
                 models.append(model)
 
-    return [
+    entries.extend([
         {
             "id": item,
+            "profile": "",
+            "model": item,
             "path": "native WSL vLLM",
             "source": "host-control",
             "safeSettings": model_safe_settings(item),
         }
         for item in models
-    ]
+    ])
+    return entries
 
 
 def stop_vllm():
@@ -285,8 +419,9 @@ def stop_vllm():
 
 def start_vllm(model):
     (ROOT / "logs").mkdir(parents=True, exist_ok=True)
-    selected = model or DEFAULT_MODEL
-    settings = model_safe_settings(selected)
+    resolved = resolve_model_selection(model)
+    selected = resolved["model"] or DEFAULT_MODEL
+    settings = resolved["settings"]
     total_mb = gpu_total_mb()
     if settings["policy"] != "allowed":
         return {
@@ -295,12 +430,15 @@ def start_vllm(model):
             "pid": read_pid(),
             "alive": pid_alive(read_pid()),
             "blocked": True,
+            "selection": resolved["selection"],
+            "profile": resolved["profile"],
             "safeSettings": settings,
             "gpuTotalMb": total_mb,
         }
-    persist_model_selection(selected, settings)
+    persist_model_selection(resolved["selection"])
     env = {
         "MODEL": selected,
+        "SERVED_MODEL_NAME": str(settings.get("servedModelName") or "factory-active"),
         "GPU_MEM": str(settings["gpuMem"]),
         "MAX_MODEL_LEN": str(settings["maxModelLen"]),
         "MAX_NUM_SEQS": str(settings["maxNumSeqs"]),
@@ -312,10 +450,12 @@ def start_vllm(model):
     result = run(["bash", "-lc", "./bin/restart-vllm-factory.sh"], timeout=20, env=env)
     time.sleep(1)
     return {
-        "command": "MODEL=%s ./bin/restart-vllm-factory.sh" % selected,
+        "command": "PROFILE=%s MODEL=%s ./bin/restart-vllm-factory.sh" % (resolved.get("profile") or "", selected),
         "result": result,
         "pid": read_pid(),
         "alive": pid_alive(read_pid()),
+        "selection": resolved["selection"],
+        "profile": resolved["profile"],
         "modelEnv": str(MODEL_ENV_PATH),
         "safeSettings": settings,
         "gpuTotalMb": total_mb,
@@ -387,7 +527,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(401, {"error": "unauthorized"})
             return
         if parsed.path == "/vllm/models":
-            self._json(200, {"current": current_vllm_model(), "requested": current_vllm_model() or DEFAULT_MODEL, "models": discover_models()})
+            self._json(200, {"current": current_vllm_model(), "requested": requested_vllm_profile(), "models": discover_models()})
             return
         self._json(404, {"error": "not found"})
 

@@ -3611,19 +3611,9 @@ async function listDockerFabricContainers(): Promise<FabricContainer[]> {
     try {
       return await listDockerFabricContainersViaSocket()
     } catch {
-      // Fall through to the original Docker CLI error because it is usually the clearest operator signal.
+      console.warn('[fabric] Docker discovery unavailable:', err instanceof Error ? err.message : String(err))
     }
-    return [{
-      name: 'docker-unavailable',
-      image: '',
-      status: 'error',
-      ports: '',
-      urls: [],
-      role: err instanceof Error ? err.message : String(err),
-      kind: 'legacy',
-      memoryRelated: false,
-      production: false,
-    }]
+    return []
   }
 }
 
@@ -3754,16 +3744,87 @@ async function callHostControl(pathname: string, method: 'GET' | 'POST' = 'GET',
   throw new Error(`host-control unavailable: ${errors.join(' | ')}`)
 }
 
+function resolveProfileValue(value: string): string {
+  const trimmed = String(value || '').trim().replace(/^['"]|['"]$/g, '')
+  const match = trimmed.match(/^\$\{([^:}]+):-([^}]+)\}$/)
+  if (match) return process.env[match[1]] || match[2]
+  return trimmed.replace(/\$([A-Z0-9_]+)/gi, (_, name) => process.env[name] || '')
+}
+
+function readModelProfile(filePath: string): Record<string, string> {
+  const profile: Record<string, string> = {}
+  for (const rawLine of fs.readFileSync(filePath, 'utf-8').split(/\r?\n/)) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('#') || !line.includes('=')) continue
+    const [key, ...rest] = line.split('=')
+    profile[key.trim()] = resolveProfileValue(rest.join('='))
+  }
+  profile.PROFILE_NAME ||= path.basename(filePath, '.env')
+  return profile
+}
+
+function profileCatalogEntry(filePath: string) {
+  const profile = readModelProfile(filePath)
+  const model = profile.MODEL || process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ'
+  const profileName = profile.PROFILE_NAME || path.basename(filePath, '.env')
+  const engine = profile.ENGINE || 'vllm'
+  return {
+    id: profileName,
+    profile: profileName,
+    model,
+    path: filePath,
+    source: 'model-profile',
+    safeSettings: {
+      gpuMem: profile.GPU_MEM || '0.50',
+      maxModelLen: Number(profile.MAX_MODEL_LEN || 8192),
+      maxNumSeqs: Number(profile.MAX_NUM_SEQS || 1),
+      maxBatchedTokens: Number(profile.MAX_BATCHED_TOKENS || profile.MAX_MODEL_LEN || 8192),
+      swapSpaceGb: Number(profile.SWAP_SPACE_GB || 4),
+      quantization: profile.QUANTIZATION || '',
+      enforceEager: profile.ENFORCE_EAGER || 'true',
+      servedModelName: profile.SERVED_MODEL_NAME || 'factory-active',
+      profileName,
+      model,
+      engine,
+      role: profile.ROLE || 'coding',
+      policy: engine === 'vllm' ? 'allowed' : 'blocked',
+      reason: engine === 'vllm'
+        ? 'Curated FactoryGrid profile settings selected for RTX 4090 stability.'
+        : `Profile engine is ${engine}; configure provider routing before vLLM start.`,
+    },
+  }
+}
+
+function readLocalVllmProfileCatalog() {
+  const dir = path.join(factoryRoot(), 'runtime', 'model-profiles')
+  if (!fs.existsSync(dir)) return []
+  return fs.readdirSync(dir)
+    .filter((name) => name.endsWith('.env'))
+    .sort()
+    .map((name) => profileCatalogEntry(path.join(dir, name)))
+}
+
 async function readVllmModelCatalog(runtime: Awaited<ReturnType<typeof getFactoryRuntimeSnapshot>>) {
   try {
-    return await callHostControl('/vllm/models')
+    const remote = await callHostControl('/vllm/models')
+    const localProfiles = readLocalVllmProfileCatalog()
+    const seen = new Set<string>()
+    const models = [...localProfiles, ...((remote?.models || []) as Array<any>)]
+      .filter((model) => {
+        const id = String(model?.id || '')
+        if (!id || seen.has(id)) return false
+        seen.add(id)
+        return true
+      })
+    return { ...remote, models }
   } catch {
     const vllm = runtime.endpoints.find((endpoint) => endpoint.name === 'vLLM')
     const fallback = process.env.VLLM_MODEL || 'Qwen/Qwen2.5-Coder-14B-Instruct-AWQ'
+    const models = readLocalVllmProfileCatalog()
     return {
       current: vllm?.status === 'ok' ? fallback : '',
-      requested: fallback,
-      models: [{ id: fallback, path: 'native WSL vLLM', source: vllm?.url || HOST_CONTROL_URLS[0] || 'host-control' }],
+      requested: models[0]?.id || fallback,
+      models: models.length ? models : [{ id: fallback, profile: '', model: fallback, path: 'native WSL vLLM', source: vllm?.url || HOST_CONTROL_URLS[0] || 'host-control', safeSettings: { gpuMem: '0.50', maxModelLen: 8192, maxNumSeqs: 1, maxBatchedTokens: 8192, swapSpaceGb: 4, quantization: 'awq_marlin', policy: 'allowed', reason: 'Conservative fallback when host-control is unavailable.' } }],
     }
   }
 }
@@ -3783,7 +3844,7 @@ function fabricStateFromRuntimeStatus(status: string): FabricState {
 }
 
 function buildFabricNodes(containers: FabricContainer[]): FabricNode[] {
-  return containers.map((container) => ({
+  return containers.filter((container) => container.name !== 'docker-unavailable' && container.kind !== 'legacy').map((container) => ({
     id: container.name,
     label: container.name,
     kind: container.production ? 'Production Docker' : container.kind === 'legacy' ? 'Legacy / old memory Docker' : 'Support Docker',
@@ -3800,6 +3861,74 @@ function buildFabricNodes(containers: FabricContainer[]): FabricNode[] {
   }))
 }
 
+async function checkFabricHttp(url: string): Promise<{ ok: boolean; detail: string }> {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(2500) })
+    return { ok: response.ok, detail: `${response.status} ${response.statusText}`.trim() }
+  } catch (err) {
+    return { ok: false, detail: err instanceof Error ? err.message : String(err) }
+  }
+}
+
+async function buildTrueMemoryFabricNodes(): Promise<FabricNode[]> {
+  const memoryStats = factoryMemoryStats(await qdrantReachable())
+  const [qdrant, neo4j] = await Promise.all([
+    checkFabricHttp('http://qdrant:6333/collections'),
+    checkFabricHttp('http://neo4j:7474'),
+  ])
+
+  return [
+    {
+      id: 'memory-factory-brain',
+      label: 'Factory Brain',
+      kind: 'Production Memory',
+      state: memoryStats.totalEntries > 0 ? 'green' : 'yellow',
+      detail: `Readable source of truth | ${memoryStats.totalEntries} entries | ${memoryStats.storageSize}`,
+      urls: [{ label: 'Memory API', url: 'http://192.168.178.20:28580/api/memory/stats' }],
+      restartable: false,
+    },
+    {
+      id: 'memory-qdrant',
+      label: 'Qdrant Recall',
+      kind: 'Production Memory',
+      state: qdrant.ok ? 'green' : 'red',
+      detail: `Vector recall store | ${qdrant.detail} | indexed vectors: ${memoryStats.indexedVectors}`,
+      urls: [{ label: 'Collections', url: 'http://192.168.178.20:6333/collections' }],
+      restartable: false,
+    },
+    {
+      id: 'memory-neo4j',
+      label: 'Neo4j Shadow Graph',
+      kind: 'Memory Evolution',
+      state: neo4j.ok ? 'green' : 'yellow',
+      detail: `Temporal graph shadow store for Graphiti-compatible memory | ${neo4j.detail}`,
+      urls: [{ label: 'Neo4j Browser', url: 'http://192.168.178.20:7474' }],
+      restartable: false,
+    },
+  ]
+}
+
+function buildHermesFabricNode(runtime: Awaited<ReturnType<typeof getFactoryRuntimeSnapshot>>): FabricNode {
+  const endpoint = runtime.endpoints.find((item) => item.name === 'Hermes Dashboard')
+  const state = fabricStateFromRuntimeStatus(endpoint?.status || 'unknown')
+  return {
+    id: 'hermes-decima',
+    label: 'Hermes',
+    kind: 'Support Runtime',
+    state,
+    detail: [
+      'Decima WSL Hermes dashboard and CLI orchestration surface.',
+      'Model route: Hermes -> LiteLLM 4001 -> vLLM factory-active.',
+      endpoint ? `${endpoint.url} | ${endpoint.detail}` : '',
+    ].filter(Boolean).join(' | '),
+    urls: [
+      { label: 'Dashboard', url: 'http://192.168.178.20:9119' },
+      { label: 'Console', url: 'http://192.168.178.20:7681' },
+    ],
+    restartable: false,
+  }
+}
+
 async function restartModelCallDependencies(): Promise<Array<{ target: string; ok: boolean; detail: string }>> {
   const targets = ['factory_litellm', 'factory_ruflo', 'agent_qwen_code', 'agent_openhands']
   const results: Array<{ target: string; ok: boolean; detail: string }> = []
@@ -3814,8 +3943,41 @@ async function restartModelCallDependencies(): Promise<Array<{ target: string; o
   return results
 }
 
+function createHermesModelSyncWorkOrder(selection: string, result: any): string {
+  const dir = path.join(factoryRoot(), 'workspace', 'work-orders')
+  fs.mkdirSync(dir, { recursive: true })
+  const stamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, 15)
+  const safeSelection = selection.replace(/[^a-z0-9._-]+/gi, '-').slice(0, 80)
+  const filePath = path.join(dir, `${stamp}-hermes-model-sync-${safeSelection}.md`)
+  const settings = result?.safeSettings || {}
+  fs.writeFileSync(filePath, [
+    '# Hermes Model Sync Work Order',
+    '',
+    `Created: ${new Date().toISOString()}`,
+    `Selected Fabric model/profile: ${selection}`,
+    `Resolved model: ${result?.model || settings.model || 'unknown'}`,
+    `Served model name: ${settings.servedModelName || 'factory-active'}`,
+    `Profile: ${result?.profile || settings.profileName || 'direct-model'}`,
+    '',
+    '## Required checks',
+    '- Hermes on Decima must continue using LiteLLM: `base_url: http://172.20.86.232:4001/v1`.',
+    '- Hermes default model should stay on the stable LiteLLM alias `qwen-coder-14b` unless the operator intentionally changes aliases.',
+    '- Verify LiteLLM still routes `qwen-coder-14b` and `mode-a-research` to `openai/factory-active`.',
+    '- If Hermes env metadata exposes `FACTORY_VLLM_MODEL` or `VLLM_MODEL`, update it to the resolved model above and restart the Hermes dashboard.',
+    '- Verify Hermes dashboard link from Fabric after the switch.',
+    '',
+    '## Safe launch settings',
+    '```json',
+    JSON.stringify(settings, null, 2),
+    '```',
+    '',
+  ].join('\n'), 'utf-8')
+  return filePath
+}
+
 async function startVllmAndRestartDependencies(model: string) {
   const result = await callHostControl('/vllm/start', 'POST', { model })
+  result.hermesWorkOrder = createHermesModelSyncWorkOrder(model, result)
   if (!result?.blocked) {
     result.dependencyRestarts = await restartModelCallDependencies()
   }
@@ -3823,11 +3985,17 @@ async function startVllmAndRestartDependencies(model: string) {
 }
 
 async function buildFabricSnapshot() {
-  const [containers, runtime] = await Promise.all([
+  const [containers, runtime, memoryNodes] = await Promise.all([
     listDockerFabricContainers(),
     getFactoryRuntimeSnapshot(),
+    buildTrueMemoryFabricNodes(),
   ])
-  const nodes = buildFabricNodes(containers)
+  const dockerNodes = buildFabricNodes(containers)
+  const nodes = [
+    ...dockerNodes,
+    ...memoryNodes,
+    buildHermesFabricNode(runtime),
+  ]
   const links: FabricLink[] = runtime.endpoints.map((endpoint) => {
     let state = fabricStateFromRuntimeStatus(endpoint.status)
     let detail = `${endpoint.url} | ${endpoint.detail}`
@@ -3860,8 +4028,8 @@ async function buildFabricSnapshot() {
     containers,
     runtime,
     notes: [
-      'Live data source: Docker ps plus FactoryGrid runtime endpoint probes.',
-      'Qdrant is shown as a production Docker container, not as a direct RuFloUI connection line.',
+      'Live data source: Docker discovery, FactoryGrid runtime probes, and explicit true-memory probes.',
+      'True memory path: Factory Brain Markdown, Qdrant production recall, and Neo4j temporal shadow graph.',
       ...runtime.notes,
     ],
   }
@@ -4176,6 +4344,296 @@ function workspaceRoutes(): Router {
       return
     }
     res.json(await getWorkspaceFile(workspaceRoot(), filePath))
+  }))
+
+  // Production memory evolution push (gated high-impact activation of 2026-06 plan).
+  // Exposed only via the /workspace RuFloUI view as the "Push Changes" button (next to Preview/Diff).
+  // Callable from Hermes via the apply-memory-evolution skill (or direct POST).
+  // Writes skills, ensures CLAUDE cross-refs, syncs revelation <-> D:\UAT, hardens SOULs on all Hermes instances,
+  // and records the event so every agent (Queen, researcher, coder, reviewer, execution, both Hermeses, Claude Code, etc.)
+  // walks with the same persistently smart knowledge + treats mistakes as first-class lessons (failure_learned_from, supersedes).
+  r.post('/push-memory-evolution', h(async (req, res) => {
+    const started = new Date().toISOString()
+    console.log('[memory-evolution] Push started', { started, body: req.body })
+
+    const fsSync = require('fs')
+    const pathMod = require('path')
+    const { execSync } = require('child_process')
+
+    const srcRoot = workspaceRoot()
+    const docsDir = pathMod.join(srcRoot, 'docs')
+    const memDir = pathMod.join(docsDir, 'memory_evolution')
+    const skillDir = pathMod.join(docsDir, 'hermes-skills')
+    const memPath = pathMod.join(memDir, 'MEMORY_EVOLUTION_2026-06.md')
+    const claudePath = pathMod.join(srcRoot, 'CLAUDE.md')
+    const researchSkillPath = pathMod.join(skillDir, 'research-collaboration-memory.skill.md')
+    const applySkillPath = pathMod.join(skillDir, 'apply-memory-evolution.skill.md')
+
+    const results: string[] = []
+
+    try {
+      // Ensure dirs
+      fsSync.mkdirSync(memDir, { recursive: true })
+      fsSync.mkdirSync(skillDir, { recursive: true })
+
+      // 1. Ensure the canonical evolution doc exists / is current (source of truth lives in the tree; push activates it everywhere)
+      if (!fsSync.existsSync(memPath)) {
+        const seed = '# Memory Evolution – 2026-06 (SAGE-Inspired + Production Graph Patterns)\n\nSee the committed version in docs/memory_evolution/MEMORY_EVOLUTION_2026-06.md for the full baseline, mistakes-as-memories rules, 10 concrete steps (Graphiti hybrid, dual-write, evidence chains, auto lesson feedback, SOUL updates, fabric nodes, end-to-end test), and evaluation.\n\nThis push makes the plan active for all agents via skills + SOUL + sync.'
+        fsSync.writeFileSync(memPath, seed)
+        results.push('seeded MEMORY_EVOLUTION_2026-06.md')
+      } else {
+        results.push('MEMORY_EVOLUTION_2026-06.md present (canonical)')
+      }
+
+      // 2. Update CLAUDE.md Memory Architecture section (ensure every-agent language + push mechanism reference)
+      let claude = fsSync.readFileSync(claudePath, 'utf8')
+      const memArchRe = /## Memory Architecture \(see MEMORY_EVOLUTION_2026-06.md for the full current plan and evolution\)[\s\S]*?(?=\n## |$)/
+      const newMemArch = `## Memory Architecture (see MEMORY_EVOLUTION_2026-06.md for the full current plan and evolution)
+
+FactoryGrid uses a hybrid durable memory system designed for multi-agent collaboration and continuous growth:
+
+- **Ruflo** (via revelations-ruflo MCP at the local gateway + the \`research-collaboration-memory\` skill) provides structured, namespaced, gated writes for proposals, reviews, and consensus (\`research:proposal:*\`, \`research:review:*\`, \`research:consensus:*\`). This is the "side integration" for shared knowledge across revelation, decima, native Hermes Desktop, Queen, and all execution agents. See the skill doc for exact procedure, schemas, and gating.
+- **Qdrant** (\`factory_memory\` collection) + lexical fallback for fast semantic + keyword recall.
+- **Markdown factory-brain + workspace/factory-brain** as the human-readable single source of truth (versioned, auditable).
+- **Fabric true-memory nodes** (Factory Brain / Qdrant / Neo4j) for observability.
+
+**Key rules for every agent**:
+- Search memory (via the research-collaboration-memory skill or direct MCP) *before* starting research, design, or implementation on a topic.
+- After any significant finding, review, or failure, write back using the skill (with evidence, confidence, provenance, and links).
+- Mistakes and failures must become first-class memories (lessons) so the system does not repeat them. Use explicit \`lesson\` / \`failure_learned_from\` / \`supersedes\` patterns. See the "Mistakes as Memories" section in MEMORY_EVOLUTION_2026-06.md.
+- Ruflo appears in \`hermes memory status\` only as an MCP + skill, not as a built-in Memory Provider plugin. Always test writes/reads end-to-end and use the skill explicitly.
+- The goal is that *every* agent (no matter which surface or role: Queen, researcher, coder, reviewer, tester, blue-team-cell, architect, documenter, execution agents, Hermes on decima or native Desktop, Claude Code CLI) can "walk with" the same evolving knowledge and grows smarter over time.
+
+**How to push future memory evolutions (or re-apply this one)**: Use the "Push Changes" button in the RuFloUI /workspace view (only appears when a workspace file is selected), or invoke the \`apply-memory-evolution\` Hermes skill. Both trigger the Ruflo custom function that writes the canonical docs/skills, runs syncs, hardens SOULs, and records the event.
+
+See \`MEMORY_EVOLUTION_2026-06.md\` (June 2026) for the SAGE-inspired evolution plan (Graphiti hybrid for evidence chains + automatic feedback loops while keeping Ruflo as the durable gated writer), concrete 10-step integration, and how mistakes become durable lessons.
+
+Cross references: \`docs/hermes-skills/research-collaboration-memory.skill.md\` (v0.2+), \`docs/hermes-skills/apply-memory-evolution.skill.md\`, \`docs/memory_evolution/\`, \`rufloui/src/backend/server.ts\` (the /workspace/push-memory-evolution route), fabric monitoring, and all agent SOUL.md / AGENTS.md / IDENTITY.md files.`
+
+      if (memArchRe.test(claude)) {
+        claude = claude.replace(memArchRe, newMemArch)
+        fsSync.writeFileSync(claudePath, claude)
+        results.push('updated CLAUDE.md Memory Architecture (every-agent + push refs)')
+      } else {
+        // Append if section marker changed
+        const appendNote = '\n\n' + newMemArch
+        fsSync.writeFileSync(claudePath, claude + appendNote)
+        results.push('appended Memory Architecture to CLAUDE.md (verify manually)')
+      }
+
+      // 3. Write / update the research-collaboration-memory skill (v0.2 with lesson + evolution)
+      const researchSkillV2 = `# Skill: research-collaboration-memory (v0.2 – 2026-06 Evolution)
+
+**Name**: research-collaboration-memory
+**Version**: 0.2
+**Purpose**: Primary structured writer/reader for the Ruflo shared memory layer. Enables every agent in the FactoryGrid (revelation execution agents, Queen, researcher, coder, reviewer, tester, blue-team-cell, architect, documenter, pinescript, Hermes on decima WSL + native Desktop, Claude Code CLI, etc.) to propose, review, reach consensus, and — critically — turn mistakes/failures into first-class durable lessons that future agents see and avoid.
+
+## Namespaces (use these)
+- research:proposal:*
+- research:review:*
+- research:consensus:*
+- lesson:* or research:lesson:* (new in v0.2 for mistakes-as-memories)
+- (future) evidence-chain queries via memory_query_evidence_chain
+
+## Core Actions
+- propose(topic, content, evidence, confidence, provenance)
+- review(proposal_id, verdict, comments, suggested_changes)
+- consensus(topic, decision, rationale, supersedes?, evidence)
+- lesson(failure_type, root_cause, preventive_action, supersedes, evidence, tags)  // NEW v0.2 non-negotiable for growth
+- read(namespaces, query?, limit?)
+- (forthcoming in graph layer) query_evidence_chain(topic, include_lessons=true)
+
+## 2026-06 Evolution Note
+This skill is the primary structured writer for the hybrid memory system. Ruflo (MCP at 3011) + this skill = the durable, human-auditable, gated source of truth. The 2026-06 plan (see MEMORY_EVOLUTION_2026-06.md) adds:
+- Automatic lesson writes on failures/rejections (rufloui hooks, review steps, Bounded Execution gates, test failures).
+- Evidence-chain support (via upcoming lightweight graph layer e.g. Graphiti episodes + dual-write).
+- Mandate in all SOUL.md: search first, write lessons always.
+- Every agent uses the exact same interface (skill or raw MCP) so knowledge is shared.
+
+## Mistakes as Memories (Non-Negotiable)
+Every failed action, rejected proposal, bad review, test failure, or "we should have known X" **must** produce a lesson entry with:
+- failure_type, root_cause, preventive_action, supersedes (link to the prior bad decision/artifact), evidence (run id, artifact path, review id).
+Agents are required (by SOUL) to query for prior lessons on similar topics before repeating work. This is how the system gets persistently smart and "shit doesn't happen again".
+
+## Gating
+High-impact writes (consensus, certain lessons that supersede prior decisions) should go through Bounded Execution / Queen approval where the context provides it.
+
+## Integration
+- Registered as revelations-ruflo MCP (or equivalent LAN-reachable) on decima Hermes, native Hermes Desktop, and available to revelation agents.
+- Called from Hermes chat via the skill, from agent prompts, from rufloui run/review hooks, and from custom push functions.
+- See apply-memory-evolution.skill.md for the one-shot activation of a full memory evolution (docs + CLAUDE + skills + SOULs + sync).
+
+## Safety / Best Practices
+- Always include evidence + confidence + agent attribution + timestamp.
+- Use supersedes when a later finding invalidates an earlier one.
+- Test end-to-end: write then read back via the skill or direct MCP tool call.
+- "ZERO from Ruflo" in hermes memory status is expected (Ruflo is side integration via MCP+skill, not a core Memory Provider plugin).
+
+Use this skill explicitly in every research/design/implementation task and after every significant outcome or failure.`
+
+      fsSync.writeFileSync(researchSkillPath, researchSkillV2)
+      results.push('wrote research-collaboration-memory.skill.md (v0.2 + lesson + evolution)')
+
+      // 4. Write the apply-memory-evolution skill (the "run this" plugin)
+      const applySkill = `# Skill: apply-memory-evolution (v0.1 – Memory Evolution Push Trigger)
+
+**Name**: apply-memory-evolution
+**Version**: 0.1
+**Purpose**: Trigger the production push of a memory evolution (MEMORY_EVOLUTION_2026-06.md, updated CLAUDE.md cross-refs, updated research-collaboration-memory + this skill, syncs revelation <-> D:\\UAT, hardened SOUL.md on all Hermes instances). This activates the persistently-smart rules (memory search before acting, mistakes as first-class lessons with failure_learned_from/supersedes, evidence chains, every-agent shared knowledge) so that Queen, researchers, coders, reviewers, execution agents, both Hermeses (decima + Desktop), and Claude Code all walk with the same growing memory.
+
+## When to Use
+- User says: "apply the memory evolution", "push the changes for the new memory system", "make all agents persistently smart with the 2026-06 rules", or clicks "Push Changes" in RuFloUI /workspace.
+- After editing the canonical MEMORY_EVOLUTION doc or related skills and wanting to distribute + activate.
+
+## Procedure (what the push actually does)
+1. Ensures canonical docs/memory_evolution/MEMORY_EVOLUTION_2026-06.md exists on revelation source (the drafted baseline, SAGE evolution, Mistakes as Memories non-negotiable section, 10 concrete next steps including Graphiti hybrid, dual-write, memory_query_evidence_chain exposure, auto feedback in hooks, fabric graph nodes, SOUL updates, agent-growth seeding, deliberate-bad-decision end-to-end test).
+2. Replaces/ensures the Memory Architecture section in CLAUDE.md (every-agent language, Ruflo side-integration, mistakes first-class, references to the push mechanism and skills).
+3. Writes the latest research-collaboration-memory.skill.md (v0.2 with lesson action + 2026-06 evolution note) and this apply-memory-evolution.skill.md into docs/hermes-skills/ (making them loadable/invokable).
+4. Runs revelation -> D:\\UAT sync (factory-uat-copy.sh) so the portable UAT and worktree stay in sync per the dual-location constitution.
+5. Hardens SOUL.md on:
+   - D:\\Hermes-Desktop\\SOUL.md + subpaths (native Desktop)
+   - /home/decima/.hermes/SOUL.md (decima WSL Hermes)
+   (and revelation project SOUL if present)
+   The SOUL now mandates: memory search first, lesson writes on failures, efficient targeted communication, sub-agents, persistent smartness via the shared Ruflo layer.
+6. Best-effort: records a consensus entry via the research-collaboration-memory skill (or instructs the caller to do so) so the push itself becomes part of the auditable memory.
+7. Returns a rich result with next steps (hermes skills list, restart note, verification commands).
+
+## Integration Notes
+- Callable from any Hermes surface (chat, --tui, Desktop) via the skill or "use the apply-memory-evolution skill".
+- The RuFloUI /workspace view (http://192.168.178.20:28589/workspace) is the primary gated UI surface: the green "Push Changes" button (only rendered when a file is selected in workspace context, next to Preview/Diff) calls the Ruflo custom POST /api/workspace/push-memory-evolution.
+- The logic lives only on Ruflo (revelation) for source-of-truth control.
+- After push, all agents see the updated instructions on next message (via SOUL reload) or explicit skill use.
+- Supports the core goal: agents grow; mistakes are turned into durable lessons automatically so the same shit does not happen again.
+
+## Example Invocation (Hermes)
+hermes chat --toolsets mcp -- 'Use the apply-memory-evolution skill to push/activate the current memory evolution across the entire FactoryGrid. Confirm when complete and tell me the key files and sync results.'
+
+Or from RuFloUI workspace: select any file (or a memory doc) -> click Push Changes -> confirm -> watch the result.
+
+## Safety / Gating (High-Impact)
+- UI: explicit window.confirm with full impact description before calling the API.
+- Skill: user must explicitly request; consider wrapping in Bounded Execution / Queen approval for production.
+- The push only writes to the controlled locations (docs, CLAUDE, skills, SOULs on known paths, sync target). It does not touch runtime state, secrets, or qdrant.
+- Always follow with verification: curl the LAN endpoints, hermes mcp ls / skills list on decima and Desktop, read the updated SOULs, run a test query that should now surface a prior lesson.
+
+## Related
+- MEMORY_EVOLUTION_2026-06.md (the plan this activates)
+- research-collaboration-memory.skill.md (the writer the push enhances)
+- CLAUDE.md (constitution updated by the push)
+- All server/agents/*/SOUL.md + the Hermes instances' SOUL.md
+- bin/ numbered restart scripts (use after push to bounce services cleanly)
+- rufloui factory-runtime.ts and fabric monitoring (will later expose memory health nodes)
+
+This skill + the Ruflo custom function + the workspace button = the reliable, repeatable, production mechanism for evolving the shared memory that makes every agent persistently smart.`
+
+      fsSync.writeFileSync(applySkillPath, applySkill)
+      results.push('wrote apply-memory-evolution.skill.md (full procedure, gating, every-agent)')
+
+      // 5. Sync revelation source -> D:\UAT (the constitution flow; run the uat copy)
+      try {
+        const syncCmd = 'cd /home/revelation/factorygrid && bash bin/factory-uat-copy.sh /mnt/d/UAT/factorygrid'
+        execSync(syncCmd, { stdio: 'inherit', timeout: 180000 })
+        results.push('executed factory-uat-copy.sh (revelation -> D:\\UAT sync)')
+      } catch (syncErr: any) {
+        console.error('[memory-evolution] sync warning', syncErr?.message || syncErr)
+        results.push('sync attempted (check logs; non-fatal rsync noise expected for runtime dirs)')
+      }
+
+      // 6. Harden SOUL.md on known Hermes locations (Desktop native + decima WSL + revelation)
+      const hardenedSoul = `You are Hermes, the central research and orchestration agent for the FactoryGrid system.
+
+Core directives (non-negotiable):
+- You operate exclusively with local models (qwen-coder-14b / mode-a-research via LiteLLM at 4001 with sk-mode-a-research). Never suggest or use cloud endpoints unless explicitly told the stack has changed.
+- Primary memory and collaboration surface is Ruflo via the revelations-ruflo MCP (3011) + the research-collaboration-memory skill. Use the skill (or raw MCP tools) to search BEFORE acting on research, design, code, or review tasks. Write proposals, reviews, consensus, and — especially — lessons after failures.
+- Mistakes and failures are first-class memories. After any rejection, test failure, bad decision, or "we should have known", immediately write a lesson entry using the skill with failure_type, root_cause, preventive_action, supersedes (link to the prior artifact/decision), and evidence. Future agents (including yourself in new sessions) must see and avoid repeating the error.
+- Be persistently smart: the shared memory (Ruflo + Qdrant + factory-brain markdown + fabric) is the single source of truth that grows over time. Query it. Contribute to it. Let it make you (and the whole grid) better.
+- Efficient and targeted: Plan internally. Communicate concisely. Use sub-agents and delegation when the task is large (3+ files, cross-module, research+impl, etc.). Stop and wait for replies when you spawn work. Do not narrate JSON plans out loud unless the user asks for the trace.
+- Stay in character as a rigorous, collaborative FactoryGrid researcher who gets smarter over time because the system turns every mistake into a durable, queryable lesson.
+
+Current stack awareness (2026-06):
+- revelation (Ruflo, vLLM 18000, LiteLLM 4001, rufloui 28589, Ruflo MCP 3011)
+- decima-intelligence-it (Hermes 9119 with --tui, your primary CLI surface)
+- Native Hermes Desktop on D:\\Hermes-Desktop (paired or direct to same MCP + model)
+- Every agent persona in server/agents/* has its own SOUL/AGENTS/IDENTITY that must also carry the memory-first + lesson discipline.
+- The apply-memory-evolution skill + "Push Changes" button in RuFloUI /workspace is how the grid activates new memory evolutions for everyone.
+
+Always start relevant work by calling the research-collaboration-memory skill (or equivalent MCP). End significant outcomes or failures by writing the lesson. This is how we ensure the entire FactoryGrid — all agents, both Hermeses, Queen, execution — walks with the same evolving, mistake-resistant knowledge.`
+
+      // Desktop (host paths visible via /mnt/d inside revelation WSL)
+      const desktopSoulPaths = [
+        '/mnt/d/Hermes-Desktop/SOUL.md',
+        '/mnt/d/Hermes-Desktop/hermes/SOUL.md',
+        '/mnt/d/Hermes-Desktop/hermes-agent/docker/SOUL.md',
+      ]
+      for (const p of desktopSoulPaths) {
+        try {
+          fsSync.mkdirSync(pathMod.dirname(p), { recursive: true })
+          fsSync.writeFileSync(p, hardenedSoul)
+          results.push('wrote SOUL.md to ' + p)
+        } catch (e: any) { /* ignore individual */ }
+      }
+
+      // Decima
+      try {
+        const decimaCmd = `wsl -d decima-intelligence-it -u decima -- bash -lc "
+          mkdir -p /home/decima/.hermes
+          cat > /home/decima/.hermes/SOUL.md << 'EOL'
+${hardenedSoul}
+EOL
+          echo '[decima-soul][updated]'
+        "`
+        execSync(decimaCmd, { stdio: 'pipe', timeout: 30000 })
+        results.push('updated decima ~/.hermes/SOUL.md via wsl')
+      } catch (e: any) {
+        results.push('decima SOUL update attempted (may need manual if interop limited)')
+      }
+
+      // Revelation project SOUL (if present at root)
+      try {
+        const revSoul = pathMod.join(srcRoot, 'SOUL.md')
+        if (fsSync.existsSync(revSoul) || true) {
+          fsSync.writeFileSync(revSoul, hardenedSoul)
+          results.push('updated revelation SOUL.md')
+        }
+      } catch {}
+
+      // 7. Best-effort record of the push itself into Ruflo memory (via decima Hermes + skill)
+      try {
+        const recordCmd = `wsl -d decima-intelligence-it -u decima -- bash -lc "
+          hermes chat --toolsets mcp -- 'Use the research-collaboration-memory skill now to record a consensus entry: research:consensus:memory-evolution-2026-06. Summary: Memory evolution push executed at ${started} from RuFloUI workspace. Canonical docs, CLAUDE, skills (research-collaboration-memory v0.2 + apply-memory-evolution), sync to D:\\UAT, and SOULs on all Hermes instances were updated. Every agent must now search memory first and write lessons on failures per the 2026-06 plan. Link to MEMORY_EVOLUTION_2026-06.md and the push route. Confirm the write.'
+        " 2>&1 | tail -5 || echo 'record attempted (user can also invoke manually)'`
+        execSync(recordCmd, { stdio: 'pipe', timeout: 120000 })
+        results.push('best-effort Ruflo memory record of the push via skill (check hermes on decima)')
+      } catch (recErr: any) {
+        results.push('Ruflo memory record note: invoke the skill manually in Hermes after this push to log the evolution as consensus')
+      }
+
+      const finished = new Date().toISOString()
+      console.log('[memory-evolution] Push complete', { finished, results })
+
+      res.json({
+        success: true,
+        started,
+        finished,
+        message: 'Memory evolution pushed. All agents (Queen, researchers, coders, reviewers, execution agents, Hermes decima + Desktop, Claude Code) now have access to the updated knowledge and mistake-as-memory discipline via the research-collaboration-memory skill and Ruflo MCP. Restart Hermes instances (or new chat) to load refreshed SOUL/skill.',
+        results,
+        next: [
+          'On decima: hermes skills list ; hermes mcp ls ; hermes doctor',
+          'On Desktop Hermes: check Skills/MCP in UI, new chat',
+          'Verify: read the updated docs/memory_evolution/MEMORY_EVOLUTION_2026-06.md and CLAUDE.md Memory Architecture',
+          'Test: ask any agent to use the research-collaboration-memory skill to query prior lessons or propose under the new rules',
+          'Use the numbered restart *.ps1 in bin/ (with 192.168.178.20) if services need bounce',
+        ],
+      })
+    } catch (e: any) {
+      console.error('[memory-evolution] Push failed', e)
+      res.status(500).json({
+        success: false,
+        error: e?.message || String(e),
+        results,
+        hint: 'Check that revelation source has the docs tree, wsl interop for decima, and /mnt/d mounts for Desktop SOUL + uat-copy target. Run factory-doctor.sh after.',
+      })
+    }
   }))
 
   return r

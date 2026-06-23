@@ -8,11 +8,12 @@ This runbook verifies that RuFloUI tasks can complete with real execution eviden
 
 ## Required Green Checks
 
-- Fabric snapshot is green for vLLM, LiteLLM, OpenHands, RuFlo orchestrator, RuFloUI, Qdrant, and worker containers.
+- Fabric snapshot is green for vLLM, LiteLLM, Hermes Dashboard, OpenHands, RuFlo orchestrator, RuFloUI, Qdrant, and worker containers.
 - Dashboard health reasons are visible when any normalized check is warn/fail. Non-blocking RuFlo doctor notes remain visible in API output but do not degrade FactoryGrid production status.
 - Task board has no failed/cancelled tasks after stale failure cleanup; completed task evidence is preserved unless explicitly cleaned from the Completed column.
 - `/api/swarm/status` lists Queen plus Architect, Researcher, Coder, Tester, Reviewer, and Analyst.
 - LiteLLM chat completion against `qwen-coder-14b` returns a deterministic token.
+- Decima Hermes uses LiteLLM at `http://172.20.86.232:4001/v1` with stable alias `qwen-coder-14b`; model switches create a Hermes model-sync work order.
 - Spec-Kit intake creates request, spec, checklist, and Factory Brain run artifacts.
 - Queen validates those Spec-Kit artifacts before implementation smoke.
 - Exact-reply task completes with the exact requested token.

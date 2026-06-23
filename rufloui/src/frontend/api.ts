@@ -254,11 +254,11 @@ export const api = {
     snapshot: () => request<{ generatedAt: string; counts: { green: number; yellow: number; red: number }; nodes: Array<{ id: string; label: string; kind: string; state: 'green' | 'yellow' | 'red'; detail: string; urls?: Array<{ label: string; url: string }>; restartable: boolean; restartType?: string }>; links: Array<{ id: string; from: string; to: string; state: 'green' | 'yellow' | 'red'; detail: string }> }>('/fabric/snapshot'),
     restart: (input: { target: string; type: string }) => request<{ ok: boolean; target: string; type: string }>('/fabric/restart', { method: 'POST', body: JSON.stringify(input), timeout: 120_000 }),
     updateWorkOrder: (reason = 'manual') => request<{ path: string; taskId: string }>('/fabric/update-work-order', { method: 'POST', body: JSON.stringify({ reason }), timeout: 60_000 }),
-    vllmModels: () => request<{ current: string; requested: string; models: Array<{ id: string; path: string; source: string; safeSettings?: Record<string, unknown> }> }>('/fabric/vllm/models'),
-    setVllmModel: (model: string) => request<{ ok: boolean; model: string; command?: string; note?: string; path?: string; summary?: string }>('/fabric/vllm/model', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
-    startVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean }>('/fabric/vllm/start', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
+    vllmModels: () => request<{ current: string; requested: string; models: Array<{ id: string; profile?: string; model?: string; path: string; source: string; safeSettings?: Record<string, unknown> }> }>('/fabric/vllm/models'),
+    setVllmModel: (model: string) => request<{ ok: boolean; model: string; command?: string; note?: string; path?: string; summary?: string; hermesWorkOrder?: string }>('/fabric/vllm/model', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
+    startVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean; blocked?: boolean; hermesWorkOrder?: string; safeSettings?: Record<string, unknown> }>('/fabric/vllm/start', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
     stopVllm: () => request<{ ok: boolean }>('/fabric/vllm/stop', { method: 'POST', timeout: 60_000 }),
-    restartVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean }>('/fabric/vllm/restart', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
+    restartVllm: (model: string) => request<{ ok: boolean; model: string; command?: string; pid?: number; alive?: boolean; blocked?: boolean; hermesWorkOrder?: string; safeSettings?: Record<string, unknown> }>('/fabric/vllm/restart', { method: 'POST', body: JSON.stringify({ model }), timeout: 60_000 }),
     warmupVllm: (model: string) => request<{ ok: boolean; model: string; path: string; summary: string; elapsedSeconds?: number; responseText?: string; gpuBefore?: unknown; gpuAfter?: unknown }>('/fabric/vllm/warmup', { method: 'POST', body: JSON.stringify({ model }), timeout: 300_000 }),
     runVllmRca: () => request<{ ok: boolean; path: string; summary: string }>('/fabric/vllm/rca', { method: 'POST', timeout: 300_000 }),
   },
@@ -303,6 +303,7 @@ export const api = {
     status: () => request<WorkspaceStatus>('/workspace/status'),
     file: (path: string) => request<WorkspaceFile>(`/workspace/file?${new URLSearchParams({ path })}`),
     diff: (path?: string) => request<WorkspaceDiff>(`/workspace/diff${path ? `?${new URLSearchParams({ path })}` : ''}`),
+    pushMemoryEvolution: (data?: any) => request('/workspace/push-memory-evolution', { method: 'POST', body: JSON.stringify(data || {}) }),
   },
 
   monitoring: {
