@@ -61,6 +61,8 @@ ruflo_project/.swarm/
 ruflo_project/ruvector.db
 
 # local generated backups/runtime discovered during UAT packaging
+*.bak.*
+*.backup.*
 .gitignore.bak.*
 ruflo_project/.claude-flow/daemon-state.json
 ruflo_project/.claude-flow/metrics/

@@ -152,7 +152,7 @@ litellm_settings:
 
 ```bash
 export ANTHROPIC_BASE_URL="http://localhost:4000"          # or the Docker service name
-export ANTHROPIC_AUTH_TOKEN="sk-1234567890abcdef"          # must match your LiteLLM master/virtual key
+export ANTHROPIC_AUTH_TOKEN="<local-litellm-key>"          # must match your LiteLLM master/virtual key
 
 # Performance critical for local backends
 export CLAUDE_CODE_ATTRIBUTION_HEADER=0                    # Prevents KV cache destruction on vLLM

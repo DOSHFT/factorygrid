@@ -267,7 +267,7 @@ Chat test:
 ```bash
 curl -s http://localhost:4000/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer factory-secret-key' \
+  -H "Authorization: Bearer $FACTORY_API_KEY" \
   -d '{
     "model":"qwen-coder-14b",
     "messages":[{"role":"user","content":"Reply exactly OK."}],
@@ -357,7 +357,7 @@ Important settings:
 {
   "llm_model": "openai/qwen-coder-14b",
   "llm_base_url": "http://litellm:4000/v1",
-  "llm_api_key": "factory-secret-key",
+  "llm_api_key": "${FACTORY_API_KEY}",
   "agent": "CodeActAgent",
   "max_iterations": 100
 }
@@ -620,7 +620,7 @@ Run a completion check:
 ```bash
 curl -s http://localhost:4001/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer factory-secret-key' \
+  -H "Authorization: Bearer $FACTORY_API_KEY" \
   -d '{"model":"qwen-coder-14b","messages":[{"role":"user","content":"Reply exactly OK."}],"max_tokens":8,"temperature":0}'
 ```
 

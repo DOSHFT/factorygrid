@@ -1,7 +1,0 @@
-[llm]
-model = "openai/qwen-coder-14b"
-base_url = "http://docker.internal"
-api_key = "factory-secret-key"
-
-[agent]
-tavily_api_key = "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"

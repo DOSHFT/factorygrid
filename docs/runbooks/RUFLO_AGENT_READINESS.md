@@ -67,7 +67,7 @@ Model path:
 ```bash
 curl -sS http://127.0.0.1:4001/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer factory-secret-key" \
+  -H "Authorization: Bearer $FACTORY_API_KEY" \
   -d '{"model":"qwen-coder-14b","messages":[{"role":"user","content":"Reply exactly READY_OK"}],"max_tokens":8,"temperature":0}'
 ```
 

@@ -111,7 +111,13 @@ if [ -f .env.example ]; then
 else
   warning ".env.example missing"
 fi
-if grep -RIn 'tvly-[A-Za-z0-9_-]' docker-compose.yml openhands_state 2>/dev/null; then
+if [ -x ./bin/factory-secret-scan.sh ]; then
+  if ./bin/factory-secret-scan.sh >/tmp/factory-secret-scan.out 2>/tmp/factory-secret-scan.err; then
+    ok "tracked secret scan passed"
+  else
+    bad "tracked secret scan failed: $(tr '\n' ' ' </tmp/factory-secret-scan.err | cut -c1-220)"
+  fi
+elif grep -RIn 'tvly-[A-Za-z0-9_-]' docker-compose.yml openhands_state 2>/dev/null; then
   bad "hardcoded Tavily-style key still present in compose/state"
 else
   ok "no Tavily-style key found in compose/state"

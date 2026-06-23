@@ -474,7 +474,7 @@ describe('POST /github — invalid payloads', () => {
 describe('GET /github/config', () => {
   it('returns config with masked secrets', async () => {
     const { router } = createTestRouter({
-      githubToken: 'ghp_xxxxxxxxxxxxxxxxxxxx1234',
+      githubToken: '<github-token>',
       webhookSecret: 'supersecret',
       repos: ['owner/repo'],
       autoAssign: true,

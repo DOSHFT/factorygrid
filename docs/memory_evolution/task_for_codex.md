@@ -1,7 +1,7 @@
 .env additions:
 envNEO4J_URI=bolt://neo4j:7687
 NEO4J_USER=neo4j
-NEO4J_PASSWORD=ultron2026securechangeME123!
+NEO4J_PASSWORD=<local-secret>
 GRAPHITI_EMBEDDING_MODEL=grok-4   # or your best local model
 Start Command:
 Bashdocker compose up -d neo4j

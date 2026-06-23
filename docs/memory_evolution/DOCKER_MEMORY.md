@@ -14,7 +14,7 @@ services:
       - "7474:7474"   # Neo4j Browser
       - "7687:7687"   # Bolt protocol
     environment:
-      - NEO4J_AUTH=neo4j/ultron2026securechangeME   # ← CHANGE THIS PASSWORD
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
       - NEO4J_PLUGINS=["apoc"]
       - NEO4J_dbms_security_procedures_unrestricted=apoc.*
       - NEO4J_server_memory_heap_initial__size=2G

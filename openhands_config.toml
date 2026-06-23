@@ -1,7 +1,7 @@
 [llm]
 model = "openai/qwen-coder-14b"
 base_url = "http://litellm:4000/v1"
-api_key = "factory-secret-key"
+api_key = ""
 
 [agent]
-tavily_api_key = "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"
+tavily_api_key = ""

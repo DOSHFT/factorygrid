@@ -95,7 +95,7 @@ services:
     working_dir: /app
     environment:
       - OPENAI_API_BASE=http://docker.internal
-      - OPENAI_API_KEY=factory-secret-key
+      - OPENAI_API_KEY=${FACTORY_API_KEY}
     command: sh -c "npm install -g ruflo@latest && npx ruflo@latest start"
     networks:
       - factory_net
@@ -133,8 +133,8 @@ services:
       - LLM_PROVIDER=openai
       - LLM_MODEL=openai/qwen-coder-14b
       - LLM_BASE_URL=http://docker.internal
-      - LLM_API_KEY=factory-secret-key
-      - TAVILY_API_KEY=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
+      - LLM_API_KEY=${FACTORY_API_KEY}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
       - SANDBOX_USER_ID=0
       - SANDBOX_TIMEOUT=120
     networks:

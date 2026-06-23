@@ -1336,7 +1336,7 @@ async function ensureTaskModelPathReady(): Promise<void> {
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY || process.env.FACTORY_API_KEY || 'factory-secret-key'}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY || process.env.FACTORY_API_KEY || 'not-needed'}`,
       },
       body: JSON.stringify({
         model,
@@ -1376,7 +1376,7 @@ async function runLiteLlmTaskCompletion(taskDesc: string): Promise<string> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY || process.env.FACTORY_API_KEY || 'factory-secret-key'}`,
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY || process.env.FACTORY_API_KEY || 'not-needed'}`,
     },
     body: JSON.stringify({
       model,

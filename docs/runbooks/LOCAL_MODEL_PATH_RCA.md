@@ -12,7 +12,7 @@ Date: 2026-06-06
 ## Root Causes
 
 1. vLLM had died after a CUDA unknown error. LiteLLM still listed configured models, but completions returned 500 until vLLM was restarted on port 18000.
-2. RuFloUI had stale runtime credentials: `FACTORY_API_KEY=factory-secret-key`. LiteLLM expected the active `sk-*` FactoryGrid key used by Hermes.
+2. RuFloUI had stale runtime credentials. LiteLLM expected the active FactoryGrid key used by Hermes.
 3. A failed compose recreate temporarily left `factory_litellm` detached/created instead of healthy on `factorygrid_factory_net`, breaking the internal `litellm` DNS route from RuFloUI.
 4. The old LAN URL used `192.168.178.20`, but Windows currently owns `192.168.178.179`. The stack was healthy on the current host IP.
 

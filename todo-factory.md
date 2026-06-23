@@ -5,7 +5,7 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 
 ## Top 360-Degree Weakness Checklist
 
-- [ ] P0: Rotate the exposed Tavily key and move all secrets out of `docker-compose.yml` and committed state files into `.env` or Docker secrets.
+- [x] P0: Rotate the exposed Tavily key and move all secrets out of `docker-compose.yml` and committed state files into `.env` or Docker secrets. Repo-side cleanup is complete: tracked Tavily/key literals were scrubbed, committed `.bak` files with secrets were removed, and `bin/factory-secret-scan.sh` is wired into `factory-doctor`. Operator still must rotate the previously exposed Tavily key in the Tavily console.
 - [x] P0: Fix WSL resource mismatch. Current live `revelation` runtime now verifies about 47 GiB RAM and 24 GiB swap via `bin/factory-doctor.sh`.
 - [x] P0: Pin all mutable runtime versions. Compose now uses digest-pinned Qdrant, LiteLLM, OpenHands, Node base image defaults, pinned RuFlo version, and `bin/factory-check-runtime-pins.sh` to reject `latest` drift.
 - [x] P0: Replace runtime `apt-get` / mutable `npm install` in Compose commands with built images plus a hash-gated locked bootstrap script. Runtime Node installs use `npm ci` only when `package.json` or `package-lock.json` changes.

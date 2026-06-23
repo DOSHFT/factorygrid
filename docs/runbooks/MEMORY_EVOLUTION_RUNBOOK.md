@@ -88,7 +88,7 @@ Set:
 ```bash
 GRAPHITI_LLM_BASE_URL=http://litellm:4000/v1
 GRAPHITI_LLM_MODEL=qwen-coder-14b
-GRAPHITI_LLM_API_KEY=factory-secret-key
+GRAPHITI_LLM_API_KEY=<local-secret>
 GRAPHITI_EMBEDDING_BASE_URL=<openai-compatible-embedding-base-url>
 GRAPHITI_EMBEDDING_MODEL=<embedding-model>
 GRAPHITI_EMBEDDING_API_KEY=<embedding-api-key-or-local-token>
