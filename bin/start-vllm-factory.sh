@@ -9,10 +9,11 @@ export TEMP=${TEMP:-/tmp}
 export TMP=${TMP:-/tmp}
 
 ROOT="${FACTORYGRID_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+PROFILE_FILE="${FACTORY_MODEL_PROFILE_FILE:-$ROOT/runtime/vllm-model.env}"
 
-if [[ -f "$ROOT/runtime/vllm-model.env" ]]; then
+if [[ -f "$PROFILE_FILE" ]]; then
   # shellcheck disable=SC1091
-  source "$ROOT/runtime/vllm-model.env"
+  source "$PROFILE_FILE"
 fi
 MODEL=${MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
 HOST=${HOST:-0.0.0.0}
@@ -24,9 +25,11 @@ MAX_BATCHED_TOKENS=${MAX_BATCHED_TOKENS:-22528}
 SWAP_SPACE_GB=${SWAP_SPACE_GB:-4}
 LOG_LEVEL=${VLLM_LOGGING_LEVEL:-info}
 QUANTIZATION=${QUANTIZATION:-}
+ENFORCE_EAGER=${ENFORCE_EAGER:-false}
 
 echo "Starting FactoryGrid vLLM"
-echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB quantization=${QUANTIZATION:-auto} + auto-tool-choice + hermes parser (for Hermes tool calling)"
+echo "profile=$PROFILE_FILE"
+echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB quantization=${QUANTIZATION:-auto} enforce_eager=$ENFORCE_EAGER + auto-tool-choice + hermes parser (for Hermes tool calling)"
 
 VLLM_BIN="${VLLM_BIN:-/home/revelation/vllm-env/bin/vllm}"
 if [[ ! -x "$VLLM_BIN" ]]; then
@@ -50,6 +53,10 @@ args=(
   --enable-auto-tool-choice \
   --tool-call-parser hermes
 )
+
+if [[ "$ENFORCE_EAGER" == "true" || "$ENFORCE_EAGER" == "1" ]]; then
+  args+=(--enforce-eager)
+fi
 
 if [[ -n "$QUANTIZATION" && "$QUANTIZATION" != "none" ]]; then
   args+=(--quantization "$QUANTIZATION")

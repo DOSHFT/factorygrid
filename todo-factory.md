@@ -6,11 +6,11 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 ## Top 360-Degree Weakness Checklist
 
 - [ ] P0: Rotate the exposed Tavily key and move all secrets out of `docker-compose.yml` and committed state files into `.env` or Docker secrets.
-- [ ] P0: Fix WSL resource mismatch. Current live `revelation` runtime reports about 31 GiB RAM and 8 GiB swap, not the intended 48 GiB RAM profile. Reapply Windows `.wslconfig` with `wsl --shutdown`, then verify with `free -h` inside `revelation`.
+- [x] P0: Fix WSL resource mismatch. Current live `revelation` runtime now verifies about 47 GiB RAM and 24 GiB swap via `bin/factory-doctor.sh`.
 - [ ] P0: Pin all mutable runtime versions. Current stack uses `qdrant:latest`, `litellm:main-latest`, `openhands:latest`, and `npm install -g ruflo@latest` at container start.
 - [ ] P0: Replace runtime `apt-get` / `npm install` in Compose commands with built images or a locked bootstrap script. Startup should be deterministic and fast.
 - [ ] P0: Add healthchecks and readiness gates for vLLM, LiteLLM, Qdrant, RuFlo MCP, RuFlo UI, and OpenHands. `depends_on` is not enough.
-- [ ] P0: Put vLLM under a real lifecycle manager. It currently runs outside Compose via scripts with a PID file. Use a user systemd service or a guarded launcher with restart, log rotation, and health probes.
+- [ ] P0: Put vLLM under a real lifecycle manager. It currently runs outside Compose via scripts with a PID file. Use a user systemd service or a guarded launcher with restart, log rotation, and health probes. Partial: added explicit stopped-by-default model profiles and guarded start/stop/status scripts.
 - [ ] P0: Lock network exposure. Services are bound to `0.0.0.0`; bind to localhost where possible or add local auth before exposing dashboards.
 - [ ] P0: Add per-agent workspace guardrails: git snapshot before each run, allowlisted write paths, config-file HITL gate, and rollback instructions.
 - [ ] P0: Reduce Docker socket blast radius. RuFlo and OpenHands can reach `/var/run/docker.sock`; document why, restrict where possible, and isolate destructive tool use.
@@ -26,15 +26,15 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 
 ## Current Stack Snapshot
 
-- vLLM: `Qwen/Qwen2.5-Coder-14B-Instruct-AWQ`, served at `http://localhost:8000/v1`.
+- vLLM: stopped by default. On-demand profile `qwen-coder-awq-daily` serves `Qwen/Qwen2.5-Coder-14B-Instruct-AWQ` at `http://localhost:18000/v1`.
 - LiteLLM: `qwen-coder-14b`, served at `http://localhost:4000/v1`.
 - Qdrant: `http://localhost:6333`.
-- OpenHands: `http://localhost:3000`, `max_iterations=40`, model `openai/qwen-coder-14b`.
-- RuFlo MCP: `http://localhost:3010`.
-- RuFlo UI: `http://localhost:28580` and Vite dev port `http://localhost:28588`.
-- vLLM tuning: `MAX_MODEL_LEN=32768`, `MAX_NUM_SEQS=4`, `GPU_MEM=0.86`, `MAX_BATCHED_TOKENS=32768`, `SWAP_SPACE_GB=4`, AWQ Marlin, prefix caching enabled.
-- GPU status during review: RTX 4090, about 19.6 GiB used and 4.5 GiB free.
-- WSL memory during review: about 31 GiB RAM and 8 GiB swap, which conflicts with the intended 48 GiB RAM setup.
+- OpenHands: `http://localhost:3001`, `max_iterations=40`, model `openai/qwen-coder-14b`.
+- RuFlo MCP: host port `3011`, container port `3010`.
+- RuFlo UI: `http://localhost:28580` API and `http://localhost:28589` UI route.
+- Daily vLLM profile: `MAX_MODEL_LEN=8192`, `MAX_NUM_SEQS=1`, `GPU_MEM=0.50`, `MAX_BATCHED_TOKENS=8192`, `SWAP_SPACE_GB=4`, AWQ Marlin, prefix caching, eager mode.
+- GPU status after stopping model runtime: RTX 4090, about 1.1 GiB used and 23.0 GiB free.
+- WSL memory after fix: about 47 GiB RAM and 24 GiB swap.
 
 ## Repository Fit Decisions
 
@@ -68,17 +68,26 @@ The PDF contains useful intent but should not be copied directly into production
 - [ ] Pin Compose images by version or digest.
 - [ ] Build local images for RuFlo and RuFlo UI instead of installing dependencies every boot.
 - [ ] Add `restart: unless-stopped` plus healthchecks to each long-running service.
-- [ ] Add `bin/factory-doctor.sh`:
-  - [ ] verify WSL distro is `revelation`
-  - [ ] verify vLLM port 8000
-  - [ ] verify LiteLLM port 4000
-  - [ ] verify Qdrant port 6333
-  - [ ] verify OpenHands port 3000
-  - [ ] verify RuFlo MCP port 3010
-  - [ ] verify RuFlo UI port 28580
-  - [ ] verify GPU memory, WSL RAM, swap, disk free, Docker state
+- [x] Add `bin/factory-doctor.sh`:
+  - [x] verify WSL distro is `revelation`
+  - [x] verify vLLM on-demand port 18000, optional unless `FACTORY_REQUIRE_MODEL=yes`
+  - [x] verify LiteLLM private port 4000 and LAN proxy port 4001
+  - [x] verify Qdrant port 6333
+  - [x] verify OpenHands port 3001
+  - [x] verify RuFlo MCP host port 3011
+  - [x] verify RuFlo UI API port 28580 and UI route port 28589
+  - [x] verify GPU memory, WSL RAM, swap, disk free, Docker state
 - [ ] Add `bin/factory-backup.sh` and `bin/factory-restore.sh`.
 - [ ] Add `bin/factory-logs.sh` for a single view of Compose logs, vLLM logs, and recent OpenHands/RuFlo run logs.
+- [x] Add stopped-by-default model lifecycle wrappers and profiles:
+  - [x] `bin/factory-model-start.sh`
+  - [x] `bin/factory-model-stop.sh`
+  - [x] `bin/factory-model-status.sh`
+  - [x] `runtime/model-profiles/qwen-coder-awq-daily.env`
+  - [x] `runtime/model-profiles/qwen-coder-awq-batch.env`
+  - [x] `runtime/model-profiles/redteam-qwq-abliterated-32b.env`
+  - [x] `runtime/model-profiles/blueteam-glm.env`
+  - [x] `docs/MODEL_PROFILES.md`
 
 ## P1 - Context Engineering Layer
 

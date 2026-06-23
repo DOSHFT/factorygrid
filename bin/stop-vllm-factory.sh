@@ -4,6 +4,14 @@ set -euo pipefail
 ROOT="${FACTORYGRID_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PID_FILE="$ROOT/logs/vllm-factory.pid"
 
+list_vllm_pids() {
+  ps -eo pid=,cmd= |
+    awk '
+      /awk / || /bash -lc/ || /sh -c/ || /pgrep / || /grep / { next }
+      /\/vllm serve / || / vllm serve / || /vllm\.entrypoints\.openai\.api_server/ { print $1 }
+    '
+}
+
 if [[ -f "$PID_FILE" ]]; then
   pid="$(cat "$PID_FILE" 2>/dev/null || true)"
   if [[ -n "${pid:-}" ]] && kill -0 "$pid" 2>/dev/null; then
@@ -11,24 +19,27 @@ if [[ -f "$PID_FILE" ]]; then
   fi
 fi
 
-pkill -f "/vllm.* serve " || true
-pkill -f "vllm serve" || true
-pkill -f "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ" || true
-pkill -f "vllm.entrypoints.openai.api_server" || true
+while read -r pid; do
+  [[ -n "${pid:-}" ]] || continue
+  kill "$pid" 2>/dev/null || true
+done < <(list_vllm_pids)
 
 for _ in {1..20}; do
-  if ! pgrep -f "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ" >/dev/null 2>&1; then
+  if [[ -z "$(list_vllm_pids)" ]]; then
     rm -f "$PID_FILE"
     exit 0
   fi
   sleep 0.5
 done
 
-pkill -9 -f "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ" || true
+while read -r pid; do
+  [[ -n "${pid:-}" ]] || continue
+  kill -9 "$pid" 2>/dev/null || true
+done < <(list_vllm_pids)
 sleep 1
-if pgrep -f "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ" >/dev/null 2>&1; then
-  echo "vLLM stop failed: Qwen process still running" >&2
-  pgrep -af "Qwen/Qwen2.5-Coder-14B-Instruct-AWQ" >&2 || true
+if [[ -n "$(list_vllm_pids)" ]]; then
+  echo "vLLM stop failed: vLLM process still running" >&2
+  ps -eo pid=,cmd= | awk '/\/vllm serve / || / vllm serve / || /vllm\.entrypoints\.openai\.api_server/ { print }' >&2
   exit 1
 fi
 rm -f "$PID_FILE"
