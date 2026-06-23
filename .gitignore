@@ -112,3 +112,8 @@ workspace/spec-kit/intake/20*_request.md
 workspace/spec-kit/specs/
 workspace/spec-kit/tasks/2026-05-24-agent-pinescript-training.md
 workspace/work-orders/20*T*-hermes-model-sync-*.md
+
+# local Codex/operator scratch artifacts
+Codex_changes.md
+modified_files.txt
+Revelation Factory TODO.pdf
