@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 
 type Progress = Awaited<ReturnType<typeof api.factory.agentGrowthProgress>>
+type GrowthRun = Awaited<ReturnType<typeof api.factory.runAgentGrowth>>
 
 const metricStyle: React.CSSProperties = {
   display: 'grid',
@@ -36,6 +37,8 @@ export default function LearningPanel() {
   const [progress, setProgress] = useState<Progress | null>(null)
   const [loading, setLoading] = useState(false)
   const [running, setRunning] = useState(false)
+  const [runResult, setRunResult] = useState<GrowthRun | null>(null)
+  const [runError, setRunError] = useState<string | null>(null)
 
   const load = async () => {
     setLoading(true)
@@ -44,9 +47,14 @@ export default function LearningPanel() {
 
   const runNow = async () => {
     setRunning(true)
+    setRunResult(null)
+    setRunError(null)
     try {
-      await api.factory.runAgentGrowth()
-      setTimeout(load, 1500)
+      const result = await api.factory.runAgentGrowth()
+      setRunResult(result)
+      await load()
+    } catch (err) {
+      setRunError(err instanceof Error ? err.message : String(err))
     } finally {
       setRunning(false)
     }
@@ -68,6 +76,11 @@ export default function LearningPanel() {
         <div style={{ marginTop: 10, color: 'var(--text-muted)', fontSize: 12 }}>
           Latest run: {progress?.latestRunAt ? new Date(progress.latestRunAt).toLocaleString() : 'none'} {progress?.latestRunLog ? `(${progress.latestRunLog})` : ''}
         </div>
+        {(runResult || runError) && (
+          <div style={{ marginTop: 12, padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--bg-primary)', color: runError ? 'var(--accent-red)' : 'var(--accent-green)', fontSize: 13 }}>
+            {runError || runResult?.output || 'Agent growth run completed.'}
+          </div>
+        )}
       </Card>
 
       <Card title="Agent Intelligence Evolution" actions={<TrendingUp size={16} color="var(--accent-green)" />}>

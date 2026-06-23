@@ -21,6 +21,7 @@ import { factoryBottleneckReport, factoryHiveMindStatus, factoryMemoryStats, fac
 const execAsync = promisify(exec)
 const execFileAsync = promisify(execFile)
 const PORT = Number(process.env.PORT) || 28580
+let agentGrowthRun: Promise<any> | null = null
 
 function getRuflouiRuntimeMode(): { mode: string; isDocker: boolean; details: string } {
   const hasDockerEnv = fs.existsSync('/.dockerenv')
@@ -3345,15 +3346,62 @@ function factoryRoutes(): Router {
     res.json(await getAgentGrowthProgress())
   }))
   r.post('/agent-growth/run', h(async (_req, res) => {
+    if (agentGrowthRun) {
+      const status = await agentGrowthRun
+      if (status.error || status.exitCode !== 0) {
+        res.status(500).json({ ...status, running: false })
+        return
+      }
+      res.json({ ...status, running: false })
+      return
+    }
     const root = factoryRoot()
     const now = new Date().toISOString()
     const runDir = path.join(root, 'workspace', 'reports', 'agent-growth')
     fs.mkdirSync(runDir, { recursive: true })
     const reportPath = path.join(runDir, `${now.replace(/[:.]/g, '-')}-growth-run.md`)
-    const progress = await getAgentGrowthProgress()
-    fs.writeFileSync(reportPath, `# Agent Growth Run\n\nGenerated: ${now}\n\nScore: ${progress.score}%\nAgents: ${progress.totalAgents}\nSources: ${progress.totalSources}\nBrain pages: ${progress.totalBrainPages}\nQdrant points: ${progress.qdrantPoints}\n`)
-    fs.writeFileSync(path.join(root, 'workspace', '.factory-agent-growth-seeded.json'), JSON.stringify({ generatedAt: now, score: progress.score, report: path.relative(root, reportPath).replace(/\\/g, '/') }, null, 2))
-    res.json({ running: false, startedAt: now, finishedAt: now, exitCode: 0, output: `Agent growth refreshed: ${path.relative(root, reportPath).replace(/\\/g, '/')}`, error: null })
+    const scriptPath = path.join(root, 'bin', 'factory-agent-growth.mjs')
+    if (!fs.existsSync(scriptPath)) {
+      res.status(500).json({ running: false, startedAt: now, finishedAt: new Date().toISOString(), exitCode: 1, output: '', error: `Missing growth runner: ${path.relative(root, scriptPath).replace(/\\/g, '/')}` })
+      return
+    }
+
+    agentGrowthRun = (async () => {
+      try {
+        const result = await execFileAsync(process.execPath, [scriptPath], {
+          cwd: root,
+          env: {
+            ...process.env,
+            FACTORYGRID_ROOT: root,
+            FACTORY_GROWTH_FORCE: 'true',
+            QDRANT_URL: process.env.QDRANT_URL || 'http://qdrant:6333',
+          },
+          timeout: 180_000,
+          maxBuffer: 10 * 1024 * 1024,
+        })
+        const progress = await getAgentGrowthProgress()
+        const finishedAt = new Date().toISOString()
+        const relReport = path.relative(root, reportPath).replace(/\\/g, '/')
+        fs.writeFileSync(reportPath, `# Agent Growth Run\n\nGenerated: ${now}\nFinished: ${finishedAt}\n\nScore: ${progress.score}%\nAgents: ${progress.totalAgents}\nSources: ${progress.totalSources}\nBrain pages: ${progress.totalBrainPages}\nQdrant points: ${progress.qdrantPoints}\n\n## Runner stdout\n\n\`\`\`json\n${result.stdout || '{}'}\n\`\`\`\n\n## Runner stderr\n\n\`\`\`text\n${result.stderr || ''}\n\`\`\`\n`)
+        fs.writeFileSync(path.join(root, 'workspace', '.factory-agent-growth-seeded.json'), JSON.stringify({ generatedAt: now, finishedAt, score: progress.score, report: relReport }, null, 2))
+        return { running: false, startedAt: now, finishedAt, exitCode: 0, output: `Agent growth refreshed: ${relReport}`, error: null }
+      } catch (err: any) {
+        const finishedAt = new Date().toISOString()
+        const stdout = String(err?.stdout || '')
+        const stderr = String(err?.stderr || '')
+        const message = String(err?.message || err)
+        fs.writeFileSync(reportPath, `# Agent Growth Run Failed\n\nGenerated: ${now}\nFinished: ${finishedAt}\n\nError: ${message}\n\n## Runner stdout\n\n\`\`\`text\n${stdout}\n\`\`\`\n\n## Runner stderr\n\n\`\`\`text\n${stderr}\n\`\`\`\n`)
+        return { running: false, startedAt: now, finishedAt, exitCode: typeof err?.code === 'number' ? err.code : 1, output: stdout, error: message }
+      } finally {
+        agentGrowthRun = null
+      }
+    })()
+    const status = await agentGrowthRun
+    if (status.error || status.exitCode !== 0) {
+      res.status(500).json(status)
+      return
+    }
+    res.json(status)
   }))
   return r
 }
