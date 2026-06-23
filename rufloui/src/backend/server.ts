@@ -13,6 +13,7 @@ import { initTelegramBot, TelegramConfig, TelegramHandle } from './telegram-bot'
 import { loadGitHubWebhookConfig, saveGitHubWebhookConfig, githubWebhookRoutes, updateWebhookEventByTaskId } from './webhook-github'
 import { loadGitLabWebhookConfig, saveGitLabWebhookConfig, gitlabWebhookRoutes, updateGitLabEventByTaskId } from './webhook-gitlab'
 import { getWorkspaceDiff, getWorkspaceFile, getWorkspaceStatus, listWorkspaceTree } from './workspace'
+import { agentAllowedWritePrefixes, createWorkspaceGuardrailSnapshot, evaluateAgentWriteRequest } from './workspace-guardrails'
 import { classifyProtectedPath, getFactoryRuntimeSnapshot, protectedFilePatterns, summarizeDockerPortBinding } from './factory-runtime'
 import { getFactoryWorkflowGuide, createSpecKitIntake, searchBrain, factoryRoot } from './factory-brain'
 import { factoryBottleneckReport, factoryHiveMindStatus, factoryMemoryStats, factoryNeuralPatterns, factoryNeuralStatus, listFactoryConfigEntries, listFactoryHooks, listFactoryMemoryEntries, listFactoryWorkflowTemplates, listFactoryWorkflows, predictFactoryNeural, searchFactoryMemory } from './factory-state'
@@ -1237,21 +1238,10 @@ function tryCompleteSpecKitQueenValidationTask(taskId: string, task: TaskRecord,
 }
 
 function resolveFactoryWritePath(requestedPath: string): { abs: string; rel: string } | null {
-  const normalized = requestedPath.replace(/\\/g, '/')
   const root = factoryRoot()
-  let rel = ''
-  if (normalized.startsWith('/factorygrid/')) {
-    rel = normalized.slice('/factorygrid/'.length)
-  } else if (normalized.startsWith('workspace/')) {
-    rel = normalized
-  } else {
-    return null
-  }
-  const abs = path.resolve(root, rel)
-  const rootResolved = path.resolve(root)
-  if (!abs.startsWith(rootResolved + path.sep)) return null
-  if (!rel.startsWith('workspace/')) return null
-  return { abs, rel }
+  const decision = evaluateAgentWriteRequest(root, requestedPath)
+  if (!decision.allowed || !decision.abs || !decision.rel) return null
+  return { abs: decision.abs, rel: decision.rel }
 }
 
 function tryCompleteBoundedFileWriteTask(taskId: string, task: TaskRecord, wf: WorkflowRecord, agents: Array<{ id: string; name: string; type: string }>): boolean {
@@ -1260,10 +1250,17 @@ function tryCompleteBoundedFileWriteTask(taskId: string, task: TaskRecord, wf: W
   const contentMatch = text.match(/containing\s+exactly\s+["'`]?([A-Za-z0-9_.:-]{3,240})["'`]?/i)
   if (!pathMatch || !contentMatch) return false
 
-  const target = resolveFactoryWritePath(pathMatch[1].replace(/[.,;:]+$/, ''))
-  if (!target) {
+  const requestedPath = pathMatch[1].replace(/[.,;:]+$/, '')
+  const decision = evaluateAgentWriteRequest(factoryRoot(), requestedPath)
+  if (!decision.allowed || !decision.abs || !decision.rel) {
     task.status = 'failed'
-    task.result = `Refused file write outside allowed workspace path: ${pathMatch[1]}`
+    task.result = [
+      'AGENT_WRITE_REFUSED',
+      `Path: ${requestedPath}`,
+      `Reason: ${decision.reason}`,
+      `HITL required: ${decision.hitlRequired ? 'yes' : 'no'}`,
+      `Allowed prefixes: ${decision.allowedPrefixes.join(', ')}`,
+    ].join('\n')
     wf.status = 'failed'
     wf.result = task.result
     broadcast('task:updated', { ...task, id: taskId })
@@ -1271,6 +1268,8 @@ function tryCompleteBoundedFileWriteTask(taskId: string, task: TaskRecord, wf: W
     return true
   }
 
+  const target = { abs: decision.abs, rel: decision.rel }
+  const snapshot = createWorkspaceGuardrailSnapshot(factoryRoot(), taskId, target.rel, `bounded file write: ${task.title}`)
   const content = contentMatch[1].replace(/[.,;:]+$/, '')
   fs.mkdirSync(path.dirname(target.abs), { recursive: true })
   fs.writeFileSync(target.abs, content, 'utf-8')
@@ -1279,9 +1278,10 @@ function tryCompleteBoundedFileWriteTask(taskId: string, task: TaskRecord, wf: W
   const roleAgent = (role: string) => agents.find((agent) => new RegExp(role, 'i').test(`${agent.name} ${agent.type}`))?.name || role
   wf.steps.push(
     { id: 'queen-boundary', name: 'Queen boundary', status: 'completed', agent: roleAgent('Queen|coordinator'), detail: `Allowed workspace write: ${target.rel}` },
+    { id: 'guardrail-snapshot', name: 'Guardrail snapshot', status: 'completed', agent: 'workspace-guardrails', detail: `Pre-write snapshot: ${path.relative(factoryRoot(), snapshot.reportPath).replace(/\\/g, '/')}` },
     { id: 'coder-write', name: 'Coder write', status: 'completed', agent: roleAgent('Coder|coder'), detail: `Wrote ${content.length} bytes` },
     { id: 'tester-readback', name: 'Tester readback', status: ok ? 'completed' : 'failed', agent: roleAgent('Tester|tester'), detail: ok ? 'Readback matched expected content' : 'Readback mismatch' },
-    { id: 'reviewer-scope', name: 'Reviewer scope', status: 'completed', agent: roleAgent('Reviewer|reviewer'), detail: 'Write remained under workspace/ and did not touch protected files' },
+    { id: 'reviewer-scope', name: 'Reviewer scope', status: 'completed', agent: roleAgent('Reviewer|reviewer'), detail: `Write matched allowlist ${decision.allowedPrefixes.join(', ')} and did not touch protected files` },
   )
   task.status = ok ? 'completed' : 'failed'
   task.completedAt = ok ? new Date().toISOString() : undefined
@@ -1290,6 +1290,9 @@ function tryCompleteBoundedFileWriteTask(taskId: string, task: TaskRecord, wf: W
     `Path: ${target.rel}`,
     `Expected: ${content}`,
     `Readback: ${readBack}`,
+    `Guardrail snapshot: ${path.relative(factoryRoot(), snapshot.reportPath).replace(/\\/g, '/')}`,
+    'Rollback:',
+    ...snapshot.rollbackInstructions.map((item) => `- ${item}`),
     `Agents available: ${agents.map((agent) => `${agent.name}/${agent.type}`).join(', ') || 'system'}`,
   ].join('\n')
   wf.status = ok ? 'completed' : 'failed'
@@ -4334,6 +4337,15 @@ function workspaceRoutes(): Router {
         ...file,
         protected: classifyProtectedPath(file.path),
       })),
+    })
+  }))
+
+  r.get('/guardrails', h(async (_req, res) => {
+    res.json({
+      allowedWritePrefixes: agentAllowedWritePrefixes(),
+      protectedFilePatterns: protectedFilePatterns(),
+      snapshotRoot: 'workspace/guardrails/snapshots',
+      policy: 'Autonomous writes must match the allowlist and must not target protected config/dependency files without explicit human approval.',
     })
   }))
 
