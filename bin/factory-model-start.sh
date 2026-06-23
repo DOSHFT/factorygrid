@@ -24,6 +24,7 @@ case "$ENGINE" in
     mkdir -p "$ROOT/logs"
     cp "$PROFILE_FILE" "$ROOT/runtime/vllm-model.env"
     if systemctl --user cat factory-vllm.service >/dev/null 2>&1; then
+      systemctl --user unmask factory-vllm.service >/dev/null 2>&1 || true
       systemctl --user reset-failed factory-vllm.service >/dev/null 2>&1 || true
       systemctl --user start factory-vllm.service
       echo "Started systemd vLLM profile '$PROFILE' via factory-vllm.service"

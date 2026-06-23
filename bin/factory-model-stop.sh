@@ -9,6 +9,7 @@ case "$WHAT" in
     if systemctl --user cat factory-vllm.service >/dev/null 2>&1; then
       systemctl --user stop factory-vllm.service || true
       systemctl --user disable factory-vllm.service >/dev/null 2>&1 || true
+      systemctl --user mask factory-vllm.service >/dev/null 2>&1 || true
       systemctl --user reset-failed factory-vllm.service >/dev/null 2>&1 || true
       for _ in {1..20}; do
         if ! systemctl --user is-active --quiet factory-vllm.service 2>/dev/null; then

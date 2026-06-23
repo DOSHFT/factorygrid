@@ -19,7 +19,7 @@ bin/factory-model-start.sh qwen-coder-awq-daily
 bin/factory-model-stop.sh all
 ```
 
-When `factory-vllm.service` exists, the wrappers use the user systemd service instead of unmanaged `nohup`. `factory-model-stop.sh all` stops and disables the service so vLLM does not come back on login.
+When `factory-vllm.service` exists, the wrappers use the user systemd service instead of unmanaged `nohup`. `factory-model-stop.sh all` stops, disables, and masks the service so vLLM does not come back on login or through `factory-stack.service`.
 
 Red-team models require an explicit local gate:
 

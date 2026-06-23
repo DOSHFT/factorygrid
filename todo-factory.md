@@ -10,7 +10,7 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 - [ ] P0: Pin all mutable runtime versions. Current stack uses `qdrant:latest`, `litellm:main-latest`, `openhands:latest`, and `npm install -g ruflo@latest` at container start.
 - [ ] P0: Replace runtime `apt-get` / `npm install` in Compose commands with built images or a locked bootstrap script. Startup should be deterministic and fast.
 - [ ] P0: Add healthchecks and readiness gates for vLLM, LiteLLM, Qdrant, RuFlo MCP, RuFlo UI, and OpenHands. `depends_on` is not enough.
-- [x] P0: Put vLLM under a real lifecycle manager. User systemd service `factory-vllm.service` is repo-templated in `runtime/systemd/factory-vllm.service`; model wrappers start/stop/disable it so vLLM stays stopped by default.
+- [x] P0: Put vLLM under a real lifecycle manager. User systemd service `factory-vllm.service` is repo-templated in `runtime/systemd/factory-vllm.service`; model wrappers start/unmask or stop/disable/mask it so vLLM stays stopped by default. `factory-stack.service` no longer has `Wants=factory-vllm.service`.
 - [ ] P0: Lock network exposure. Services are bound to `0.0.0.0`; bind to localhost where possible or add local auth before exposing dashboards.
 - [ ] P0: Add per-agent workspace guardrails: git snapshot before each run, allowlisted write paths, config-file HITL gate, and rollback instructions.
 - [ ] P0: Reduce Docker socket blast radius. RuFlo and OpenHands can reach `/var/run/docker.sock`; document why, restrict where possible, and isolate destructive tool use.

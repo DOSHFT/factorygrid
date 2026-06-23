@@ -1,0 +1,15 @@
+[Unit]
+Description=FactoryGrid Docker stack
+After=default.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/factorygrid
+Environment=FACTORYGRID_ROOT=%h/factorygrid
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose stop
+RemainAfterExit=yes
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target
