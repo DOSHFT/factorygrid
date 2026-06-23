@@ -75,14 +75,37 @@ git push origin main
 
 
 
-## BlackBeast PowerShell Push
+## Canonical Source-of-Truth Sync
+
+Use this for normal FactoryGrid sync. GitHub `main` is canonical, `D:\UAT\factorygrid` is the commit/push workspace, and live Revelation `/home/revelation/factorygrid` is reset to the pushed commit after backup.
+
+Dry-run first:
+
+```powershell
+D:\UAT\factorygrid\bin\factory-sync-source-of-truth.ps1
+```
+
+Apply after the dry-run is reviewed:
+
+```powershell
+D:\UAT\factorygrid\bin\factory-sync-source-of-truth.ps1 -Apply -FixLiveOwnership -Message "sync factory source of truth"
+```
+
+The script:
+- backs up UAT and live Revelation drift;
+- commits and pushes only from `D:\UAT\factorygrid`;
+- rejects staged secret/runtime paths;
+- resets live Revelation to the pushed GitHub commit;
+- verifies UAT and Revelation are clean.
+
+## Legacy BlackBeast PowerShell Push
 From Windows PowerShell on BlackBeast:
 
 ```powershell
 D:\UAT\factorygrid\bin\factory-windows-push.ps1 "sync factory changes"
 ```
 
-That wrapper runs the WSL secure backup, refreshes `D:\UAT\factorygrid`, then pushes the portable repo to `https://github.com/DOSHFT/factorygrid`.
+That wrapper predates the source-of-truth drift guard and should only be used for legacy recovery. Prefer `factory-sync-source-of-truth.ps1`.
 
 ## Full Portable GitHub Push
 For a single private GitHub repo that contains the entire portable factory, attach the GitHub remote inside the UAT copy, not the live repo with nested gitlinks:
