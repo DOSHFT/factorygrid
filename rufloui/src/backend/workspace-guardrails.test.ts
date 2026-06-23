@@ -3,7 +3,7 @@ import os from 'os'
 import path from 'path'
 import { execSync } from 'child_process'
 import { afterEach, beforeEach, describe, expect, test } from 'vitest'
-import { createWorkspaceGuardrailSnapshot, evaluateAgentWriteRequest, normalizeFactoryWritePath } from './workspace-guardrails'
+import { createWorkspaceGuardrailSnapshot, evaluateAgentWriteRequest, evaluateTaskLaunchGuardrails, extractProtectedPathMentions, normalizeFactoryWritePath } from './workspace-guardrails'
 
 let tmpDir = ''
 
@@ -61,5 +61,33 @@ describe('workspace guardrails', () => {
     expect(fs.existsSync(snapshot.diffPath)).toBe(true)
     expect(fs.readFileSync(snapshot.reportPath, 'utf-8')).toContain('Rollback Instructions')
     expect(fs.readFileSync(snapshot.diffPath, 'utf-8')).toContain('+changed')
+  })
+
+  test('blocks autonomous task launches that mention protected config paths', () => {
+    execSync('git init', { cwd: tmpDir })
+
+    const decision = evaluateTaskLaunchGuardrails(
+      tmpDir,
+      'Update compose',
+      'Edit docker-compose.yml and package.json to add a new service',
+    )
+
+    expect(decision.allowed).toBe(false)
+    expect(decision.hitlRequired).toBe(true)
+    expect(decision.protectedMentions).toEqual(['docker-compose.yml', 'package.json'])
+  })
+
+  test('requires git worktree before autonomous task launch', () => {
+    const decision = evaluateTaskLaunchGuardrails(tmpDir, 'Write report', 'Create workspace/reports/demo.md')
+
+    expect(decision.allowed).toBe(false)
+    expect(decision.reason).toContain('not a git worktree')
+  })
+
+  test('extracts protected path mentions from root and workspace-style text', () => {
+    expect(extractProtectedPathMentions('touch /factorygrid/.env and workspace/pnpm-lock.yaml')).toEqual([
+      '.env',
+      'workspace/pnpm-lock.yaml',
+    ])
   })
 })

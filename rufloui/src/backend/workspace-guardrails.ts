@@ -24,6 +24,13 @@ export interface GuardrailSnapshot {
   rollbackInstructions: string[]
 }
 
+export interface TaskLaunchGuardrailDecision {
+  allowed: boolean
+  reason: string
+  hitlRequired: boolean
+  protectedMentions: string[]
+}
+
 function gitEnv(root: string): NodeJS.ProcessEnv {
   return {
     ...process.env,
@@ -45,6 +52,10 @@ function gitOutput(root: string, args: string[]): string {
   } catch {
     return ''
   }
+}
+
+export function isGitWorktree(root: string): boolean {
+  return gitOutput(root, ['rev-parse', '--is-inside-work-tree']) === 'true'
 }
 
 export function agentAllowedWritePrefixes(): string[] {
@@ -111,6 +122,70 @@ export function evaluateAgentWriteRequest(root: string, requestedPath: string): 
     hitlRequired: !allowed,
     protected: false,
     allowedPrefixes,
+  }
+}
+
+export function extractProtectedPathMentions(text: string): string[] {
+  const mentions = new Set<string>()
+  const tokenMatches = text.match(/(?:\/factorygrid\/)?(?:workspace\/)?[A-Za-z0-9_.@\/-]+/g) || []
+  const protectedNames = new Set([
+    '.env',
+    'docker-compose.yml',
+    'package.json',
+    'package-lock.json',
+    'pnpm-lock.yaml',
+    'yarn.lock',
+    'Cargo.toml',
+    'Cargo.lock',
+    'requirements.txt',
+    'pyproject.toml',
+    'litellm_config.yaml',
+    'openhands_state/settings.json',
+    'bin/start-vllm-factory.sh',
+  ])
+  const protectedBasenames = new Set([...protectedNames].map((item) => path.basename(item)))
+
+  for (const raw of tokenMatches) {
+    const normalized = raw.replace(/^\/factorygrid\//, '').replace(/[.,;:)'"`]+$/, '')
+    const basename = path.basename(normalized)
+    if (classifyProtectedPath(normalized)) mentions.add(normalized)
+    if (
+      protectedNames.has(normalized) ||
+      protectedBasenames.has(basename) ||
+      [...protectedNames].some((protectedName) => normalized.endsWith(`/${protectedName}`))
+    ) {
+      mentions.add(normalized)
+    }
+  }
+
+  return [...mentions].sort()
+}
+
+export function evaluateTaskLaunchGuardrails(root: string, title: string, description: string): TaskLaunchGuardrailDecision {
+  if (!isGitWorktree(root)) {
+    return {
+      allowed: false,
+      reason: 'FactoryGrid root is not a git worktree; autonomous runs require git status, diff, and rollback evidence.',
+      hitlRequired: true,
+      protectedMentions: [],
+    }
+  }
+
+  const protectedMentions = extractProtectedPathMentions(`${title}\n${description}`)
+  if (protectedMentions.length > 0) {
+    return {
+      allowed: false,
+      reason: `Task mentions protected paths that require explicit human approval: ${protectedMentions.join(', ')}`,
+      hitlRequired: true,
+      protectedMentions,
+    }
+  }
+
+  return {
+    allowed: true,
+    reason: 'Autonomous task launch guardrails passed.',
+    hitlRequired: false,
+    protectedMentions: [],
   }
 }
 

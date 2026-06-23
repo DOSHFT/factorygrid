@@ -13,7 +13,7 @@ import { initTelegramBot, TelegramConfig, TelegramHandle } from './telegram-bot'
 import { loadGitHubWebhookConfig, saveGitHubWebhookConfig, githubWebhookRoutes, updateWebhookEventByTaskId } from './webhook-github'
 import { loadGitLabWebhookConfig, saveGitLabWebhookConfig, gitlabWebhookRoutes, updateGitLabEventByTaskId } from './webhook-gitlab'
 import { getWorkspaceDiff, getWorkspaceFile, getWorkspaceStatus, listWorkspaceTree } from './workspace'
-import { agentAllowedWritePrefixes, createWorkspaceGuardrailSnapshot, evaluateAgentWriteRequest } from './workspace-guardrails'
+import { agentAllowedWritePrefixes, createWorkspaceGuardrailSnapshot, evaluateAgentWriteRequest, evaluateTaskLaunchGuardrails } from './workspace-guardrails'
 import { classifyProtectedPath, getFactoryRuntimeSnapshot, protectedFilePatterns, summarizeDockerPortBinding } from './factory-runtime'
 import { getFactoryWorkflowGuide, createSpecKitIntake, searchBrain, factoryRoot } from './factory-brain'
 import { factoryBottleneckReport, factoryHiveMindStatus, factoryMemoryStats, factoryNeuralPatterns, factoryNeuralStatus, listFactoryConfigEntries, listFactoryHooks, listFactoryMemoryEntries, listFactoryWorkflowTemplates, listFactoryWorkflows, predictFactoryNeural, searchFactoryMemory } from './factory-state'
@@ -1133,6 +1133,47 @@ async function launchWorkflowForTask(taskId: string, title: string, description:
   }
   workflowStore.set(workflowId, wf)
   broadcast('workflow:added', wf)
+
+  const launchDecision = evaluateTaskLaunchGuardrails(factoryRoot(), title, description)
+  if (!launchDecision.allowed) {
+    task.status = 'failed'
+    task.result = [
+      'AGENT_RUN_REFUSED',
+      `Reason: ${launchDecision.reason}`,
+      `HITL required: ${launchDecision.hitlRequired ? 'yes' : 'no'}`,
+      launchDecision.protectedMentions.length ? `Protected mentions: ${launchDecision.protectedMentions.join(', ')}` : '',
+    ].filter(Boolean).join('\n')
+    wf.status = 'failed'
+    wf.result = task.result
+    wf.steps.push({
+      id: 'guardrail-launch-refusal',
+      name: 'Launch guardrail',
+      status: 'failed',
+      agent: 'workspace-guardrails',
+      detail: launchDecision.reason,
+    })
+    broadcast('task:updated', { ...task, id: taskId })
+    broadcast('workflow:updated', wf)
+    broadcast('task:output', { id: taskId, workflowId, type: 'stderr', content: task.result })
+    broadcast('task:output', { id: taskId, workflowId, type: 'done', code: 1 })
+    return
+  }
+
+  const launchSnapshot = createWorkspaceGuardrailSnapshot(factoryRoot(), taskId, 'workspace/', `autonomous task launch: ${title}`)
+  wf.steps.push({
+    id: 'guardrail-pre-run-snapshot',
+    name: 'Pre-run snapshot',
+    status: 'completed',
+    agent: 'workspace-guardrails',
+    detail: `Snapshot: ${path.relative(factoryRoot(), launchSnapshot.reportPath).replace(/\\/g, '/')}`,
+  })
+  broadcast('workflow:updated', wf)
+  broadcast('task:output', {
+    id: taskId,
+    workflowId,
+    type: 'text',
+    content: `Guardrail snapshot: ${path.relative(factoryRoot(), launchSnapshot.reportPath).replace(/\\/g, '/')}`,
+  })
 
   // If swarm is active with agents, use the multi-agent pipeline
   const activeAgents = getActiveSwarmAgents()

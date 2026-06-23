@@ -4,7 +4,7 @@ Last verified: 2026-06-23
 
 ## Purpose
 
-FactoryGrid autonomous writes must be attributable, bounded, and reversible. The first enforced path is the RuFloUI deterministic bounded file-write task path.
+FactoryGrid autonomous work must be attributable, bounded, and reversible. RuFloUI now enforces a launch-time guardrail for task execution plus write-time guardrails for deterministic bounded file writes.
 
 ## Policy
 
@@ -12,7 +12,9 @@ FactoryGrid autonomous writes must be attributable, bounded, and reversible. The
 - Allowed write prefixes default to `workspace/`.
 - Operators may narrow the allowlist with `FACTORY_AGENT_ALLOWED_WRITE_PREFIXES`, comma separated.
 - Protected config and dependency paths require explicit human approval before autonomous writes.
-- Every accepted bounded write creates a pre-write snapshot under `workspace/guardrails/snapshots/<snapshot_id>/`.
+- Every accepted autonomous task launch creates a pre-run snapshot under `workspace/guardrails/snapshots/<snapshot_id>/`.
+- Every accepted bounded write creates its own pre-write snapshot under `workspace/guardrails/snapshots/<snapshot_id>/`.
+- Task launches that explicitly mention protected config/dependency paths are refused until a human approval workflow exists.
 
 ## Protected Paths
 
@@ -57,6 +59,9 @@ If the target file was newly created and should not remain, remove that file man
 
 Implemented now:
 
+- RuFloUI task launch guard: git worktree required before autonomous execution
+- RuFloUI task launch guard: protected config/dependency path mentions are refused with HITL-required result
+- pre-run git snapshot artifact for every accepted RuFloUI autonomous task launch
 - deterministic RuFloUI bounded file-write task path
 - path allowlist
 - protected path refusal with HITL-required result
