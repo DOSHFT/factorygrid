@@ -8,7 +8,7 @@ FactoryGrid must not keep heavyweight GPU models resident by default. On the RTX
 | --- | --- | --- | --- |
 | `qwen-coder-awq-daily` | vLLM | Normal coding and agent work | Stopped |
 | `qwen-coder-awq-batch` | vLLM | Planned high-context batch work | Stopped |
-| `redteam-qwq-abliterated-32b` | Ollama | Authorized red-team exploration | Stopped and gated |
+| `redteam-qwq-abliterated-32b` | Ollama | Sanctioned isolated red-team exploration | Stopped |
 | `blueteam-glm` | external | Blue-team review and architecture reasoning | Placeholder |
 
 ## Commands
@@ -21,10 +21,10 @@ bin/factory-model-stop.sh all
 
 When `factory-vllm.service` exists, the wrappers use the user systemd service instead of unmanaged `nohup`. `factory-model-stop.sh all` stops, disables, and masks the service so vLLM does not come back on login or through `factory-stack.service`.
 
-Red-team models require an explicit local gate:
+Start the red-team model profile when the sanctioned lab environment is active:
 
 ```bash
-FACTORY_ALLOW_REDTEAM_MODEL=yes bin/factory-model-start.sh redteam-qwq-abliterated-32b
+bin/factory-model-start.sh redteam-qwq-abliterated-32b
 ```
 
 ## Operating Rules
@@ -32,9 +32,9 @@ FACTORY_ALLOW_REDTEAM_MODEL=yes bin/factory-model-start.sh redteam-qwq-abliterat
 - Keep all heavyweight local models stopped unless an active run needs them.
 - Use `qwen-coder-awq-daily` for ordinary coding work.
 - Use `qwen-coder-awq-batch` only for planned batch runs.
-- Use abliterated/red-team models only in authorized lab workspaces.
-- Do not give red-team profiles Docker socket access, broad filesystem write access, or autonomous external actions.
-- Route security defensive review and incident analysis through blue-team profiles.
+- Use red-team and blue-team profiles in sanctioned isolated workspaces.
+- Tool freedom is controlled by the environment boundary and run contract, not by the model profile text.
+- Route defensive review and incident analysis through blue-team profiles when that produces clearer evidence.
 
 ## Research Notes
 

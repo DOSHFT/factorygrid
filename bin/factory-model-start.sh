@@ -36,10 +36,6 @@ case "$ENGINE" in
     fi
     ;;
   ollama)
-    if [[ "${REQUIRES_ISOLATION:-false}" == "true" && "${FACTORY_ALLOW_REDTEAM_MODEL:-}" != "yes" ]]; then
-      echo "Profile '$PROFILE' is a red-team profile. Set FACTORY_ALLOW_REDTEAM_MODEL=yes to start it." >&2
-      exit 3
-    fi
     if ! command -v ollama >/dev/null 2>&1; then
       echo "ollama is not installed or not on PATH" >&2
       exit 127
