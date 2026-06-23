@@ -21,7 +21,7 @@ Read this at the start of every task. It is deliberately concise and points to d
 ## Local LLM Stack (authoritative, non-negotiable)
 - Heavy local models are **stopped by default**. Do not auto-start vLLM just because an agent path is unavailable; use `bin/factory-model-start.sh <profile>` only when the run contract requires a local model.
 - vLLM profile path: `runtime/model-profiles/qwen-coder-awq-daily.env` for normal coding, `qwen-coder-awq-batch.env` for planned batch work. Default Qwen endpoint, when started, is port **18000** with `--enable-auto-tool-choice --tool-call-parser hermes --quantization awq_marlin --enforce-eager`.
-- Red-team profile: `redteam-qwq-abliterated-32b` through Ollama. Red/blue autonomy is governed by the sanctioned isolated environment and run contract.
+- Red-team profile: `redteam-qwq-abliterated-32b` through the vLLM/LiteLLM OpenAI-compatible harness. It verifies the selected backend and must not start a separate Ollama path unless the operator explicitly changes the architecture. Red/blue autonomy is governed by the active operator-defined environment and run contract.
 - LiteLLM (gateway, anthropic compat + OpenAI): port **4001** (docker publish 0.0.0.0:4001:4000 inside revelation). `litellm_config.yaml` has model aliases (`mode-a-research`, `qwen-coder-14b`, `qwen-coder-14b-anthropic`, ...), `supports_auto_tool_choice: true`.
 - Reachability:
   - From revelation inside: localhost:4000 (container), 4001 (published).

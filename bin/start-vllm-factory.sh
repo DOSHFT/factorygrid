@@ -16,6 +16,7 @@ if [[ -f "$PROFILE_FILE" ]]; then
   source "$PROFILE_FILE"
 fi
 MODEL=${MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
+SERVED_MODEL_NAME=${SERVED_MODEL_NAME:-factory-active}
 HOST=${HOST:-0.0.0.0}
 PORT=${PORT:-18000}
 GPU_MEM=${GPU_MEM:-0.72}
@@ -29,7 +30,7 @@ ENFORCE_EAGER=${ENFORCE_EAGER:-false}
 
 echo "Starting FactoryGrid vLLM"
 echo "profile=$PROFILE_FILE"
-echo "model=$MODEL host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB quantization=${QUANTIZATION:-auto} enforce_eager=$ENFORCE_EAGER + auto-tool-choice + hermes parser (for Hermes tool calling)"
+echo "model=$MODEL served_model_name=$SERVED_MODEL_NAME host=$HOST port=$PORT gpu_mem=$GPU_MEM max_model_len=$MAX_MODEL_LEN max_num_seqs=$MAX_NUM_SEQS max_batched_tokens=$MAX_BATCHED_TOKENS swap_gb=$SWAP_SPACE_GB quantization=${QUANTIZATION:-auto} enforce_eager=$ENFORCE_EAGER + auto-tool-choice + hermes parser (for Hermes tool calling)"
 
 VLLM_BIN="${VLLM_BIN:-/home/revelation/vllm-env/bin/vllm}"
 if [[ ! -x "$VLLM_BIN" ]]; then
@@ -39,6 +40,7 @@ fi
 
 args=(
   serve "$MODEL"
+  --served-model-name "$SERVED_MODEL_NAME" \
   --host "$HOST" \
   --port "$PORT" \
   --dtype auto \

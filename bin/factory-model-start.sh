@@ -35,21 +35,42 @@ case "$ENGINE" in
       echo "Started vLLM profile '$PROFILE' pid=$(cat "$ROOT/logs/vllm-factory.pid") log=$ROOT/logs/vllm-factory.log"
     fi
     ;;
-  ollama)
-    if ! command -v ollama >/dev/null 2>&1; then
-      echo "ollama is not installed or not on PATH" >&2
-      exit 127
+  vllm_remote|openai_compatible|litellm)
+    BASE_URL="${BASE_URL:-${FACTORY_MODEL_BASE_URL:-http://127.0.0.1:18000/v1}}"
+    MODELS_URL="${BASE_URL%/}/models"
+    tmp_models="$(mktemp)"
+    if ! curl -fsS --max-time "${FACTORY_MODEL_CHECK_TIMEOUT:-5}" "$MODELS_URL" > "$tmp_models"; then
+      rm -f "$tmp_models"
+      echo "Remote model profile '$PROFILE' is not reachable at $MODELS_URL" >&2
+      echo "Start or expose the selected vLLM/OpenAI-compatible backend, then retry." >&2
+      exit 6
     fi
-    if ! curl -fsS --max-time 2 "http://127.0.0.1:${PORT:-11434}/api/tags" >/dev/null 2>&1; then
-      nohup ollama serve > "$ROOT/logs/ollama.log" 2>&1 &
-      echo $! > "$ROOT/logs/ollama.pid"
-      sleep 2
+    echo "Remote model profile '$PROFILE' is reachable at $BASE_URL"
+    if [[ -n "$MODEL" ]]; then
+      if python3 - "$tmp_models" "$MODEL" <<'PY'
+import json
+import sys
+
+path, model = sys.argv[1], sys.argv[2]
+data = json.load(open(path, "r", encoding="utf-8"))
+ids = {item.get("id") for item in data.get("data", []) if isinstance(item, dict)}
+if model in ids:
+    sys.exit(0)
+print("available models: " + ", ".join(sorted(i for i in ids if i))[:500])
+sys.exit(1)
+PY
+      then
+        echo "Remote backend reports model '$MODEL'."
+      else
+        if [[ "${FACTORY_STRICT_MODEL_MATCH:-no}" == "yes" ]]; then
+          rm -f "$tmp_models"
+          echo "Remote backend is reachable but did not report model '$MODEL'." >&2
+          exit 7
+        fi
+        echo "Remote backend is reachable; exact model id '$MODEL' was not reported. Set FACTORY_STRICT_MODEL_MATCH=yes to make this fatal."
+      fi
     fi
-    if ! ollama list | awk '{print $1}' | grep -Fxq "$MODEL"; then
-      echo "Model '$MODEL' is not pulled. Run: ollama pull $MODEL" >&2
-      exit 4
-    fi
-    echo "Ollama profile '$PROFILE' is available at http://127.0.0.1:${PORT:-11434}"
+    rm -f "$tmp_models"
     ;;
   external)
     echo "Profile '$PROFILE' is external/review-only. Configure provider routing before start." >&2

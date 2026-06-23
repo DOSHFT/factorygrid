@@ -20,15 +20,23 @@ else
 fi
 
 echo
-echo "Ollama:"
-if curl -fsS --max-time 2 http://127.0.0.1:11434/api/tags >/tmp/factory-ollama-tags.json 2>/dev/null; then
-  echo "  API reachable at http://127.0.0.1:11434"
-  head -c 300 /tmp/factory-ollama-tags.json
-  echo
-else
-  echo "  stopped or unreachable"
-fi
-rm -f /tmp/factory-ollama-tags.json
+echo "OpenAI-compatible gateways:"
+for endpoint in \
+  "vLLM local|http://127.0.0.1:18000/v1/models" \
+  "LiteLLM private|http://127.0.0.1:4000/v1/models" \
+  "LiteLLM published|http://127.0.0.1:4001/v1/models"
+do
+  name="${endpoint%%|*}"
+  url="${endpoint#*|}"
+  if curl -fsS --max-time 2 "$url" >/tmp/factory-model-gateway.json 2>/dev/null; then
+    echo "  $name reachable at $url"
+    head -c 300 /tmp/factory-model-gateway.json
+    echo
+  else
+    echo "  $name stopped or unreachable at $url"
+  fi
+done
+rm -f /tmp/factory-model-gateway.json
 
 echo
 echo "GPU:"

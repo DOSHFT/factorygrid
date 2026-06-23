@@ -1,16 +1,55 @@
 # FactoryGrid Architecture
 
-Last verified: 2026-05-17 on `revelation@BlackBeast`
+Last verified: 2026-06-23 on `revelation@BlackBeast`
 
 FactoryGrid is a local-first software factory running inside the `revelation` WSL2 Ubuntu instance. The purpose is to turn written product ideas into researched implementation plans, executable tasks, generated code, and validation loops with minimal manual glue work.
 
 The stack is deliberately split into five layers:
 
-1. Native GPU inference: vLLM serves the local coding model.
-2. Gateway routing: LiteLLM exposes a stable OpenAI-compatible API.
+1. Single model backend: exactly one active vLLM server owns GPU inference.
+2. Gateway routing: LiteLLM exposes the stable agent-facing OpenAI/Anthropic-compatible API.
 3. Factory orchestration: RuFlo decomposes written intent into agent work.
 4. Engineer execution: OpenHands runs coding tasks against the workspace.
 5. Memory and retrieval: Qdrant stores vector memory for recall and context reuse.
+
+## Model Topology Contract
+
+FactoryGrid must not run separate model servers per VM, WSL distro, agent, or task type. There is one model source of truth:
+
+- vLLM is the only heavy model serving backend.
+- LiteLLM is the only endpoint agents and tools should call directly.
+- Model profiles in `runtime/model-profiles/*.env` describe switchable vLLM run contracts.
+- `runtime/vllm-model.env` is the active vLLM runtime file copied from the selected profile.
+- vLLM serves the selected backend model as stable id `factory-active`.
+- `litellm_config.yaml` maps stable aliases such as `qwen-coder-14b` to `openai/factory-active` on the active vLLM endpoint.
+- Red-team and blue-team models are profile choices behind the same vLLM/LiteLLM harness, not separate Ollama, Decima, Revelation, or per-agent daemons.
+
+Allowed model endpoints:
+
+| Caller | Endpoint | Purpose |
+| --- | --- | --- |
+| Agents, RuFlo, OpenHands, Hermes, Claude wrappers | `http://litellm:4000/v1` inside Docker or `http://127.0.0.1:4001/v1` from WSL/host | Stable LiteLLM gateway |
+| LiteLLM container | `http://host.docker.internal:18000/v1` | Active vLLM backend |
+| Operator diagnostics only | `http://127.0.0.1:18000/v1/models` | Verify the vLLM backend |
+
+Forbidden model topology:
+
+- no Ollama runtime for FactoryGrid agents,
+- no model server hidden in Decima while Revelation routes somewhere else,
+- no direct agent calls to vLLM except diagnostic probes,
+- no automatic vLLM start during stack boot.
+
+Model switching flow:
+
+```bash
+cd /home/revelation/factorygrid
+bin/factory-model-stop.sh all
+bin/factory-model-start.sh qwen-coder-awq-daily
+docker compose restart factory_litellm factory_ruflo agent_qwen_code agent_openhands
+bin/factory-model-status.sh
+```
+
+For containerized vLLM experiments, keep the same contract: one OpenAI-compatible backend exposed on the configured vLLM URL, one LiteLLM gateway in front of it, and no second backend in another WSL distro.
 
 ## Live Topology
 
@@ -19,17 +58,63 @@ Windows 11 BlackBeast
   |
   +-- WSL2 distro: revelation
         |
-        +-- native vLLM on port 8000
-        |     model: Qwen/Qwen2.5-Coder-14B-Instruct-AWQ
+        +-- one active vLLM backend on port 18000
+        |     selected by runtime/model-profiles/*.env
         |
         +-- Docker network: factorygrid_factory_net
               |
-              +-- factory_litellm   :4000  OpenAI-compatible gateway
+              +-- factory_litellm   :4000 / host :4001  only agent-facing model gateway
               +-- factory_ruflo     RuFlo orchestration queen
               +-- agent_openhands   :3000  autonomous engineer UI/runtime
               +-- agent_qwen_code   detached Node worker shell
               +-- factory_qdrant    :6333/:6334 vector memory
 ```
+
+## Endpoint And UI Inventory
+
+Use this section as the source of truth for browser URLs, APIs, and health probes. Agents should call LiteLLM for model work; vLLM is listed for diagnostics and operator model-switch verification only.
+
+### Operator Web UIs
+
+| Surface | LAN URL | Local host URL | Owner | Notes |
+| --- | --- | --- | --- | --- |
+| RuFloUI Factory | `http://192.168.178.20:28589/factory` | `http://127.0.0.1:28589/factory` | Revelation Docker | Main intake and factory control surface |
+| RuFloUI Dashboard | `http://192.168.178.20:28589/` | `http://127.0.0.1:28589/` | Revelation Docker | General UI shell |
+| RuFloUI Fabric Monitor | `http://192.168.178.20:28589/monitoring/fabric` | `http://127.0.0.1:28589/monitoring/fabric` | Revelation Docker | Stack, model, and runtime health |
+| RuFloUI Agents | `http://192.168.178.20:28589/agents` | `http://127.0.0.1:28589/agents` | Revelation Docker | Agent roster/status |
+| RuFloUI Tasks | `http://192.168.178.20:28589/tasks` | `http://127.0.0.1:28589/tasks` | Revelation Docker | Task queue/status |
+| RuFloUI Workspace | `http://192.168.178.20:28589/workspace` | `http://127.0.0.1:28589/workspace` | Revelation Docker | Repo/file browser |
+| RuFloUI Logs | `http://192.168.178.20:28589/logs` | `http://127.0.0.1:28589/logs` | Revelation Docker | Runtime logs |
+| OpenHands | `http://192.168.178.20:3001` | `http://127.0.0.1:3001` | Revelation Docker | Autonomous engineer UI/runtime |
+| Qdrant Dashboard | `http://192.168.178.20:6333/dashboard` | `http://127.0.0.1:6333/dashboard` | Revelation Docker | Vector memory dashboard |
+| Neo4j Browser | `http://192.168.178.20:7474` | `http://127.0.0.1:7474` | Revelation Docker | Shadow graph, not authoritative until healthy |
+| Hermes Dashboard | `http://192.168.178.20:9119` | Decima local `http://127.0.0.1:9119` | Decima WSL | Hermes chat/dashboard, separate from model serving |
+| Hermes ttyd Console | `http://192.168.178.20:7681` | Decima local `http://127.0.0.1:7681` | Decima WSL | Browser terminal for Hermes CLI |
+| Claude ttyd Console | `http://192.168.178.20:7682` | Decima local `http://127.0.0.1:7682` | Decima WSL | Browser terminal for `claude-local` |
+
+### APIs And Health Probes
+
+| Service | LAN URL | Local host URL | Docker/internal URL | Purpose |
+| --- | --- | --- | --- | --- |
+| LiteLLM models | `http://192.168.178.20:4001/v1/models` | `http://127.0.0.1:4001/v1/models` | `http://litellm:4000/v1/models` | Agent-facing model gateway |
+| LiteLLM chat completions | `http://192.168.178.20:4001/v1/chat/completions` | `http://127.0.0.1:4001/v1/chat/completions` | `http://litellm:4000/v1/chat/completions` | Chat/completion API |
+| vLLM models | `http://192.168.178.20:18000/v1/models` | `http://127.0.0.1:18000/v1/models` | LiteLLM reaches `http://host.docker.internal:18000/v1/models` | Active backend diagnostics only |
+| vLLM chat completions | `http://192.168.178.20:18000/v1/chat/completions` | `http://127.0.0.1:18000/v1/chat/completions` | LiteLLM reaches `http://host.docker.internal:18000/v1/chat/completions` | Backend warm-up/RCA only |
+| RuFlo MCP health | `http://192.168.178.20:3011/health` | `http://127.0.0.1:3011/health` | `http://factory_ruflo:3010/health` | RuFlo orchestration API health |
+| RuFloUI API info | `http://192.168.178.20:28580/api/system/info` | `http://127.0.0.1:28580/api/system/info` | `http://factory_rufloui:28580/api/system/info` | UI backend health |
+| RuFloUI guide | `http://192.168.178.20:28580/api/factory/guide` | `http://127.0.0.1:28580/api/factory/guide` | `http://factory_rufloui:28580/api/factory/guide` | Factory guide payload |
+| Qdrant collections | `http://192.168.178.20:6333/collections` | `http://127.0.0.1:6333/collections` | `http://qdrant:6333/collections` | Vector store health |
+| OpenHands settings | `http://192.168.178.20:3001/api/settings` | `http://127.0.0.1:3001/api/settings` | `http://openhands_engineer:3000/api/settings` | OpenHands runtime/model config |
+| Neo4j Bolt | `bolt://192.168.178.20:7687` | `bolt://127.0.0.1:7687` | `bolt://neo4j:7687` | Graph database driver endpoint |
+
+### Access Rules
+
+- Use LAN URLs from other machines.
+- Use local host URLs from BlackBeast or the owning WSL distro only.
+- Use Docker/internal URLs only from containers on the FactoryGrid Docker network.
+- Use LiteLLM for all agent model calls.
+- Use vLLM URLs only for diagnostics, warm-up, RCA, and model-switch verification.
+- Do not add Ollama or second vLLM endpoints to this inventory unless the architecture is explicitly changed.
 
 Primary directory:
 
@@ -41,12 +126,12 @@ Primary directory:
 
 ### vLLM Native Inference
 
-Role: local GPU model server.
+Role: the single GPU model server for FactoryGrid.
 
 Endpoint:
 
 ```text
-http://localhost:8000/v1
+http://localhost:18000/v1
 ```
 
 Model:
@@ -67,24 +152,26 @@ Launcher:
 /home/revelation/factorygrid/bin/start-vllm-factory.sh
 ```
 
-Current critical settings:
+Default daily profile settings:
 
 ```bash
-GPU_MEM=0.86
-MAX_MODEL_LEN=32768
-MAX_NUM_SEQS=2
-MAX_BATCHED_TOKENS=32768
+GPU_MEM=0.50
+MAX_MODEL_LEN=8192
+MAX_NUM_SEQS=1
+MAX_BATCHED_TOKENS=8192
 SWAP_SPACE_GB=4
 --enable-prefix-caching
 --disable-log-requests
+--enforce-eager
 ```
 
 Why these settings:
 
-- `32768` context keeps long written specs, plans, logs, and architecture notes in-window.
-- `max-num-seqs=2` prevents multi-agent bursts from overcommitting KV cache.
-- `gpu-memory-utilization=0.86` leaves VRAM headroom for CUDA overhead and WSL noise.
+- `8192` context is the safe daily profile while the context-engineering layer carries large artifacts through exact packs and retrieval.
+- `max-num-seqs=1` prevents multi-agent bursts from overcommitting KV cache.
+- `gpu-memory-utilization=0.50` leaves VRAM headroom for the Windows desktop, browser, Docker, CUDA overhead, and WSL noise.
 - Prefix caching helps repeated context-engineering prompts where the same spec/context prefix is reused.
+- Eager mode avoids CUDA graph capture reserving extra memory on the RTX 4090.
 - Temp vars are forced to Linux paths:
 
 ```bash
@@ -99,15 +186,15 @@ Commands:
 
 ```bash
 cd /home/revelation/factorygrid
-./bin/restart-vllm-factory.sh
-./bin/stop-vllm-factory.sh
+./bin/factory-model-start.sh qwen-coder-awq-daily
+./bin/factory-model-stop.sh all
 tail -f logs/vllm-factory.log
-curl http://localhost:8000/v1/models
+curl http://localhost:18000/v1/models
 ```
 
 ### LiteLLM Gateway
 
-Role: normalize all local model access behind one OpenAI-compatible API.
+Role: normalize all local model access behind one OpenAI/Anthropic-compatible API. Agents call LiteLLM, not vLLM directly.
 
 Endpoint:
 
@@ -127,8 +214,8 @@ Current mapping:
 model_list:
   - model_name: qwen-coder-14b
     litellm_params:
-      model: openai/Qwen/Qwen2.5-Coder-14B-Instruct-AWQ
-      api_base: http://host.docker.internal:8000/v1
+      model: openai/factory-active
+      api_base: http://host.docker.internal:18000/v1
       api_key: "not-needed"
 ```
 
@@ -141,6 +228,7 @@ Why LiteLLM exists:
 - OpenHands, RuFlo, scripts, and future tools can all call `qwen-coder-14b`.
 - vLLM can be swapped or upgraded without rewriting every agent config.
 - Failures are visible at the gateway boundary.
+- Profile switches remain centralized instead of creating model servers across multiple WSL distros.
 
 Verification:
 
@@ -491,9 +579,9 @@ The stack is healthy when:
 
 shows:
 
-- listener on `8000` for vLLM
-- listener on `4000` for LiteLLM
-- listener on `3000` for OpenHands
+- optional listener on `18000` for the single active vLLM backend when a model profile is started
+- listener on `4000` inside Docker or `4001` from host/WSL for LiteLLM
+- listener on `3000` inside Docker or `3001` from host/WSL for OpenHands
 - Qdrant on `6333/6334`
 - all five containers running
 - LiteLLM `/v1/models` returns `qwen-coder-14b`
@@ -502,7 +590,7 @@ shows:
 Run a completion check:
 
 ```bash
-curl -s http://localhost:4000/v1/chat/completions \
+curl -s http://localhost:4001/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -H 'Authorization: Bearer factory-secret-key' \
   -d '{"model":"qwen-coder-14b","messages":[{"role":"user","content":"Reply exactly OK."}],"max_tokens":8,"temperature":0}'

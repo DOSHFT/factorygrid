@@ -89,6 +89,7 @@ The PDF contains useful intent but should not be copied directly into production
   - [x] `runtime/model-profiles/blueteam-glm.env`
   - [x] `docs/MODEL_PROFILES.md`
   - [x] `runtime/systemd/factory-vllm.service`
+  - [x] Red-team profile corrected to use the vLLM/LiteLLM OpenAI-compatible harness instead of a separate Ollama runtime
 
 ## P1 - Context Engineering Layer
 
