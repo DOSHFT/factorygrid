@@ -1,0 +1,79 @@
+{
+  "run_id": "daily-model-quant-watch-20260623",
+  "generated_at": "2026-06-23T18:25:00Z",
+  "scope": "Daily watch for RTX 4090-fit agentic coding models, red/blue team abliterated candidates, and quantization/offload technologies for FactoryGrid.",
+  "owner_agents": ["researcher", "coder", "blue-team-cell", "reviewer", "architect"],
+  "write_scope": "workspace/research/model-watch/",
+  "sources": [
+    {
+      "name": "GoldieBench leaderboard",
+      "url": "https://goldiebench.com/",
+      "type": "benchmark",
+      "last_seen": "2026-06-23",
+      "notes": "Qualitative one-shot app/code leaderboard; useful signal, not a security benchmark."
+    },
+    {
+      "name": "GoldieBench tasks",
+      "url": "https://goldiebench.com/tasks/",
+      "type": "benchmark_methodology",
+      "last_seen": "2026-06-23",
+      "notes": "Fixed task prompts and scoring surface for comparison."
+    },
+    {
+      "name": "Hugging Face Qwen3-Coder quantized models",
+      "url": "https://huggingface.co/models?other=base_model%3Aquantized%3AQwen%2FQwen3-Coder-30B-A3B-Instruct",
+      "type": "model_registry",
+      "last_seen": "2026-06-23",
+      "notes": "AWQ/GGUF/NVFP4/GPTQ candidates for local coding upgrade evaluation."
+    },
+    {
+      "name": "Hugging Face Devstral Small 2 quantized models",
+      "url": "https://huggingface.co/models?other=base_model%3Aquantized%3Amistralai%2FDevstral-Small-2-24B-Instruct-2512",
+      "type": "model_registry",
+      "last_seen": "2026-06-23",
+      "notes": "24B agentic coding model family with quantized community variants."
+    },
+    {
+      "name": "Hugging Face QwQ-32B-abliterated",
+      "url": "https://huggingface.co/huihui-ai/QwQ-32B-abliterated",
+      "type": "model_card",
+      "last_seen": "2026-06-23",
+      "notes": "Current red-team baseline candidate; model card says uncensored QwQ-32B via abliteration."
+    },
+    {
+      "name": "vLLM TurboQuant study",
+      "url": "https://vllm.ai/blog/2026-05-11-turboquant",
+      "type": "runtime_research",
+      "last_seen": "2026-06-23",
+      "notes": "Most relevant vLLM-native KV-cache compression research path."
+    },
+    {
+      "name": "TurboQuant paper",
+      "url": "https://arxiv.org/abs/2504.19874",
+      "type": "research_paper",
+      "last_seen": "2026-06-23",
+      "notes": "Primary paper for online vector/KV-cache quantization claims."
+    },
+    {
+      "name": "Unsloth Dynamic 2.0 docs",
+      "url": "https://unsloth.ai/docs/basics/unsloth-dynamic-2.0-ggufs",
+      "type": "quantization_docs",
+      "last_seen": "2026-06-23",
+      "notes": "Dynamic per-layer GGUF quantization; useful for offline candidate evaluation."
+    },
+    {
+      "name": "AirLLM GitHub",
+      "url": "https://github.com/lyogavin/airllm",
+      "type": "runtime_offload",
+      "last_seen": "2026-06-23",
+      "notes": "Layer-by-layer inference/offload; likely slow but relevant for non-interactive large-model reports."
+    },
+    {
+      "name": "Reddit LocalLLaMA RTX 4090/QwQ benchmark signal",
+      "url": "https://www.reddit.com/r/LocalLLaMA/comments/1jnjrdk/benchmark_rtx_3090_4090_and_even_4080_are/",
+      "type": "community_signal",
+      "last_seen": "2026-06-23",
+      "notes": "Weak evidence only; use to seed local tests, not as proof."
+    }
+  ]
+}

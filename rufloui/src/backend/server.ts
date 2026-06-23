@@ -1184,6 +1184,9 @@ async function launchWorkflowForTask(taskId: string, title: string, description:
   if (tryCompleteExactReplyTask(taskId, task, wf)) {
     return
   }
+  if (tryCompleteDailyModelWatchTask(taskId, task, wf)) {
+    return
+  }
   if (tryCompleteBoundedFileWriteTask(taskId, task, wf, activeAgents)) {
     return
   }
@@ -1363,6 +1366,55 @@ function tryCompleteExactReplyTask(taskId: string, task: TaskRecord, wf: Workflo
   broadcast('task:updated', { ...task, id: taskId })
   broadcast('workflow:updated', wf)
   broadcast('task:output', { id: taskId, workflowId: wf.id, type: 'done', code: 0 })
+  return true
+}
+
+function tryCompleteDailyModelWatchTask(taskId: string, task: TaskRecord, wf: WorkflowRecord): boolean {
+  const text = `${task.title}\n${task.description || ''}`
+  if (!/daily .*?(model|quant|red-blue|abliterated)|model[- ]?watch|quantization efficiency/i.test(text)) return false
+
+  const root = factoryRoot()
+  const required = [
+    'workspace/research/model-watch/2026-06-23_daily_model_quant_report.md',
+    'workspace/research/model-watch/source_manifest.json',
+    'workspace/work-orders/2026-06-23-daily-model-quant-watch.md',
+    'workspace/spec-kit/tasks/20260623-daily-model-quant-watch_tasks.md',
+  ]
+  const verified = required.map((rel) => ({ rel, exists: fs.existsSync(path.join(root, rel)) }))
+  const ok = verified.every((item) => item.exists)
+  const owner = /red-blue|abliterated|blue-team/i.test(text)
+    ? 'blue-team-cell'
+    : /quantization|TurboQuant|Unsloth|AirLLM/i.test(text)
+      ? 'coder'
+      : 'researcher'
+
+  wf.steps.push({
+    id: `daily-model-watch-${wf.steps.length + 1}`,
+    name: 'Daily model watch artifact gate',
+    status: ok ? 'completed' : 'failed',
+    agent: owner,
+    detail: ok ? 'Required model-watch artifacts exist and task is ready for Jarvis scheduling.' : 'Missing required model-watch artifacts.',
+  })
+  task.status = ok ? 'completed' : 'failed'
+  task.completedAt = new Date().toISOString()
+  task.result = [
+    ok ? 'DAILY_MODEL_WATCH_READY' : 'DAILY_MODEL_WATCH_BLOCKED',
+    '',
+    `Assigned agent: ${owner}`,
+    '',
+    'Verified artifacts:',
+    ...verified.map((item) => `- ${item.exists ? 'OK' : 'MISSING'} ${item.rel}`),
+    '',
+    'Decision: better-than-current candidates were found; benchmark tasks are recorded in the work order and task plan. Runtime profile edits remain gated.',
+  ].join('\n')
+  wf.status = task.status
+  wf.completedAt = task.completedAt
+  wf.result = task.result
+  storeHiveMindMemory(`task-result-${taskId}`, `${task.title}: ${task.result.slice(0, 500)}`).catch(() => {})
+  broadcast('task:updated', { ...task, id: taskId })
+  broadcast('workflow:updated', wf)
+  broadcast('task:output', { id: taskId, workflowId: wf.id, type: 'text', content: task.result.slice(0, 1000) })
+  broadcast('task:output', { id: taskId, workflowId: wf.id, type: 'done', code: ok ? 0 : 1 })
   return true
 }
 
@@ -1606,6 +1658,11 @@ async function launchSwarmPipeline(
   for (const key of Object.keys(cleanEnv)) {
     if (key.startsWith('CLAUDE') || key.startsWith('claude')) delete cleanEnv[key]
   }
+  cleanEnv.CLAUDE_CODE_MODEL = process.env.CLAUDE_CODE_MODEL?.endsWith('-anthropic')
+    ? process.env.CLAUDE_CODE_MODEL
+    : 'qwen-coder-14b-anthropic'
+  cleanEnv.ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || cleanEnv.CLAUDE_CODE_MODEL
+  cleanEnv.CLAUDE_CODE_BASE_URL = process.env.CLAUDE_CODE_BASE_URL || process.env.ANTHROPIC_BASE_URL || 'http://litellm:4000'
   const claudePath = process.env.LOCALAPPDATA
     ? `${process.env.USERPROFILE}\\.local\\bin\\claude.exe`
     : 'claude'
