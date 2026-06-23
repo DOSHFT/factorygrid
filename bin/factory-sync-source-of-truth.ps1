@@ -159,21 +159,31 @@ Write-Host "[SOT] Target commit: $targetHead"
 if ($SkipLiveReset) {
   Write-Host "[SOT] Skipping live Revelation reset by request."
 } elseif ($Apply) {
-  $ownershipPrefix = ""
   if ($FixLiveOwnership) {
-    $ownershipPrefix = "chown -R revelation:revelation '$LiveRoot/rufloui' '$LiveRoot/workspace' 2>/dev/null || true; "
-  }
-  $liveScript = @"
+    $liveScript = @"
 set -euo pipefail
-$ownershipPrefix
+chown -R revelation:revelation '$LiveRoot/rufloui' '$LiveRoot/workspace' 2>/dev/null || true
 cd '$LiveRoot'
-git remote remove github 2>/dev/null || true
-git remote add github '$GitHubRemote'
-git fetch github '$Branch'
-git reset --hard '$targetHead'
+runuser -u revelation -- git config --global --add safe.directory '$LiveRoot' || true
+runuser -u revelation -- git remote remove github >/dev/null 2>&1 || true
+runuser -u revelation -- git remote add github '$GitHubRemote' >/dev/null
+runuser -u revelation -- git fetch github '$Branch' >&2
+runuser -u revelation -- git reset --hard '$targetHead' >&2
+runuser -u revelation -- git status --porcelain=v1
+"@
+    $liveOutput = Run-Wsl $liveScript -Root
+  } else {
+    $liveScript = @"
+set -euo pipefail
+cd '$LiveRoot'
+git remote remove github >/dev/null 2>&1 || true
+git remote add github '$GitHubRemote' >/dev/null
+git fetch github '$Branch' >&2
+git reset --hard '$targetHead' >&2
 git status --porcelain=v1
 "@
-  $liveOutput = if ($FixLiveOwnership) { Run-Wsl $liveScript -Root } else { Run-Wsl $liveScript }
+    $liveOutput = Run-Wsl $liveScript
+  }
   if ($liveOutput) {
     throw "Live Revelation still has drift after reset: $liveOutput"
   }
