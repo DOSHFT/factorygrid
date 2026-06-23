@@ -46,7 +46,7 @@ Claude Code CLI is a **developer productivity + optional delegation tool**. Plac
 - vLLM Qwen2.5-Coder-14B-Instruct-AWQ on `:8000`
 - LiteLLM gateway on `:4000` / `:4001` (OpenAI-compatible)
 - `litellm_config.yaml`: single alias `qwen-coder-14b`
-- `docker-compose.yml` injections: `OPENAI_API_BASE: http://litellm:4000/v1` (and `LLM_BASE_URL` equivalents) into ruflo_orchestrator, rufloui, openhands_engineer, qwen_code_worker, etc.
+- `docker-compose.yml` injections: `OPENAI_API_BASE: http://litellm:4000/v1` (and `LLM_BASE_URL` equivalents) into ruflo_orchestrator, rufloui, openhands_engineer, etc.
 - This powers every autonomous agent execution, task, and memory write.
 
 **Conclusion:** Local LLM = fully operational for the factory. Anthropic/Claude Code path = completely unwired (by design).

@@ -3586,7 +3586,6 @@ function classifyFabricContainer(name: string, image: string, status: string): O
     'factory_litellm',
     'factory_ruflo',
     'factory_rufloui',
-    'agent_qwen_code',
     'agent_openhands',
   ])
 
@@ -3597,7 +3596,6 @@ function classifyFabricContainer(name: string, image: string, status: string): O
       factory_litellm: 'Local OpenAI-compatible gateway for agent model calls.',
       factory_ruflo: 'RuFlo orchestration and MCP service.',
       factory_rufloui: 'Operator dashboard and API.',
-      agent_qwen_code: 'Detached code worker runtime.',
       agent_openhands: 'OpenHands engineering runtime.',
     }
     const urls: Record<string, Array<{ label: string; url: string }>> = {
@@ -3745,7 +3743,6 @@ async function restartDockerProductionTarget(target: string): Promise<FabricActi
     factory_litellm: 'litellm',
     factory_ruflo: 'ruflo_orchestrator',
     factory_rufloui: 'rufloui',
-    agent_qwen_code: 'qwen_code_worker',
     agent_openhands: 'openhands_engineer',
     factory_neo4j: 'neo4j',
   }
@@ -3983,7 +3980,7 @@ function buildHermesFabricNode(runtime: Awaited<ReturnType<typeof getFactoryRunt
 }
 
 async function restartModelCallDependencies(): Promise<Array<{ target: string; ok: boolean; detail: string }>> {
-  const targets = ['factory_litellm', 'factory_ruflo', 'agent_qwen_code', 'agent_openhands']
+  const targets = ['factory_litellm', 'factory_ruflo', 'agent_openhands']
   const results: Array<{ target: string; ok: boolean; detail: string }> = []
   for (const target of targets) {
     try {

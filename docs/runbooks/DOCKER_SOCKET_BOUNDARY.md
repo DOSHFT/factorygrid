@@ -11,7 +11,6 @@ Docker Engine access is privileged host control. It must not be mounted into gen
 No Docker socket:
 
 - `factory_ruflo`: RuFlo orchestrates tasks and calls LiteLLM/RuFlo project state. It does not need Docker Engine control.
-- `agent_qwen_code`: idle worker placeholder; no Docker Engine control.
 
 Docker socket retained:
 

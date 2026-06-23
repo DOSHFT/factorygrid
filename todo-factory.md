@@ -18,7 +18,7 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 - [ ] P1: Add research provenance. Firecrawl/Tavily outputs must store URL, fetch time, title, extracted markdown, citation hash, and run id.
 - [ ] P1: Add observability: GPU/VRAM, WSL RAM/swap, token throughput, queue depth, request latency, OpenHands iterations, RuFlo task status, and browser/UI stream pressure.
 - [x] P1: Add backup/restore scripts for Qdrant, RuFlo project state, RuFlo UI persistence, OpenHands state, LiteLLM config, and vLLM scripts. Verified with `/home/revelation/factorygrid_backups/factorygrid-20260623T015331Z.tar.gz`; includes manifest/checksum, Qdrant snapshot, dry-run restore, and excludes secrets by default.
-- [ ] P1: Decide the `agent_qwen_code` container purpose. It currently tails forever; either give it a worker contract or remove it.
+- [x] P1: Decide the `agent_qwen_code` container purpose. Removed the idle `qwen_code_worker` / `agent_qwen_code` service from Compose and Fabric topology instead of keeping a tail-only worker with no contract.
 - [ ] P1: Initialize/require git in active workspaces before autonomous edits. RuFlo UI currently needs reliable diff/commit/rollback visibility.
 - [ ] P2: Replace the PDF's loose FIFO log bridge with a native RuFlo UI backend stream adapter that throttles and virtualizes logs.
 - [ ] P2: Treat Claude Code integration as optional. Do not make Claude Code a core runtime dependency for Revelation.

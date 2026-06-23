@@ -36,7 +36,7 @@ Factory root: $ROOT
 
 EOF
 
-capture "Container Health" bash -lc "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep -E 'factory_(rufloui|litellm|ruflo|qdrant)|agent_openhands|agent_qwen_code'" || mark_fail
+capture "Container Health" bash -lc "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep -E 'factory_(rufloui|litellm|ruflo|qdrant)|agent_openhands'" || mark_fail
 capture "GPU And Loaded Model" bash -lc "curl -fsS http://127.0.0.1:18000/v1/models && printf '\n' && nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv,noheader,nounits" || mark_fail
 capture "LiteLLM Alias" docker exec -i factory_litellm python3 - <<'PY' || mark_fail
 import json, urllib.request

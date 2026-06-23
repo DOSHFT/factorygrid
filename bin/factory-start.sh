@@ -5,7 +5,7 @@ ROOT="${FACTORYGRID_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$ROOT"
 
 PORTS="${FACTORYGRID_STACK_PORTS:-28580 28588 28589 3000 3001 3010 3011 4000 4001 6333 6334 7474 7687}"
-SERVICES="${FACTORYGRID_SERVICES:-neo4j qdrant litellm ruflo_orchestrator rufloui qwen_code_worker openhands_engineer}"
+SERVICES="${FACTORYGRID_SERVICES:-neo4j qdrant litellm ruflo_orchestrator rufloui openhands_engineer}"
 
 log() { printf '[factory-start] %s\n' "$*"; }
 warn() { printf '[factory-start][WARN] %s\n' "$*" >&2; }

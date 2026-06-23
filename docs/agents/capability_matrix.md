@@ -51,7 +51,7 @@ Verified on 2026-06-06:
 - LiteLLM exposes `qwen-coder-14b`, `qwen-coder-14b-anthropic`, `mode-a-research`, and `local-qwen`.
 - `factory_ruflo` runs RuFlo `3.7.0-alpha.44` and exposes MCP on host port `3011`.
 - `factory_rufloui` exposes API `28580` and frontend `28589`.
-- `factory_qdrant`, `factory_litellm`, `factory_ruflo`, `factory_rufloui`, `agent_qwen_code`, and `agent_openhands` are healthy.
+- `factory_qdrant`, `factory_litellm`, `factory_ruflo`, `factory_rufloui`, and `agent_openhands` are healthy.
 - `factory_neo4j` is running but unhealthy; graph memory remains non-authoritative.
 - Decima Hermes dashboard runs on `http://172.20.86.232:9119/`.
 - Decima claude-code and Hermes shells are exposed on ttyd ports `7682` and `7681`.

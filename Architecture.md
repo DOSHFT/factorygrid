@@ -46,7 +46,7 @@ Model switching flow:
 cd /home/revelation/factorygrid
 bin/factory-model-stop.sh all
 bin/factory-model-start.sh qwen-coder-awq-daily
-docker compose restart factory_litellm factory_ruflo agent_qwen_code agent_openhands
+docker compose restart factory_litellm factory_ruflo agent_openhands
 bin/factory-model-status.sh
 ```
 
@@ -90,7 +90,6 @@ Windows 11 BlackBeast
               +-- factory_litellm   :4000 / host :4001  only agent-facing model gateway
               +-- factory_ruflo     RuFlo orchestration queen
               +-- agent_openhands   :3000  autonomous engineer UI/runtime
-              +-- agent_qwen_code   detached Node worker shell
               +-- factory_qdrant    :6333/:6334 vector memory
 ```
 

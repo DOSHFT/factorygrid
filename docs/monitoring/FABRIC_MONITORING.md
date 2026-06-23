@@ -68,7 +68,7 @@ The model dropdown is populated from `runtime/model-profiles/*.env` first. These
 
 Every dropdown entry must display a safe launch preset before Fabric starts or reloads it. The preset controls `GPU_MEM`, `MAX_MODEL_LEN`, `MAX_NUM_SEQS`, `MAX_BATCHED_TOKENS`, `SWAP_SPACE_GB`, `QUANTIZATION`, and the allowed/blocked policy. Curated profile values override generic model-size heuristics. AWQ models use `awq_marlin`; non-AWQ models do not get forced AWQ quantization. Non-quantized 70B-class models and non-vLLM/external profiles are blocked on the local vLLM start path.
 
-Changing or reloading the selected model/profile persists the model and safety preset to `runtime/vllm-model.env`, restarts native vLLM, then restarts model-call dependencies through Fabric: `factory_litellm`, `factory_ruflo`, `agent_qwen_code`, and `agent_openhands`.
+Changing or reloading the selected model/profile persists the model and safety preset to `runtime/vllm-model.env`, restarts native vLLM, then restarts model-call dependencies through Fabric: `factory_litellm`, `factory_ruflo`, and `agent_openhands`.
 
 Each successful or blocked model start/reload also creates a Hermes model-sync work order under `workspace/work-orders/`. Hermes runs on Decima and should continue using `http://172.20.86.232:4001/v1` with the stable LiteLLM alias `qwen-coder-14b`; the work order exists so a model switch forces verification of Hermes config, LiteLLM aliases, Decima env metadata, and the Fabric Hermes dashboard link.
 
