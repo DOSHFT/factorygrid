@@ -6,6 +6,17 @@ WHAT="${1:-all}"
 
 case "$WHAT" in
   all|vllm)
+    if systemctl --user cat factory-vllm.service >/dev/null 2>&1; then
+      systemctl --user stop factory-vllm.service || true
+      systemctl --user disable factory-vllm.service >/dev/null 2>&1 || true
+      systemctl --user reset-failed factory-vllm.service >/dev/null 2>&1 || true
+      for _ in {1..20}; do
+        if ! systemctl --user is-active --quiet factory-vllm.service 2>/dev/null; then
+          break
+        fi
+        sleep 0.5
+      done
+    fi
     "$ROOT/bin/stop-vllm-factory.sh" || true
     ;;
 esac

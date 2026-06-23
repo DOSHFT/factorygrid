@@ -22,10 +22,17 @@ case "$ENGINE" in
   vllm)
     "$ROOT/bin/stop-vllm-factory.sh" || true
     mkdir -p "$ROOT/logs"
-    FACTORYGRID_ROOT="$ROOT" FACTORY_MODEL_PROFILE_FILE="$PROFILE_FILE" \
-      nohup "$ROOT/bin/start-vllm-factory.sh" > "$ROOT/logs/vllm-factory.log" 2>&1 &
-    echo $! > "$ROOT/logs/vllm-factory.pid"
-    echo "Started vLLM profile '$PROFILE' pid=$(cat "$ROOT/logs/vllm-factory.pid") log=$ROOT/logs/vllm-factory.log"
+    cp "$PROFILE_FILE" "$ROOT/runtime/vllm-model.env"
+    if systemctl --user cat factory-vllm.service >/dev/null 2>&1; then
+      systemctl --user reset-failed factory-vllm.service >/dev/null 2>&1 || true
+      systemctl --user start factory-vllm.service
+      echo "Started systemd vLLM profile '$PROFILE' via factory-vllm.service"
+    else
+      FACTORYGRID_ROOT="$ROOT" FACTORY_MODEL_PROFILE_FILE="$PROFILE_FILE" \
+        nohup "$ROOT/bin/start-vllm-factory.sh" > "$ROOT/logs/vllm-factory.log" 2>&1 &
+      echo $! > "$ROOT/logs/vllm-factory.pid"
+      echo "Started vLLM profile '$PROFILE' pid=$(cat "$ROOT/logs/vllm-factory.pid") log=$ROOT/logs/vllm-factory.log"
+    fi
     ;;
   ollama)
     if [[ "${REQUIRES_ISOLATION:-false}" == "true" && "${FACTORY_ALLOW_REDTEAM_MODEL:-}" != "yes" ]]; then

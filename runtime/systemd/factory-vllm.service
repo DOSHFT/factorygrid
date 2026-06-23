@@ -1,0 +1,14 @@
+[Unit]
+Description=FactoryGrid vLLM model server
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/factorygrid
+Environment=FACTORYGRID_ROOT=%h/factorygrid
+ExecStart=%h/factorygrid/bin/start-vllm-factory.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

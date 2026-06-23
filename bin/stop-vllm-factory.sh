@@ -4,6 +4,10 @@ set -euo pipefail
 ROOT="${FACTORYGRID_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PID_FILE="$ROOT/logs/vllm-factory.pid"
 
+if systemctl --user is-active --quiet factory-vllm.service 2>/dev/null; then
+  systemctl --user stop factory-vllm.service || true
+fi
+
 list_vllm_pids() {
   ps -eo pid=,cmd= |
     awk '

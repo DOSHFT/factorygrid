@@ -10,7 +10,7 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 - [ ] P0: Pin all mutable runtime versions. Current stack uses `qdrant:latest`, `litellm:main-latest`, `openhands:latest`, and `npm install -g ruflo@latest` at container start.
 - [ ] P0: Replace runtime `apt-get` / `npm install` in Compose commands with built images or a locked bootstrap script. Startup should be deterministic and fast.
 - [ ] P0: Add healthchecks and readiness gates for vLLM, LiteLLM, Qdrant, RuFlo MCP, RuFlo UI, and OpenHands. `depends_on` is not enough.
-- [ ] P0: Put vLLM under a real lifecycle manager. It currently runs outside Compose via scripts with a PID file. Use a user systemd service or a guarded launcher with restart, log rotation, and health probes. Partial: added explicit stopped-by-default model profiles and guarded start/stop/status scripts.
+- [x] P0: Put vLLM under a real lifecycle manager. User systemd service `factory-vllm.service` is repo-templated in `runtime/systemd/factory-vllm.service`; model wrappers start/stop/disable it so vLLM stays stopped by default.
 - [ ] P0: Lock network exposure. Services are bound to `0.0.0.0`; bind to localhost where possible or add local auth before exposing dashboards.
 - [ ] P0: Add per-agent workspace guardrails: git snapshot before each run, allowlisted write paths, config-file HITL gate, and rollback instructions.
 - [ ] P0: Reduce Docker socket blast radius. RuFlo and OpenHands can reach `/var/run/docker.sock`; document why, restrict where possible, and isolate destructive tool use.
@@ -88,6 +88,7 @@ The PDF contains useful intent but should not be copied directly into production
   - [x] `runtime/model-profiles/redteam-qwq-abliterated-32b.env`
   - [x] `runtime/model-profiles/blueteam-glm.env`
   - [x] `docs/MODEL_PROFILES.md`
+  - [x] `runtime/systemd/factory-vllm.service`
 
 ## P1 - Context Engineering Layer
 
