@@ -3996,9 +3996,14 @@ async function buildFabricSnapshot() {
     ...memoryNodes,
     buildHermesFabricNode(runtime),
   ]
+  const liteLlmHealthy = runtime.endpoints.some((endpoint) => endpoint.name === 'LiteLLM' && endpoint.status === 'ok')
   const links: FabricLink[] = runtime.endpoints.map((endpoint) => {
     let state = fabricStateFromRuntimeStatus(endpoint.status)
     let detail = `${endpoint.url} | ${endpoint.detail}`
+    if (endpoint.name === 'vLLM' && endpoint.status === 'fail' && liteLlmHealthy) {
+      state = 'yellow'
+      detail = `vLLM native backend is stopped or unreachable, but LiteLLM is healthy. Treating vLLM as standby diagnostics; start a Fabric model profile only when local GPU inference is required. Probe detail: ${detail}`
+    }
     if (endpoint.name === 'RuFlo orchestrator') {
       const ruflo = containers.find((container) => container.name === 'factory_ruflo')
       if (ruflo && fabricStateFromContainer(ruflo) === 'green') {
