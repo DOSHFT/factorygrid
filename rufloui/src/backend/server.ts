@@ -3684,6 +3684,15 @@ async function listDockerFabricContainersViaSocket(): Promise<FabricContainer[]>
 }
 
 async function restartDockerProductionTarget(target: string): Promise<FabricActionResult> {
+  if (process.env.FACTORY_ALLOW_DOCKER_RESTARTS !== 'true') {
+    return {
+      ok: false,
+      action: 'docker-restart-blocked',
+      target,
+      detail: 'Docker restart actions are disabled. Set FACTORY_ALLOW_DOCKER_RESTARTS=true in .env only for an operator-approved maintenance window.',
+    }
+  }
+
   const containers = await listDockerFabricContainers()
   const container = containers.find((item) => item.name === target && item.production)
   if (!container) {

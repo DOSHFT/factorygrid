@@ -43,7 +43,7 @@ The RuFlo orchestrator runtime line is green when the `factory_ruflo` production
 
 ## Operator Actions
 
-Production Docker rows can be restarted from Fabric through `/api/fabric/restart`. The backend first tries `docker compose restart <service>` and falls back to the mounted Docker Engine socket when RuFloUI is running inside a container without a Docker CLI binary.
+Production Docker rows can be restarted from Fabric through `/api/fabric/restart` only when `FACTORY_ALLOW_DOCKER_RESTARTS=true` is set for an operator-approved maintenance window. With the default `false` value, restart requests return `docker-restart-blocked`. When enabled, the backend first tries `docker compose restart <service>` and falls back to the mounted Docker Engine socket when RuFloUI is running inside a container without a Docker CLI binary.
 
 vLLM is a native WSL GPU process, not a Docker container. Fabric controls it through the host-control bridge:
 

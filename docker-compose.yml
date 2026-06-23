@@ -87,7 +87,6 @@ services:
     container_name: factory_ruflo
     volumes:
       - ./ruflo_project:/app
-      - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /app
     env_file:
       - .env
@@ -161,6 +160,7 @@ services:
       VLLM_MODEL: ${VLLM_MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
       FACTORY_VLLM_MODEL: ${FACTORY_VLLM_MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
       FACTORYGRID_ROOT: /factorygrid
+      FACTORY_ALLOW_DOCKER_RESTARTS: ${FACTORY_ALLOW_DOCKER_RESTARTS:-false}
       NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
       NEO4J_USER: ${NEO4J_USER:-neo4j}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
