@@ -17,7 +17,7 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 - [ ] P1: Implement a real context-engineering layer. The model is intentionally capped at 32k context, so every run needs context packs, summaries, exact evidence, and Qdrant recall instead of raw log/file flooding.
 - [ ] P1: Add research provenance. Firecrawl/Tavily outputs must store URL, fetch time, title, extracted markdown, citation hash, and run id.
 - [ ] P1: Add observability: GPU/VRAM, WSL RAM/swap, token throughput, queue depth, request latency, OpenHands iterations, RuFlo task status, and browser/UI stream pressure.
-- [ ] P1: Add backup/restore scripts for Qdrant, RuFlo project state, RuFlo UI persistence, OpenHands state, LiteLLM config, and vLLM scripts.
+- [x] P1: Add backup/restore scripts for Qdrant, RuFlo project state, RuFlo UI persistence, OpenHands state, LiteLLM config, and vLLM scripts. Verified with `/home/revelation/factorygrid_backups/factorygrid-20260623T015331Z.tar.gz`; includes manifest/checksum, Qdrant snapshot, dry-run restore, and excludes secrets by default.
 - [ ] P1: Decide the `agent_qwen_code` container purpose. It currently tails forever; either give it a worker contract or remove it.
 - [ ] P1: Initialize/require git in active workspaces before autonomous edits. RuFlo UI currently needs reliable diff/commit/rollback visibility.
 - [ ] P2: Replace the PDF's loose FIFO log bridge with a native RuFlo UI backend stream adapter that throttles and virtualizes logs.
@@ -77,8 +77,8 @@ The PDF contains useful intent but should not be copied directly into production
   - [x] verify RuFlo MCP host port 3011
   - [x] verify RuFlo UI API port 28580 and UI route port 28589
   - [x] verify GPU memory, WSL RAM, swap, disk free, Docker state
-- [ ] Add `bin/factory-backup.sh` and `bin/factory-restore.sh`.
-- [ ] Add `bin/factory-logs.sh` for a single view of Compose logs, vLLM logs, and recent OpenHands/RuFlo run logs.
+- [x] Add `bin/factory-backup.sh` and `bin/factory-restore.sh`.
+- [x] Add `bin/factory-logs.sh` for a single view of Compose logs, vLLM logs, and recent OpenHands/RuFlo run logs.
 - [x] Add stopped-by-default model lifecycle wrappers and profiles:
   - [x] `bin/factory-model-start.sh`
   - [x] `bin/factory-model-stop.sh`
