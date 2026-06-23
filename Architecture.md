@@ -102,16 +102,16 @@ Use this section as the source of truth for browser URLs, APIs, and health probe
 
 | Surface | LAN URL | Local host URL | Owner | Notes |
 | --- | --- | --- | --- | --- |
-| RuFloUI Factory | `http://192.168.178.20:28589/factory` | `http://127.0.0.1:28589/factory` | Revelation Docker | Main intake and factory control surface |
-| RuFloUI Dashboard | `http://192.168.178.20:28589/` | `http://127.0.0.1:28589/` | Revelation Docker | General UI shell |
-| RuFloUI Fabric Monitor | `http://192.168.178.20:28589/monitoring/fabric` | `http://127.0.0.1:28589/monitoring/fabric` | Revelation Docker | Stack, model, and runtime health |
-| RuFloUI Agents | `http://192.168.178.20:28589/agents` | `http://127.0.0.1:28589/agents` | Revelation Docker | Agent roster/status |
-| RuFloUI Tasks | `http://192.168.178.20:28589/tasks` | `http://127.0.0.1:28589/tasks` | Revelation Docker | Task queue/status |
-| RuFloUI Workspace | `http://192.168.178.20:28589/workspace` | `http://127.0.0.1:28589/workspace` | Revelation Docker | Repo/file browser |
-| RuFloUI Logs | `http://192.168.178.20:28589/logs` | `http://127.0.0.1:28589/logs` | Revelation Docker | Runtime logs |
-| OpenHands | `http://192.168.178.20:3001` | `http://127.0.0.1:3001` | Revelation Docker | Autonomous engineer UI/runtime |
-| Qdrant Dashboard | `http://192.168.178.20:6333/dashboard` | `http://127.0.0.1:6333/dashboard` | Revelation Docker | Vector memory dashboard |
-| Neo4j Browser | `http://192.168.178.20:7474` | `http://127.0.0.1:7474` | Revelation Docker | Shadow graph, not authoritative until healthy |
+| RuFloUI Factory | `http://192.168.178.20:28589/factory` | `http://127.0.0.1:28589/factory` | Revelation Docker | Main intake and factory control surface; approved LAN surface |
+| RuFloUI Dashboard | `http://192.168.178.20:28589/` | `http://127.0.0.1:28589/` | Revelation Docker | General UI shell; approved LAN surface |
+| RuFloUI Fabric Monitor | `http://192.168.178.20:28589/monitoring/fabric` | `http://127.0.0.1:28589/monitoring/fabric` | Revelation Docker | Stack, model, and runtime health; approved LAN surface |
+| RuFloUI Agents | `http://192.168.178.20:28589/agents` | `http://127.0.0.1:28589/agents` | Revelation Docker | Agent roster/status; approved LAN surface |
+| RuFloUI Tasks | `http://192.168.178.20:28589/tasks` | `http://127.0.0.1:28589/tasks` | Revelation Docker | Task queue/status; approved LAN surface |
+| RuFloUI Workspace | `http://192.168.178.20:28589/workspace` | `http://127.0.0.1:28589/workspace` | Revelation Docker | Repo/file browser; approved LAN surface |
+| RuFloUI Logs | `http://192.168.178.20:28589/logs` | `http://127.0.0.1:28589/logs` | Revelation Docker | Runtime logs; approved LAN surface |
+| OpenHands | not LAN-published by default | `http://127.0.0.1:3001` | Revelation Docker | Autonomous engineer UI/runtime; loopback admin surface |
+| Qdrant Dashboard | not LAN-published by default | `http://127.0.0.1:6333/dashboard` | Revelation Docker | Vector memory dashboard; loopback admin surface |
+| Neo4j Browser | not LAN-published by default | `http://127.0.0.1:7474` | Revelation Docker | Shadow graph, not authoritative until healthy |
 | Hermes Dashboard | `http://192.168.178.20:9119` | Decima local `http://127.0.0.1:9119` | Decima WSL | Hermes chat/dashboard, separate from model serving |
 | Hermes ttyd Console | `http://192.168.178.20:7681` | Decima local `http://127.0.0.1:7681` | Decima WSL | Browser terminal for Hermes CLI |
 | Claude ttyd Console | `http://192.168.178.20:7682` | Decima local `http://127.0.0.1:7682` | Decima WSL | Browser terminal for `claude-local` |
@@ -120,25 +120,26 @@ Use this section as the source of truth for browser URLs, APIs, and health probe
 
 | Service | LAN URL | Local host URL | Docker/internal URL | Purpose |
 | --- | --- | --- | --- | --- |
-| LiteLLM models | `http://192.168.178.20:4001/v1/models` | `http://127.0.0.1:4001/v1/models` | `http://litellm:4000/v1/models` | Agent-facing model gateway |
-| LiteLLM chat completions | `http://192.168.178.20:4001/v1/chat/completions` | `http://127.0.0.1:4001/v1/chat/completions` | `http://litellm:4000/v1/chat/completions` | Chat/completion API |
-| vLLM models | `http://192.168.178.20:18000/v1/models` | `http://127.0.0.1:18000/v1/models` | LiteLLM reaches `http://host.docker.internal:18000/v1/models` | Active backend diagnostics only |
-| vLLM chat completions | `http://192.168.178.20:18000/v1/chat/completions` | `http://127.0.0.1:18000/v1/chat/completions` | LiteLLM reaches `http://host.docker.internal:18000/v1/chat/completions` | Backend warm-up/RCA only |
+| LiteLLM models | `http://192.168.178.20:4001/v1/models` when explicitly published | `http://127.0.0.1:4001/v1/models` | `http://litellm:4000/v1/models` | Agent-facing model gateway; approved LAN surface for Decima Hermes |
+| LiteLLM chat completions | `http://192.168.178.20:4001/v1/chat/completions` when explicitly published | `http://127.0.0.1:4001/v1/chat/completions` | `http://litellm:4000/v1/chat/completions` | Chat/completion API; API-key protected |
+| vLLM models | not LAN-published by default | `http://127.0.0.1:18000/v1/models` | LiteLLM reaches `http://host.docker.internal:18000/v1/models` | Active backend diagnostics only |
+| vLLM chat completions | not LAN-published by default | `http://127.0.0.1:18000/v1/chat/completions` | LiteLLM reaches `http://host.docker.internal:18000/v1/chat/completions` | Backend warm-up/RCA only |
 | Hermes Dashboard | `http://192.168.178.20:9119` | Decima local `http://127.0.0.1:9119` | n/a | Hermes UI reachability, surfaced on Fabric |
-| RuFlo MCP health | `http://192.168.178.20:3011/health` | `http://127.0.0.1:3011/health` | `http://factory_ruflo:3010/health` | RuFlo orchestration API health |
-| RuFloUI API info | `http://192.168.178.20:28580/api/system/info` | `http://127.0.0.1:28580/api/system/info` | `http://factory_rufloui:28580/api/system/info` | UI backend health |
-| RuFloUI guide | `http://192.168.178.20:28580/api/factory/guide` | `http://127.0.0.1:28580/api/factory/guide` | `http://factory_rufloui:28580/api/factory/guide` | Factory guide payload |
-| Qdrant collections | `http://192.168.178.20:6333/collections` | `http://127.0.0.1:6333/collections` | `http://qdrant:6333/collections` | Vector store health |
-| OpenHands settings | `http://192.168.178.20:3001/api/settings` | `http://127.0.0.1:3001/api/settings` | `http://openhands_engineer:3000/api/settings` | OpenHands runtime/model config |
-| Neo4j Bolt | `bolt://192.168.178.20:7687` | `bolt://127.0.0.1:7687` | `bolt://neo4j:7687` | Graph database driver endpoint |
+| RuFlo MCP health | not LAN-published by default | `http://127.0.0.1:3011/health` | `http://factory_ruflo:3010/health` | RuFlo orchestration API health; loopback admin surface |
+| RuFloUI API info | not LAN-published by default | `http://127.0.0.1:28580/api/system/info` | `http://factory_rufloui:28580/api/system/info` | UI backend health; loopback admin surface |
+| RuFloUI guide | not LAN-published by default | `http://127.0.0.1:28580/api/factory/guide` | `http://factory_rufloui:28580/api/factory/guide` | Factory guide payload; loopback admin surface |
+| Qdrant collections | not LAN-published by default | `http://127.0.0.1:6333/collections` | `http://qdrant:6333/collections` | Vector store health; loopback admin surface |
+| OpenHands settings | not LAN-published by default | `http://127.0.0.1:3001/api/settings` | `http://openhands_engineer:3000/api/settings` | OpenHands runtime/model config; loopback admin surface |
+| Neo4j Bolt | not LAN-published by default | `bolt://127.0.0.1:7687` | `bolt://neo4j:7687` | Graph database driver endpoint; loopback admin surface |
 
 ### Access Rules
 
-- Use LAN URLs from other machines.
+- Use LAN URLs from other machines only for approved LAN surfaces.
 - Use local host URLs from BlackBeast or the owning WSL distro only.
 - Use Docker/internal URLs only from containers on the FactoryGrid Docker network.
 - Use LiteLLM for all agent model calls.
 - Use vLLM URLs only for diagnostics, warm-up, RCA, and model-switch verification.
+- `bin/factory-check-network-exposure.sh` is the startup gate for accidental `0.0.0.0` drift; default allowlist is `28589 4001`.
 - Do not add Ollama or second vLLM endpoints to this inventory unless the architecture is explicitly changed.
 
 Primary directory:

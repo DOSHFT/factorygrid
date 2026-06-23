@@ -26,14 +26,14 @@ LAN URLs:
   RuFloUI Agents:   http://${lan_ip}:28589/agents
   RuFloUI Tasks:    http://${lan_ip}:28589/tasks
   RuFloUI Logs:     http://${lan_ip}:28589/logs
-  OpenHands:        http://${lan_ip}:3001
-  Qdrant:           http://${lan_ip}:6333/dashboard
+  OpenHands:        http://127.0.0.1:3001
+  Qdrant:           http://127.0.0.1:6333/dashboard
 
-LAN APIs:
-  RuFloUI API:      http://${lan_ip}:28580/api/system/info
-  RuFlo MCP:        http://${lan_ip}:3011/health
+Local APIs:
+  RuFloUI API:      http://127.0.0.1:28580/api/system/info
+  RuFlo MCP:        http://127.0.0.1:3011/health
   LiteLLM:          http://${lan_ip}:4001/v1/models
-  vLLM:             http://${lan_ip}:18000/v1/models
+  vLLM:             http://127.0.0.1:18000/v1/models
 
 SSH:
   ssh revelation@${lan_ip}

@@ -56,7 +56,7 @@ services:
     container_name: factory_litellm
     ports:
       - "127.0.0.1:4000:4000"
-      - "0.0.0.0:4001:4000"
+      - "${LITELLM_PUBLISHED_BIND:-127.0.0.1}:${LITELLM_PUBLISHED_PORT:-4001}:4000"
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
     command: [ "--config", "/app/config.yaml", "--port", "4000" ]
@@ -109,7 +109,7 @@ services:
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
       GRAPHITI_NEO4J_URL: ${GRAPHITI_NEO4J_URL:-bolt://neo4j:7687}
     ports:
-      - "0.0.0.0:${RUFLO_MCP_PORT:-3011}:3010"
+      - "${RUFLO_MCP_HOST_BIND:-127.0.0.1}:${RUFLO_MCP_PORT:-3011}:3010"
     networks:
       - factory_net
     restart: unless-stopped
@@ -166,8 +166,8 @@ services:
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
       GRAPHITI_NEO4J_URL: ${GRAPHITI_NEO4J_URL:-bolt://neo4j:7687}
     ports:
-      - "${RUFLOUI_HOST_BIND:-0.0.0.0}:${RUFLOUI_VITE_PORT:-28589}:28588"
-      - "${RUFLOUI_HOST_BIND:-0.0.0.0}:${RUFLOUI_API_PORT:-28580}:28580"
+      - "${RUFLOUI_HOST_BIND:-127.0.0.1}:${RUFLOUI_VITE_PORT:-28589}:28588"
+      - "${RUFLOUI_API_HOST_BIND:-127.0.0.1}:${RUFLOUI_API_PORT:-28580}:28580"
     networks:
       - factory_net
     restart: unless-stopped

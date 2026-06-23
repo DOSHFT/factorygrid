@@ -94,7 +94,7 @@ if command -v powershell.exe >/dev/null 2>&1 && [ -x /mnt/c/Windows/System32/net
     warn "LAN portproxy details unavailable in this shell (common from inside Revelation). Run from elevated PowerShell on BlackBeast:"
     warn "  powershell -ExecutionPolicy Bypass -File \\\\wsl.localhost\\Revelation\\home\\revelation\\factorygrid\\bin\\factory-expose-lan.ps1"
   else
-    for port in 22 28589 28580 3001 3011 4001 6333 18000; do
+    for port in 28589 4001; do
       if printf "%s\n" "$proxy" | grep -qE "(^|[[:space:]])${port}[[:space:]]"; then
         ok "LAN port $port forwarded to Revelation $wsl_ip:$port"
       else

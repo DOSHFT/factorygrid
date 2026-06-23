@@ -87,9 +87,9 @@ need curl
 if command -v powershell.exe >/dev/null 2>&1; then
   if powershell.exe -NoProfile -Command "netsh interface portproxy show all" 2>/dev/null \
     | tr -d '\r' \
-    | grep -Eq '0\.0\.0\.0[[:space:]]+(28580|28588|28589|6333|6334|3011|4001)'; then
-    warn "Windows portproxy rules exist for FactoryGrid ports. Docker cannot publish those ports until an elevated PowerShell removes or updates the rules."
-    warn "Admin cleanup: netsh interface portproxy delete v4tov4 listenaddress=0.0.0.0 listenport=28589"
+    | grep -Eq '0\.0\.0\.0[[:space:]]+(28589|4001)'; then
+    warn "Windows portproxy rules exist for approved FactoryGrid LAN ports. Docker direct publishes may conflict until elevated PowerShell updates the rules."
+    warn "Admin refresh: powershell -ExecutionPolicy Bypass -File \\\\wsl.localhost\\Revelation\\home\\revelation\\factorygrid\\bin\\factory-expose-lan.ps1 -Apply"
   fi
 fi
 
@@ -109,6 +109,9 @@ fi
 log "validating compose"
 compose_config_tmp="$(mktemp)"
 docker compose config >"$compose_config_tmp"
+if [ -x ./bin/factory-check-network-exposure.sh ]; then
+  ./bin/factory-check-network-exposure.sh
+fi
 
 log "removing exited compose containers without deleting volumes"
 docker compose rm -f >/dev/null 2>&1 || true
