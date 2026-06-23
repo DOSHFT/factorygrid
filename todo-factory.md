@@ -7,8 +7,8 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 
 - [ ] P0: Rotate the exposed Tavily key and move all secrets out of `docker-compose.yml` and committed state files into `.env` or Docker secrets.
 - [x] P0: Fix WSL resource mismatch. Current live `revelation` runtime now verifies about 47 GiB RAM and 24 GiB swap via `bin/factory-doctor.sh`.
-- [ ] P0: Pin all mutable runtime versions. Current stack uses `qdrant:latest`, `litellm:main-latest`, `openhands:latest`, and `npm install -g ruflo@latest` at container start.
-- [ ] P0: Replace runtime `apt-get` / `npm install` in Compose commands with built images or a locked bootstrap script. Startup should be deterministic and fast.
+- [x] P0: Pin all mutable runtime versions. Compose now uses digest-pinned Qdrant, LiteLLM, OpenHands, Node base image defaults, pinned RuFlo version, and `bin/factory-check-runtime-pins.sh` to reject `latest` drift.
+- [x] P0: Replace runtime `apt-get` / mutable `npm install` in Compose commands with built images plus a hash-gated locked bootstrap script. Runtime Node installs use `npm ci` only when `package.json` or `package-lock.json` changes.
 - [ ] P0: Add healthchecks and readiness gates for vLLM, LiteLLM, Qdrant, RuFlo MCP, RuFlo UI, and OpenHands. `depends_on` is not enough.
 - [x] P0: Put vLLM under a real lifecycle manager. User systemd service `factory-vllm.service` is repo-templated in `runtime/systemd/factory-vllm.service`; model wrappers start/unmask or stop/disable/mask it so vLLM stays stopped by default. `factory-stack.service` no longer has `Wants=factory-vllm.service`.
 - [ ] P0: Lock network exposure. Services are bound to `0.0.0.0`; bind to localhost where possible or add local auth before exposing dashboards.
@@ -65,8 +65,9 @@ The PDF contains useful intent but should not be copied directly into production
 
 - [ ] Create `.env.example` and move all keys/secrets out of Compose.
 - [ ] Add `.gitignore` coverage for `.env`, secrets, logs, PID files, Qdrant snapshots, OpenHands runtime state, and local model caches.
-- [ ] Pin Compose images by version or digest.
-- [ ] Build local images for RuFlo and RuFlo UI instead of installing dependencies every boot.
+- [x] Pin Compose images by version or digest.
+- [x] Build local images for RuFlo and RuFlo UI instead of installing global CLIs every boot.
+- [x] Add `bin/factory-check-runtime-pins.sh` for digest pinning and locked-bootstrap drift checks.
 - [ ] Add `restart: unless-stopped` plus healthchecks to each long-running service.
 - [x] Add `bin/factory-doctor.sh`:
   - [x] verify WSL distro is `revelation`

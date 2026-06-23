@@ -9,8 +9,8 @@ RUN apt-get update \
   && npm install -g "ruflo@${RUFLO_VERSION}"
 
 WORKDIR /app
+COPY node-locked-install.sh /usr/local/bin/factory-node-locked-install
 COPY entrypoint.sh /usr/local/bin/factory-ruflo-entrypoint
-RUN chmod +x /usr/local/bin/factory-ruflo-entrypoint
+RUN chmod +x /usr/local/bin/factory-ruflo-entrypoint /usr/local/bin/factory-node-locked-install
 
 ENTRYPOINT ["factory-ruflo-entrypoint"]
-

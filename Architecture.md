@@ -289,16 +289,18 @@ docker exec -it factory_ruflo sh
 Inside the container:
 
 ```bash
-npx ruflo@latest status
-npx ruflo@latest swarm status
+ruflo status
+ruflo swarm status
 ```
 
 Current operational note:
 
-`ruflo start` runs foreground health checks and can exit cleanly. The container command keeps the container alive after startup:
+`ruflo start` runs foreground health checks and can exit cleanly. The local image installs the pinned `RUFLO_VERSION` during image build, then the entrypoint starts the daemon and MCP service without pulling `ruflo@latest` at runtime:
 
 ```yaml
-command: sh -c "npm install -g ruflo@latest && npx ruflo@latest start; tail -f /dev/null"
+build:
+  args:
+    RUFLO_VERSION: ${RUFLO_VERSION:-3.7.0-alpha.44}
 ```
 
 ### OpenHands Engineer

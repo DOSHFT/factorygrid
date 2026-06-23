@@ -3,11 +3,7 @@ set -euo pipefail
 
 cd /app
 
-if [ -f package-lock.json ]; then
-  npm ci --include=dev || npm install --include=dev
-else
-  npm install --include=dev
-fi
+factory-node-locked-install /app --include=dev
 
 cleanup() {
   ruflo mcp stop >/dev/null 2>&1 || true

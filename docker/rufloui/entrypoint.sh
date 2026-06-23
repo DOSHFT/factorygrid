@@ -3,11 +3,12 @@ set -euo pipefail
 
 cd /ui
 
-if [ -f package-lock.json ]; then
-  npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-else
-  npm install --legacy-peer-deps
+if [ -x /factorygrid/bin/factory-claude-local.mjs ]; then
+  ln -sf /factorygrid/bin/factory-claude-local.mjs /usr/local/bin/claude
 fi
+
+
+factory-node-locked-install /ui --legacy-peer-deps
 
 if [ -f /factorygrid/bin/factory-agent-growth.mjs ]; then
   node /factorygrid/bin/factory-agent-growth.mjs || true

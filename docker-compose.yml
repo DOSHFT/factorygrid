@@ -56,6 +56,7 @@ services:
     container_name: factory_litellm
     ports:
       - "127.0.0.1:4000:4000"
+      - "0.0.0.0:4001:4000"
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
     command: [ "--config", "/app/config.yaml", "--port", "4000" ]
@@ -80,6 +81,7 @@ services:
       context: ./docker/ruflo
       args:
         NODE_BASE_IMAGE: ${NODE_BASE_IMAGE:-node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0}
+        CLAUDE_CODE_VERSION: ${CLAUDE_CODE_VERSION:-2.1.186}
         RUFLO_VERSION: ${RUFLO_VERSION:-3.7.0-alpha.44}
     image: factorygrid/ruflo:${RUFLO_VERSION:-3.7.0-alpha.44}
     container_name: factory_ruflo
@@ -91,14 +93,23 @@ services:
       - .env
     environment:
       OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      OPENAI_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
       OPENAI_API_KEY: ${FACTORY_API_KEY:?Set FACTORY_API_KEY in .env}
+      LITELLM_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-http://litellm:4000}
+      ANTHROPIC_AUTH_TOKEN: ${ANTHROPIC_AUTH_TOKEN:-sk-mode-a-research}
+      CLAUDE_CODE_MODEL: ${CLAUDE_CODE_MODEL:-mode-a-research}
+      VLLM_BASE_URL: ${FACTORY_VLLM_BASE_URL:-http://host.docker.internal:18000/v1}
+      VLLM_MODEL: ${VLLM_MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
+      FACTORY_VLLM_MODEL: ${FACTORY_VLLM_MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
       RUFLO_MCP_PORT: ${RUFLO_MCP_PORT:-3010}
       NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
       NEO4J_USER: ${NEO4J_USER:-neo4j}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
       GRAPHITI_NEO4J_URL: ${GRAPHITI_NEO4J_URL:-bolt://neo4j:7687}
     ports:
-      - "127.0.0.1:${RUFLO_MCP_PORT:-3010}:3010"
+      - "0.0.0.0:${RUFLO_MCP_PORT:-3011}:3010"
     networks:
       - factory_net
     restart: unless-stopped
@@ -125,6 +136,7 @@ services:
       - ./ruflo_project:/ruflo-project
       - ./workspace:/workspace
       - .:/factorygrid
+      - /var/run/docker.sock:/var/run/docker.sock
     extra_hosts:
       - "host.docker.internal:host-gateway"
     working_dir: /ui
@@ -142,7 +154,12 @@ services:
       RUFLOUI_SKIP_PERMISSIONS: ${RUFLOUI_SKIP_PERMISSIONS:-true}
       RUFLOUI_CORS_ORIGIN: ${RUFLOUI_CORS_ORIGIN:-http://localhost:28589}
       OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      OPENAI_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
       OPENAI_API_KEY: ${FACTORY_API_KEY:?Set FACTORY_API_KEY in .env}
+      LITELLM_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      VLLM_BASE_URL: ${FACTORY_VLLM_BASE_URL:-http://host.docker.internal:18000/v1}
+      VLLM_MODEL: ${VLLM_MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
+      FACTORY_VLLM_MODEL: ${FACTORY_VLLM_MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
       FACTORYGRID_ROOT: /factorygrid
       NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
       NEO4J_USER: ${NEO4J_USER:-neo4j}
@@ -177,7 +194,11 @@ services:
       - .env
     environment:
       OPENAI_API_BASE: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      OPENAI_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
       OPENAI_API_KEY: ${FACTORY_API_KEY:?Set FACTORY_API_KEY in .env}
+      LITELLM_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
+      VLLM_BASE_URL: ${FACTORY_VLLM_BASE_URL:-http://host.docker.internal:18000/v1}
+      VLLM_MODEL: ${VLLM_MODEL:-Qwen/Qwen2.5-Coder-14B-Instruct-AWQ}
       FACTORY_WORKER_ROLE: qwen-code-idle
     command: tail -f /dev/null
     networks:
