@@ -76,6 +76,7 @@ _restore/
 
 # live runtime/generated workspace artifacts
 SOUL.md
+!server/agents/*/SOUL.md
 memory_hermes.md
 backups/
 *.bak-*
