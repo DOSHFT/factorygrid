@@ -23,12 +23,11 @@ This is a dev environment. Agents may proceed without per-step approval after `p
 
 6. `gate_technology_choice.py <technology_tradeoff_matrix.md>`
    - Required for complex multilayer systems.
-   - Requires adversarial comparison of at least Java Artio/Aeron/Agrona and C++ FIX8 when FIX is involved.
    - Requires GitHub risk report reference, reversal triggers, and connector harness acknowledgement.
 
 7. `gate_product_docs.py <product_root>`
    - Required for productized work.
-   - Requires `BOM.md`, `docs/Architecture.md`, and `docs/fix_lessons-learned.md` under the product root.
+   - Requires `BOM.md`, `docs/Architecture.md`, and a lessons-learned document under the product root.
    - Blocks product-specific scripts from becoming undocumented factory-global tools.
 
 

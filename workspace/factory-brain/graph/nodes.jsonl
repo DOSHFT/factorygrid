@@ -2,8 +2,6 @@
 {"id": "capability:typed-graph-memory", "title": "Typed graph memory", "type": "capability"}
 {"id": "capability:evidence-chain-retrieval", "title": "Evidence-chain retrieval", "type": "capability"}
 {"id": "capability:reader-writer-feedback", "title": "Reader/writer memory feedback", "type": "capability"}
-{"id": "run:fix44-market-data-restreamer", "path": "workspace/spec-kit/specs/fix44-market-data-restreamer_spec.md", "title": "FIX 4.4 Market Data Restreamer", "type": "run"}
-{"id": "gate:fix-protocol-artifacts", "title": "FIX protocol artifact gate", "type": "gate"}
 {"id": "agent:architect", "title": "Architect", "type": "agent"}
 {"id": "agent:researcher", "title": "Researcher", "type": "agent"}
 {"id": "agent:tester", "title": "Tester", "type": "agent"}

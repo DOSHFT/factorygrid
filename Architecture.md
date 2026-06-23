@@ -10,7 +10,7 @@ The stack is deliberately split into five layers:
 2. Gateway routing: LiteLLM exposes a stable OpenAI-compatible API.
 3. Factory orchestration: RuFlo decomposes written intent into agent work.
 4. Engineer execution: OpenHands runs coding tasks against the workspace.
-5. Memory and retrieval: Factory Brain stores readable truth, Qdrant stores production recall, and Neo4j stores temporal graph memory in shadow mode.
+5. Memory and retrieval: Qdrant stores vector memory for recall and context reuse.
 
 ## Live Topology
 
@@ -29,7 +29,6 @@ Windows 11 BlackBeast
               +-- agent_openhands   :3000  autonomous engineer UI/runtime
               +-- agent_qwen_code   detached Node worker shell
               +-- factory_qdrant    :6333/:6334 vector memory
-              +-- factory_neo4j     :7474/:7687 temporal graph memory shadow
 ```
 
 Primary directory:
@@ -593,10 +592,6 @@ Spec Kit owns the context-engineering shape. RuFlo/Queen owns orchestration. Ope
 
 FactoryGrid currently uses Factory Brain markdown as readable truth and Qdrant as recall. The next architecture step is SAGE-inspired graph memory: typed entities, typed edges, evidence-chain retrieval, and reader feedback that creates memory repair tasks. Until a true embedding or graph-memory provider is wired in, Qdrant vectors are treated as recall hints rather than authoritative semantic memory.
 
-## Adversarial Technology Selection
-
-Complex work now requires an adversarial technology-choice loop before DEV. The Queen routes proposals through Technology Strategist, GitHub Risk Scout, Architect, Performance Engineer, Tester, and Reviewer. For FIX work, the baseline comparison is Java Artio/Aeron/Agrona versus C++ FIX8, with QuickFIX/J as a lower-performance fallback. The gate is `server/hooks/gate_technology_choice.py`.
-
 ## Product Packaging Boundary
 
-FactoryGrid orchestrates products; it does not absorb product binaries. A product such as FIXReaper must be portable as a directory/container unit with its own `bin/`, `config/`, `docs/`, `protocols/`, and `runtime/` tree. Factory-level hooks and agents may call product-local scripts, but product-local scripts should not be placed under factory-global `bin/`.
+FactoryGrid orchestrates products; it does not absorb product binaries. Product roots must be portable as directory/container units with their own `bin/`, `config/`, `docs/`, `protocols/`, and `runtime/` trees. Factory-level hooks and agents may call product-local scripts, but product-local scripts should not be placed under factory-global `bin/`.

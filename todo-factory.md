@@ -226,14 +226,12 @@ The PDF contains useful intent but should not be copied directly into production
 - [x] Seed Qdrant `factory_memory` with Factory Brain and agent-growth artifacts.
 - [x] Add CodeRabbit review loop and resolve review findings from the agent-growth seeder.
 - [x] Add SAGE/principal readiness analysis in `docs/agent-readiness/SAGE_AND_PRINCIPAL_AGENT_READINESS.md`.
-- [x] Create FIX 4.4 restreamer factory task packet in `workspace/spec-kit`, `workspace/research`, `workspace/architecture`, and Factory Brain.
 - [ ] Replace lexical fallback vectors with a real local embedding endpoint.
 - [x] Add initial SAGE-style graph memory nodes/edges JSONL schema.
 - [ ] Add evidence-chain retrieval endpoint over SAGE-style graph memory.
 - [ ] Add reader feedback tasks that repair or supersede stale memory.
 - [ ] Add domain readiness gates for latency-sensitive trading/connectivity systems.
 - [ ] Add Maven/Gradle dependency freshness checker for Java agent tasks.
-- [ ] Add FIX protocol artifact gate requiring dictionary, rules of engagement, credentials, endpoint, and simulator before DEV.
 
 ## P0 - Adversarial Queen And Technology Choice
 
@@ -241,19 +239,11 @@ The PDF contains useful intent but should not be copied directly into production
 - [x] Add GitHub Risk Scout agent contract.
 - [x] Add Performance Engineer agent contract.
 - [x] Add `gate_technology_choice.py` for complex stack decisions.
-- [x] Copy attached cTrader-compatible `FIX44.xml` to `FIXReaper/protocols/fix44/ctraderFIX44.xml`.
-- [x] Add FIX technology tradeoff matrix comparing Java Artio/Aeron/Agrona, C++ FIX8, and QuickFIX/J fallback.
-- [x] Add connector harness plan requiring one upstream simulator and ten downstream customer simulators.
 - [ ] Implement a RuFlo callable GitHub Risk Scout task runner in the UI.
 - [ ] Implement evidence-chain retrieval endpoint for SAGE-style memory graph.
-- [ ] Add real Artio/FIX8/QuickFIX dependency freshness checks before DEV.
 
 ## P0 - Product Boundary Standard
 
-- [x] Move FIXReaper product-specific harness from factory-global `bin/` into `FIXReaper/bin/`.
-- [x] Add FIXReaper `BOM.md`.
-- [x] Add FIXReaper `docs/Architecture.md`.
-- [x] Add FIXReaper `docs/fix_lessons-learned.md`.
 - [x] Add `server/hooks/gate_product_docs.py`.
 - [ ] Extend RuFlo/Queen to reject future product tasks that place product binaries in factory-global `bin/`.
 - [ ] Add a product skeleton generator for `bin/`, `config/`, `docs/`, `runtime/`, `protocols/`, and container files.

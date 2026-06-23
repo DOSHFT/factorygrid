@@ -24,7 +24,6 @@ REQUIRED_EXCLUDES = [
     "qdrant_storage/",
     "node_modules/",
     "workspace/dr/",
-    "FIXReaper/runtime/",
     "*.safetensors",
     "*credential*",
     "*secret*",

@@ -1,8 +1,3 @@
 {"confidence": 0.82, "from": "paper:sage-2605.12061", "to": "capability:typed-graph-memory", "type": "supports"}
 {"confidence": 0.82, "from": "paper:sage-2605.12061", "to": "capability:evidence-chain-retrieval", "type": "supports"}
 {"confidence": 0.78, "from": "paper:sage-2605.12061", "to": "capability:reader-writer-feedback", "type": "supports"}
-{"confidence": 0.95, "from": "run:fix44-market-data-restreamer", "to": "gate:fix-protocol-artifacts", "type": "blocked_by"}
-{"confidence": 0.9, "from": "gate:fix-protocol-artifacts", "to": "agent:architect", "type": "enforced_by"}
-{"confidence": 0.9, "from": "gate:fix-protocol-artifacts", "to": "agent:researcher", "type": "requires_research_by"}
-{"confidence": 0.85, "from": "run:fix44-market-data-restreamer", "to": "agent:tester", "type": "requires_validation_by"}
-{"confidence": 0.85, "from": "run:fix44-market-data-restreamer", "to": "agent:reviewer", "type": "requires_review_by"}

@@ -5,8 +5,7 @@ import sys
 from pathlib import Path
 
 REQUIRED = [
-    "[TECH_OPTION: Java Artio/Aeron/Agrona]",
-    "[TECH_OPTION: C++ FIX8]",
+    "[TECH_OPTION:",
     "[DECISION_DRIVER:",
     "[REVERSAL_TRIGGER:",
     "github_risk_report.md",

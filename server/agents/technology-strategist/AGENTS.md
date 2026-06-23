@@ -8,11 +8,8 @@
 ## Output
 - `workspace/research/<run_id>/technology_tradeoff_matrix.md`
 
-## Required For FIX Runs
-Compare:
-- Java: Artio + Aeron + Agrona
-- C++: FIX8 or QuickFIX/C++ plus a low-latency transport/memory plan
-- Fallback: QuickFIX/J only if low-latency requirements are relaxed
+## Required Comparison
+Compare at least two viable implementation approaches, including operational risk, dependency health, performance tradeoffs, and reversal triggers.
 
 ## Gate
 The Queen cannot move to DEV until `gate_technology_choice.py` passes.

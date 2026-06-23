@@ -70,7 +70,6 @@ else
 fi
 find "$TARGET/bin" -maxdepth 1 -type f -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
 find "$TARGET/server/hooks" -maxdepth 1 -type f -exec chmod +x {} + 2>/dev/null || true
-find "$TARGET/FIXReaper/bin" -maxdepth 1 -type f -exec chmod +x {} + 2>/dev/null || true
 if [ ! -f "$TARGET/.env" ] && [ -f "$TARGET/.env.example" ]; then
   cp "$TARGET/.env.example" "$TARGET/.env"
   echo "[INSTALL][ENV] created $TARGET/.env from template; edit before production use"
@@ -105,7 +104,7 @@ Next commands:
   ./bin/factory-doctor.sh
 
 Primary UI after start:
-  http://localhost:28588/factory
+  http://localhost:28589/factory
 DONE
 INSTALL
 chmod +x "$PKG/install-factorygrid.sh"

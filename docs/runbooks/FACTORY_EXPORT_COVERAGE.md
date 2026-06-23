@@ -21,11 +21,11 @@ These must be included in UAT, GitHub, and customer exports:
 - Agents and gates: `server/agents/**`, `server/hooks/**`.
 - RuFlo project source/config: `ruflo_project/**` excluding runtime databases, daemon state, logs, and dependency folders.
 - RuFloUI source: `rufloui/**` excluding `.git`, `node_modules`, `dist`, and TypeScript build info.
-- Product roots: each shippable product directory, currently `FIXReaper/**`, excluding product runtime output.
+- Product roots: each shippable product directory, excluding product runtime output.
 - Factory Brain source-of-truth artifacts: `workspace/factory-brain/**`.
 - Spec Kit artifacts: `workspace/spec-kit/**`.
 - Research, architecture, testing reports that are safe and redacted: `workspace/research/**`, `workspace/architecture/**`, `workspace/testing/**`.
-- Protocol dictionaries that are not proprietary/customer-secret: `workspace/protocols/**`, `FIXReaper/protocols/**`.
+- Protocol dictionaries that are not proprietary/customer-secret: `workspace/protocols/**`.
 
 ## Excluded Runtime or Secret Classes
 These must not be included in GitHub or customer exports:
@@ -40,7 +40,6 @@ These must not be included in GitHub or customer exports:
 - Dependency folders: `node_modules/**`, nested `**/node_modules/**`, `.venv/**`, `venv/**`.
 - Generated frontend/backend builds: `dist/**`, `build/**`, `rufloui/tsconfig.tsbuildinfo`.
 - RuFlo runtime state: `ruflo_project/.claude-flow/daemon-state.json`, `ruflo_project/.claude-flow/metrics/**`, `ruflo_project/.claude-flow/swarm/**`, `ruflo_project/.rufloui/**`, `ruflo_project/.swarm/**`, `ruflo_project/agentdb.rvf*`, `ruflo_project/ruvector.db`.
-- Product runtime output: `FIXReaper/runtime/**`.
 - Secrets or credential files by name: `*secret*`, `*secrets*`, `*credential*`, `*credentials*`, `*.token`, `*.jwt`, `*.pem`, `*.key`, `*.p12`, `*.pfx`.
 - Large model/data blobs: `*.safetensors`, `*.gguf`, `*.pt`, `*.pth`, `*.onnx`, `*.bin`, `*.parquet`, `*.arrow`.
 
@@ -89,7 +88,6 @@ LATEST=$(ls -t /mnt/d/UAT/releases/factorygrid-customer-*.run | head -n 1)
 rm -rf /tmp/customer-factorygrid
 "$LATEST" --target /tmp/customer-factorygrid --skip-deps --force
 test -f /tmp/customer-factorygrid/rufloui/package.json
-test -f /tmp/customer-factorygrid/FIXReaper/BOM.md
 ```
 
 ## Current Customer Restore Shape
@@ -108,4 +106,3 @@ docker compose up -d
 - `http://localhost:28588/factory` is the primary UI.
 - `http://localhost:28580/` redirects to `http://localhost:28588/factory`; `28580` remains the API/WebSocket server.
 - RuFlo MCP health is verified by `ruflo mcp health` inside the container. Direct raw HTTP curls to port `3010` may reset depending on the MCP transport behavior and should not be used as the authoritative health check.
-- Use `bin/factory-start.sh` as the stack start path. If Windows `netsh interface portproxy` owns FactoryGrid ports, Docker publish can fail or stale dashboards can remain in front of the live service; remove/update those portproxy rules from elevated PowerShell before expecting `http://192.168.178.20:28589/monitoring/fabric` to reflect the current container.

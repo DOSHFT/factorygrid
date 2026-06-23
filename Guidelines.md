@@ -24,10 +24,10 @@ For complex multilayer stacks, agents may plan and research immediately, but aut
 
 ## Product Boundary Standard
 
-Every shipped product must live in its own product root, for example `FIXReaper/`. Product-specific binaries, dictionaries, configs, docs, runtime metrics, and scripts belong inside that product root, not in factory-global `bin/` or root-level docs. Every product root must include:
+Every shipped product must live in its own product root. Product-specific binaries, dictionaries, configs, docs, runtime metrics, and scripts belong inside that product root, not in factory-global `bin/` or root-level docs. Every product root must include:
 
 - `BOM.md`
 - `docs/Architecture.md`
-- `docs/fix_lessons-learned.md` for FIX products, or `<domain>_lessons-learned.md` for other domains
+- `<domain>_lessons-learned.md`
 
 Run `server/hooks/gate_product_docs.py <product_root>` before validating or shipping a product artifact.

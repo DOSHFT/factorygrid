@@ -1,7 +1,7 @@
 # FactoryGrid UAT Copy and GitHub Backup
 
 ## Scope
-The factory repository is the source of truth for orchestration code, RuFlo agent definitions, hooks, product roots such as `FIXReaper/`, docs, specs, and recovery scripts.
+The factory repository is the source of truth for orchestration code, RuFlo agent definitions, hooks, product roots, docs, specs, and recovery scripts.
 
 Runtime state and secrets are intentionally not backed up to GitHub:
 - `.env` and local secret files

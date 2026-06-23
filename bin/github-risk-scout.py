@@ -48,13 +48,17 @@ def main() -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--root", default="/home/revelation/factorygrid")
     parser.add_argument("--limit", type=int, default=3)
+    parser.add_argument("--repo", action="append", default=[], help="GitHub repo to scan, e.g. owner/name. Repeatable.")
+    parser.add_argument("--term", action="append", default=[], help="Issue search term. Repeatable.")
     args = parser.parse_args()
 
     root = Path(args.root)
     out_dir = root / "workspace" / "research" / args.run_id
     out_dir.mkdir(parents=True, exist_ok=True)
-    repos = ["artiofix/artio", "aeron-io/aeron", "aeron-io/agrona", "fix8/fix8", "quickfix-j/quickfixj", "quickfix/quickfix"]
-    terms = ["dictionary FIX44", "acceptor initiator", "market data", "sequence reset", "reconnect", "latency"]
+    repos = args.repo
+    terms = args.term or ["bug", "performance", "security", "compatibility", "regression"]
+    if not repos:
+        raise SystemExit("at least one --repo owner/name is required")
     all_items: list[dict] = []
     errors: list[str] = []
     for repo in repos:
