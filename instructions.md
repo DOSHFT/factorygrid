@@ -15,6 +15,7 @@ Use the Factory Intake form. Fill in:
 - Title
 - Factory mode: `PLAN`, `DEV`, `UAT`, or `PROD`
 - Prompt / vision
+- Research-start URLs: 1-3 http(s) links that show relevant examples, docs, products, or source material
 - Success criteria
 - Cautions
 
@@ -30,6 +31,8 @@ The UI creates:
 - `workspace/factory-brain/pages/runs/<run_id>.md`
 
 Queen reads the intake and draft spec. Researcher gathers current evidence. Architect produces allowed write paths. Coder implements only after the gate allows it. Tester records real command output. Reviewer checks diff scope and risk. Documenter updates Factory Brain.
+
+Research-start URLs are starting points, not proof by themselves. The Researcher must verify freshness, source quality, and contradictions before a claim can enter a plan.
 
 ## Prompt Cautions
 

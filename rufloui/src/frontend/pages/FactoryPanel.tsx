@@ -29,6 +29,7 @@ export default function FactoryPanel() {
   const [guide, setGuide] = useState<FactoryWorkflowGuide | null>(null)
   const [title, setTitle] = useState('')
   const [vision, setVision] = useState('')
+  const [researchStartUrlsText, setResearchStartUrlsText] = useState('')
   const [successCriteria, setSuccessCriteria] = useState('')
   const [cautions, setCautions] = useState('')
   const [requestedMode, setRequestedMode] = useState<'PLAN' | 'DEV' | 'UAT' | 'PROD'>('PLAN')
@@ -52,7 +53,8 @@ export default function FactoryPanel() {
     setSubmitting(true)
     try {
       // Supports legacy + new Jarvis matrix path (matrix takes precedence in backend)
-      const created = await api.factory.createIntake({ title, vision, successCriteria, cautions, requestedMode })
+      const researchStartUrls = researchStartUrlsText.split(/\r?\n/).map((item) => item.trim()).filter(Boolean).slice(0, 3)
+      const created = await api.factory.createIntake({ title, vision, successCriteria, cautions, requestedMode, researchStartUrls })
       setResult(created)
       addLog({ level: 'info', message: `Factory intake created: ${created.runId} (phase: ${created.phase || 'legacy'})`, source: 'factory' })
     } catch (err) {
@@ -64,7 +66,8 @@ export default function FactoryPanel() {
 
   // Jarvis future: matrix-driven submit example (see docs/jarvis)
   const submitWithMatrixStub = async () => {
-    const matrixStub = { title: title || 'Jarvis Goal', vision, endGoal: 'TBD', threatModel: 'See planner dialogue', requestedMode }
+    const researchStartUrls = researchStartUrlsText.split(/\r?\n/).map((item) => item.trim()).filter(Boolean).slice(0, 3)
+    const matrixStub = { title: title || 'Jarvis Goal', vision, endGoal: 'TBD', threatModel: 'See planner dialogue', requestedMode, researchStartUrls }
     try {
       const created = await api.factory.createIntake({ matrix: matrixStub })
       setResult(created)
@@ -100,6 +103,10 @@ export default function FactoryPanel() {
             <div>
               <label style={labelStyle}>Prompt / Vision</label>
               <textarea value={vision} onChange={(e) => setVision(e.target.value)} rows={12} placeholder="Describe the product, change, or research target." style={{ ...inputStyle, fontFamily: 'monospace', resize: 'vertical' }} />
+            </div>
+            <div>
+              <label style={labelStyle}>Research-Start URLs</label>
+              <textarea value={researchStartUrlsText} onChange={(e) => setResearchStartUrlsText(e.target.value)} rows={3} placeholder="One http(s) URL per line. Max 3." style={{ ...inputStyle, fontFamily: 'monospace', resize: 'vertical' }} />
             </div>
             <div>
               <label style={labelStyle}>Success Criteria</label>

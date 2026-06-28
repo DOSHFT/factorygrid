@@ -3371,7 +3371,7 @@ function factoryRoutes(): Router {
     res.json(getFactoryWorkflowGuide())
   })
   r.post('/intake', h(async (req, res) => {
-    const { title, vision, successCriteria, cautions, requestedMode, matrix } = req.body || {}
+    const { title, vision, successCriteria, cautions, requestedMode, matrix, researchStartUrls } = req.body || {}
     if (matrix && typeof matrix === 'object' && matrix.title) {
       // Jarvis matrix path: richer project item with phase + matrix.json
       const result = createJarvisProjectFromMatrix(matrix, factoryRoot())
@@ -3393,6 +3393,7 @@ function factoryRoutes(): Router {
       successCriteria: typeof successCriteria === 'string' ? successCriteria : undefined,
       cautions: typeof cautions === 'string' ? cautions : undefined,
       requestedMode: mode,
+      researchStartUrls: Array.isArray(researchStartUrls) ? researchStartUrls : undefined,
     })
     res.json(result)
   }))

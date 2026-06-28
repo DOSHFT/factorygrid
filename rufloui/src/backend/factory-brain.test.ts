@@ -44,6 +44,30 @@ describe('factory brain and spec-kit intake', () => {
     expect(fs.readFileSync(path.join(root, result.specPath), 'utf-8')).toContain('Status: DRAFT')
   })
 
+  test('persists up to three research-start URLs in intake and spec artifacts', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'factory-intake-urls-'))
+    const result = createSpecKitIntake({
+      title: 'Context Workbench',
+      vision: 'Add a better intake flow.',
+      researchStartUrls: [
+        ' https://github.github.com/spec-kit/ ',
+        'https://linear.app/',
+        'https://www.g2.com/categories/requirements-management',
+        'https://example.com/ignored',
+      ],
+    }, root, new Date('2026-05-18T12:00:00.000Z'))
+
+    const request = fs.readFileSync(path.join(root, result.requestPath), 'utf-8')
+    const spec = fs.readFileSync(path.join(root, result.specPath), 'utf-8')
+
+    expect(request).toContain('## Research Start URLs')
+    expect(request).toContain('- https://github.github.com/spec-kit/')
+    expect(request).toContain('- https://linear.app/')
+    expect(request).toContain('- https://www.g2.com/categories/requirements-management')
+    expect(request).not.toContain('ignored')
+    expect(spec).toContain('- Start research from the operator-supplied URLs in')
+  })
+
   test('searches brain pages by compiled content', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'factory-search-'))
     writeBrainPage({

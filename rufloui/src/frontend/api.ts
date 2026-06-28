@@ -33,6 +33,8 @@ export interface SpecKitIntakeResult {
   checklistPath: string
   brainPath: string
   nextGate: string
+  phase?: string
+  matrixPath?: string
 }
 
 export interface TelegramStatus {
@@ -242,7 +244,7 @@ export const api = {
 
   factory: {
     guide: () => request<FactoryWorkflowGuide>('/factory/guide'),
-    createIntake: (input: { title?: string; vision?: string; successCriteria?: string; cautions?: string; requestedMode?: 'PLAN' | 'DEV' | 'UAT' | 'PROD'; matrix?: any }) =>
+    createIntake: (input: { title?: string; vision?: string; successCriteria?: string; cautions?: string; requestedMode?: 'PLAN' | 'DEV' | 'UAT' | 'PROD'; researchStartUrls?: string[]; matrix?: any }) =>
       request<SpecKitIntakeResult>('/factory/intake', { method: 'POST', body: JSON.stringify(input) }),
     searchBrain: (query: string) => request<{ results: Array<{ id: string; title: string; compiledTruth: string; path: string }> }>(`/factory/brain/search?${new URLSearchParams({ q: query })}`),
     agentGrowthStatus: () => request<{ running: boolean; startedAt: string | null; finishedAt: string | null; exitCode: number | null; output: string; error: string | null }>('/factory/agent-growth/status'),
