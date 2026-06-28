@@ -1,11 +1,11 @@
 # Revelation Factory TODO
 
-Date: 2026-06-23 (reprioritized with Jarvis lifecycle)
+Date: 2026-06-28 (reprioritized with J.A.R.V.I.S., memory, and knowledge topology)
 Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 
 ## Top 360-Degree Weakness Checklist
 
-**Jarvis + Full Lifecycle Reference (high-priority P1 enabler, added after review of open items):** See `workspace/handover_to_codex/JARVIS_LIFECYCLE_HANDOVER.md` for assessment, implementation status, matrix, planner, and detailed phased checklist with propose/review/gates. This work directly addresses verbal goal intake, context-engineering, task state machine, research provenance, governance, and observability. Reprioritized above lower P1s as the vehicle for complex/ambitious projects (e.g. secure GrapheneOS apps). Cross-refs added throughout.
+**J.A.R.V.I.S. + Full Lifecycle Reference (high-priority P1 enabler):** Canonical references are now `docs/jarvis/INPUT_MATRIX.md`, `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md`, `docs/integrations/MARK_XLVII_JARVIS.md`, and `instructions.md`. The old handover note was replaced by these maintained docs. This work drives verbal goal intake, context engineering, task state machine, research provenance, governance, and observability.
 
 - [x] P0: Rotate the exposed Tavily key and move all secrets out of `docker-compose.yml` and committed state files into `.env` or Docker secrets. Repo-side cleanup is complete: tracked Tavily/key literals were scrubbed, committed `.bak` files with secrets were removed, and `bin/factory-secret-scan.sh` is wired into `factory-doctor`. Operator still must rotate the previously exposed Tavily key in the Tavily console.
 - [x] P0: Fix WSL resource mismatch. Current live `revelation` runtime now verifies about 47 GiB RAM and 24 GiB swap via `bin/factory-doctor.sh`.
@@ -17,11 +17,16 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 - [x] P0: Add source-of-truth drift guard. GitHub `main` is canonical, `D:\UAT\factorygrid` is the commit/push workspace, and live Revelation is backed up then reset to the pushed commit via `bin/factory-sync-source-of-truth.ps1`. Work order: `workspace/work-orders/2026-06-23-source-of-truth-drift-guard.md`.
 - [ ] P0: Add per-agent workspace guardrails: git snapshot before each run, allowlisted write paths, config-file HITL gate, and rollback instructions. Progress: RuFloUI task launches now require a git worktree, refuse protected config/dependency path mentions with HITL-required output, and create pre-run snapshots. Deterministic bounded file-write tasks also enforce the write allowlist, refuse protected paths, create pre-write snapshots, and return rollback instructions.
 - [x] P0: Reduce Docker socket blast radius. RuFlo no longer mounts `/var/run/docker.sock`; RuFloUI keeps it for Fabric monitoring but Docker restart actions require `FACTORY_ALLOW_DOCKER_RESTARTS=true`; OpenHands retains it for sandbox/runtime control. See `docs/runbooks/DOCKER_SOCKET_BOUNDARY.md`.
-- [ ] P1: Implement a real context-engineering layer. The model is intentionally capped at 32k context, so every run needs context packs, summaries, exact evidence, and Qdrant recall instead of raw log/file flooding.
-- [ ] P1: Jarvis + Planning Agent + full input matrix for verbal goals (spec-kit superset with threat/platform/security sections). Entry via RuFloUI FactoryPanel or Hermes. Creates project item + starts gated Research phase. **Primary reference: `workspace/handover_to_codex/JARVIS_LIFECYCLE_HANDOVER.md` (full spec, implementation status, continuation guide) + `docs/jarvis/INPUT_MATRIX.md` (schema + GrapheneOS example) + `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` (phases, propose/review/gates, checklist).** This is the verbal entry + lifecycle driver that enables context-engineering and the desired task state machine (INTAKE → RESEARCH → ... → SHIP).
-- [ ] P1: Full lifecycle stack (Research phase with deep research + agent propose/review/iterate + gates → Dev/Engineering → Production/Release). Queen + planner agent owns propose/review loops and phase transitions. Follow the explicit checklist in `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` (referenced from handover). High priority enabler for multiple P1s below (context packs, provenance, governance, observability with phase progress, git-in-workspace for DR).
+- [ ] P1: Implement a real context-engineering layer. The model is intentionally capped by the active safe profile, so every run needs context packs, summaries, exact evidence, and Qdrant recall instead of raw log/file flooding.
+- [ ] P1: J.A.R.V.I.S. + Planning Agent + full input matrix for verbal goals (spec-kit superset with threat/platform/security sections). Entry via J.A.R.V.I.S. voice/chat, RuFloUI FactoryPanel, or Hermes. Creates project item + starts gated Research phase. **Primary references: `docs/jarvis/INPUT_MATRIX.md`, `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md`, `docs/integrations/MARK_XLVII_JARVIS.md`, and `instructions.md`.** This is the verbal entry + lifecycle driver for INTAKE -> RESEARCH -> SPEC -> PLAN -> IMPLEMENT -> VERIFY -> REVIEW -> DOCUMENT -> SHIP.
+- [x] P1: Finish first-pass J.A.R.V.I.S. command bridge into FactoryGrid. Mark XLVII runtime is installed under `D:\Dev\Repos\Mark-XLVII`, has ignored local Gemini config, tracked example config, FactoryGrid launchers, startup task, Fabric monitoring, model self-heal, knowledge-path environment variables, and a `factorygrid` action that calls RuFloUI `/api/factory/intake`, `/api/tasks`, and Factory Brain search. Follow-up items remain in `docs/integrations/jarvis-integration.md`.
+- [ ] P1: Repair and harden Hermes <-> RuFlo integration. Current state: Hermes console/dashboard can run on Decima, but the `revelations-ruflo` MCP entry is not a reliable production bridge after the update and must not be treated as working until `hermes mcp test` and an end-to-end RuFlo memory/task write pass. Prefer a tested RuFloUI/FactoryGrid HTTP bridge if MCP transport remains fragile.
+- [ ] P1: Configure Obsidian/Kartpathy-Wiki as the operator-readable knowledge mirror for J.A.R.V.I.S., Claude Code/CLI, and Hermes. The vault is `D:\Knowledge\Kartpathy-Wiki`; Factory Brain remains authoritative, Qdrant remains recall, Neo4j/Graphiti remain shadow/future until promoted. Add sync/write-back checks so accepted Obsidian notes do not fork the truth away from Factory Brain.
+- [ ] P1: Full lifecycle stack (Research phase with deep research + agent propose/review/iterate + gates -> Dev/Engineering -> Production/Release). Queen + planner agent owns propose/review loops and phase transitions. Follow the explicit checklist in `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md`. High priority enabler for multiple P1s below (context packs, provenance, governance, observability with phase progress, git-in-workspace for DR).
 - [ ] P1: Add research provenance. Firecrawl/Tavily outputs must store URL, fetch time, title, extracted markdown, citation hash, and run id.
-- [ ] P1: Add observability: GPU/VRAM, WSL RAM/swap, token throughput, queue depth, request latency, OpenHands iterations, RuFlo task status, and browser/UI stream pressure. **Phase progress visible in Jarvis/Fabric** (tied to Jarvis lifecycle phases per `JARVIS_LIFECYCLE_HANDOVER.md`). Critical for Research/Dev/Release visibility.
+- [ ] P1: Add observability: GPU/VRAM, WSL RAM/swap, token throughput, queue depth, request latency, OpenHands iterations, RuFlo task status, and browser/UI stream pressure. **Progress:** `bin/factory-llm-gpu-watchdog.py` now samples GPU, vLLM, and LiteLLM every 60s, writes JSONL warnings, and can stop vLLM only when `FACTORY_LLM_WATCHDOG_INTERVENE=true`. Next: surface the watchdog log and actions in Fabric/J.A.R.V.I.S. Critical for Research/Dev/Release visibility.
+- [ ] P1: Harden every remote dependency startup path. All dependencies outside the primary RuFloUI process, including WSL-box services and Docker containers, must run as hardened services that start automatically when their host/box starts. Add a Monitoring Agent that is notified when a fatal startup error prevents any required service from coming online, captures RCA evidence, and creates/updates the repair task instead of leaving the operator to discover the failure manually.
+- [ ] P1: Add an agent model-routing gate. Each task/agent role must declare a required model profile, call `bin/jarvis-model-self-heal.ps1` or the equivalent backend resolver, verify the active LiteLLM alias routes to the currently loaded vLLM model, switch/warm the safe profile if needed, then dispatch the agent only after the model path passes an inference probe.
 - [x] P1: Add backup/restore scripts for Qdrant, RuFlo project state, RuFlo UI persistence, OpenHands state, LiteLLM config, and vLLM scripts. Verified with `/home/revelation/factorygrid_backups/factorygrid-20260623T015331Z.tar.gz`; includes manifest/checksum, Qdrant snapshot, dry-run restore, and excludes secrets by default.
 - [x] P1: Decide the `agent_qwen_code` container purpose. Removed the idle `qwen_code_worker` / `agent_qwen_code` service from Compose and Fabric topology instead of keeping a tail-only worker with no contract.
 - [ ] P1: Initialize/require git in active workspaces before autonomous edits. RuFlo UI currently needs reliable diff/commit/rollback visibility.
@@ -53,13 +58,15 @@ Target stack: `/home/revelation/factorygrid` on WSL distro `revelation`
 
 ## TODO From Attached PDF
 
+Review this: Makes sense to add: https://deusdata.github.io/codebase-memory-mcp/
+
 The PDF contains useful intent but should not be copied directly into production. Convert it into validated implementation tasks:
 
 - [ ] Create `docs/FACTORYGRID_WORKFLOW_SPEC.md` from the PDF's workflow idea, but rewrite it against actual Revelation services, ports, and file paths.
 - [ ] Add `docs/agents/ruflo_agent_prompts.md` with a minimal agent set: `Queen`, `Architect`, `Researcher`, `Coder`, `Reviewer`, `Tester`, `Documenter`.
 - [ ] Convert the PDF's "Queen" prompt into a real RuFlo state contract that emits `task_manifest.json`, `architecture_blueprint.json`, `validation_report.md`, and `handoff_summary.md`.
 - [ ] Add a config-file HITL gate for `.env`, Compose files, dependency manifests, root config, credentials, and mount definitions.
-- [ ] Build a VRAM/RAM telemetry script, but do not make it kill processes automatically in v1. Alert first.
+- [x] Build a VRAM/RAM telemetry script. `bin/factory-llm-gpu-watchdog.py` alerts first by default and supports explicit operator-enabled vLLM stop intervention with `FACTORY_LLM_WATCHDOG_INTERVENE=true`.
 - [ ] Reject the PDF's current `ingest_memories.py` as-is. It has fragile parsing, bad path defaults, naive chunking, and no provenance model.
 - [ ] Replace "Semantic Context Triplets" with a typed memory schema: `source_path`, `symbol`, `summary`, `exact_excerpt`, `hash`, `language`, `dependencies`, `last_verified`, `run_id`.
 - [ ] Add a Qdrant ingestion job that skips generated folders, `node_modules`, `.git`, build outputs, secrets, and large binaries.
@@ -97,9 +104,9 @@ The PDF contains useful intent but should not be copied directly into production
   - [x] `runtime/systemd/factory-vllm.service`
   - [x] Red-team profile corrected to use the vLLM/LiteLLM OpenAI-compatible harness instead of a separate Ollama runtime
 
-## P1 - Context Engineering Layer (Core enabler; now driven by Jarvis lifecycle - see JARVIS_LIFECYCLE_HANDOVER.md)
+## P1 - Context Engineering Layer (Core enabler; now driven by J.A.R.V.I.S. lifecycle)
 
-The Jarvis Input Matrix + Planning Agent + phased lifecycle (with early context-pack emission and gates) directly implements and prioritizes this. Cross-reference the handover for how verbal goals produce context-aware project items.
+The Jarvis Input Matrix + Planning Agent + phased lifecycle (with early context-pack emission and gates) directly implements and prioritizes this. Cross-reference `docs/jarvis/INPUT_MATRIX.md`, `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md`, and `instructions.md` for how verbal goals produce context-aware project items.
 
 - [ ] Evaluate `context-mode` locally in a separate test folder first:
   - [ ] install with Node 20-compatible path
@@ -126,7 +133,7 @@ The Jarvis Input Matrix + Planning Agent + phased lifecycle (with early context-
 
 ## P1 - Research Ingestion With Firecrawl
 
-**Note (from Jarvis lifecycle reprioritization):** Research phase in `JARVIS_LIFECYCLE_HANDOVER.md` + checklist mandates provenance + source manifests with hashes/timestamps for *every* artifact. This P1 is now a direct dependency/gate for Jarvis-driven projects.
+**Note (from Jarvis lifecycle reprioritization):** Research phase in `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` mandates provenance + source manifests with hashes/timestamps for *every* artifact. This P1 is now a direct dependency/gate for Jarvis-driven projects.
 
 - [ ] Decide hosted Firecrawl API vs self-hosted Firecrawl. Hosted is faster; self-hosted has AGPL and operational overhead.
 - [ ] Add `research_provider` abstraction: Tavily for quick search, Firecrawl for page extraction/crawling, Qdrant for retained knowledge.
@@ -138,7 +145,7 @@ The Jarvis Input Matrix + Planning Agent + phased lifecycle (with early context-
 
 ## P1 - Agent Roles And Governance (Task state machine + propose/review now framed by Jarvis full lifecycle)
 
-The `JARVIS_LIFECYCLE_HANDOVER.md` + `STACK_LIFECYCLE_CHECKLIST.md` provide the concrete implementation of the desired state machine (INTAKE → RESEARCH → SPEC → PLAN → IMPLEMENT → VERIFY → REVIEW → DOCUMENT → SHIP) using Planner + Queen with explicit propose/review/iterate + gates at transitions. Reprioritized as the vehicle for these items. Jarvis matrix supplies the initial "idea" + requirements.
+`docs/jarvis/INPUT_MATRIX.md` + `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` provide the concrete implementation of the desired state machine (INTAKE -> RESEARCH -> SPEC -> PLAN -> IMPLEMENT -> VERIFY -> REVIEW -> DOCUMENT -> SHIP) using Planner + Queen with explicit propose/review/iterate + gates at transitions. Reprioritized as the vehicle for these items. Jarvis matrix supplies the initial idea + requirements.
 
 - [ ] Import selected `agency-agents` ideas as local prompt references, not as direct runtime dependencies.
 - [ ] Start with these roles:
@@ -165,7 +172,7 @@ The `JARVIS_LIFECYCLE_HANDOVER.md` + `STACK_LIFECYCLE_CHECKLIST.md` provide the 
   - [ ] `DOCUMENT`
   - [ ] `SHIP`
 - [ ] Require artifacts at every transition.
-  **Implemented via Jarvis/Planner + Queen per `workspace/handover_to_codex/JARVIS_LIFECYCLE_HANDOVER.md` and `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` (propose/review/gates + matrix as contract). Prioritize completing the planner wiring and phase UI.**
+  **Implemented via Jarvis/Planner + Queen per `docs/jarvis/INPUT_MATRIX.md` and `docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md` (propose/review/gates + matrix as contract). Prioritize completing the planner wiring and phase UI.**
 
 ## P2 - RuFlo UI And Agent Visibility
 
@@ -254,6 +261,8 @@ The `JARVIS_LIFECYCLE_HANDOVER.md` + `STACK_LIFECYCLE_CHECKLIST.md` provide the 
 - [x] Add initial SAGE-style graph memory nodes/edges JSONL schema.
 - [ ] Add evidence-chain retrieval endpoint over SAGE-style graph memory.
 - [ ] Add reader feedback tasks that repair or supersede stale memory.
+- [ ] Add Obsidian/Kartpathy-Wiki mirror sync and validation so Claude Code/CLI, Hermes, and J.A.R.V.I.S. can read operator knowledge without bypassing Factory Brain/Qdrant authority.
+- [ ] Add end-to-end J.A.R.V.I.S. integration smoke: spoken/typed command -> `factorygrid` tool -> Spec Kit artifacts -> swarm task appears -> RuFloUI shows execution and artifact links.
 - [ ] Add domain readiness gates for latency-sensitive trading/connectivity systems.
 - [ ] Add Maven/Gradle dependency freshness checker for Java agent tasks.
 

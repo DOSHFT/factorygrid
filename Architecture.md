@@ -23,6 +23,7 @@ FactoryGrid must not run separate model servers per VM, WSL distro, agent, or ta
 - vLLM serves the selected backend model as stable id `factory-active`.
 - `litellm_config.yaml` maps stable aliases such as `qwen-coder-14b` to `openai/factory-active` on the active vLLM endpoint.
 - Hermes runs on the Decima WSL distro, but it is not a model server. Hermes must call the Revelation LiteLLM gateway at `http://172.20.86.232:4001/v1` with the stable alias `qwen-coder-14b`.
+- J.A.R.V.I.S. runs as a Windows-native operator surface on BlackBeast using the Mark XLVII runtime, but it is not a model server. Before FactoryGrid agent work, J.A.R.V.I.S. must run `D:\UAT\factorygrid\bin\jarvis-model-self-heal.ps1` and use the returned LiteLLM `base_url` plus model alias.
 - Red-team and blue-team models are profile choices behind the same vLLM/LiteLLM harness, not separate Ollama, Decima, Revelation, or per-agent daemons.
 
 Allowed model endpoints:
@@ -114,6 +115,7 @@ Use this section as the source of truth for browser URLs, APIs, and health probe
 | Hermes Dashboard | `http://192.168.178.20:9119` | Decima local `http://127.0.0.1:9119` | Decima WSL | Hermes chat/dashboard, separate from model serving |
 | Hermes ttyd Console | `http://192.168.178.20:7681` | Decima local `http://127.0.0.1:7681` | Decima WSL | Browser terminal for Hermes CLI |
 | Claude ttyd Console | `http://192.168.178.20:7682` | Decima local `http://127.0.0.1:7682` | Decima WSL | Browser terminal for `claude-local` |
+| J.A.R.V.I.S. Dashboard | `https://192.168.178.20:8000` when Windows firewall allows | `https://127.0.0.1:8000` | Windows BlackBeast | Windows-native J.A.R.V.I.S. dashboard using the Mark XLVII runtime; admin launcher is `D:\UAT\factorygrid\bin\start-mark-xlvii.ps1 -Admin` |
 
 ### APIs And Health Probes
 
@@ -124,6 +126,8 @@ Use this section as the source of truth for browser URLs, APIs, and health probe
 | vLLM models | not LAN-published by default | `http://127.0.0.1:18000/v1/models` | LiteLLM reaches `http://host.docker.internal:18000/v1/models` | Active backend diagnostics only |
 | vLLM chat completions | not LAN-published by default | `http://127.0.0.1:18000/v1/chat/completions` | LiteLLM reaches `http://host.docker.internal:18000/v1/chat/completions` | Backend warm-up/RCA only |
 | Hermes Dashboard | `http://192.168.178.20:9119` | Decima local `http://127.0.0.1:9119` | n/a | Hermes UI reachability, surfaced on Fabric |
+| J.A.R.V.I.S. Dashboard | `https://192.168.178.20:8000` when Windows firewall allows | `https://127.0.0.1:8000` | n/a | Windows J.A.R.V.I.S. dashboard reachability, surfaced on Fabric |
+| Jarvis model self-heal | n/a | `D:\UAT\factorygrid\bin\jarvis-model-self-heal.ps1` | n/a | Resolves active LiteLLM/vLLM model and starts safe vLLM profile if both model endpoints are down |
 | RuFlo MCP health | not LAN-published by default | `http://127.0.0.1:3011/health` | `http://factory_ruflo:3010/health` | RuFlo orchestration API health; loopback admin surface |
 | RuFloUI API info | not LAN-published by default | `http://127.0.0.1:28580/api/system/info` | `http://factory_rufloui:28580/api/system/info` | UI backend health; loopback admin surface |
 | RuFloUI guide | not LAN-published by default | `http://127.0.0.1:28580/api/factory/guide` | `http://factory_rufloui:28580/api/factory/guide` | Factory guide payload; loopback admin surface |
@@ -665,13 +669,32 @@ Storage:
 API/UI:
 
 ```text
-http://localhost:28588/factory
+http://localhost:28589/factory
 GET  /api/factory/guide
 POST /api/factory/intake
 GET  /api/factory/brain/search?q=<query>
 ```
 
 Factory Brain complements Qdrant. Qdrant is the vector recall substrate. Factory Brain is the human-readable source of truth and evidence timeline.
+
+### Obsidian / Kartpathy-Wiki Knowledge Surface
+
+The operator-facing Obsidian vault is:
+
+```text
+D:\Knowledge\Kartpathy-Wiki
+/mnt/d/Knowledge/Kartpathy-Wiki
+```
+
+This vault is a readable knowledge surface and curated mirror for humans, J.A.R.V.I.S., Claude Code/CLI, and Hermes. It is not the authoritative memory database. Accepted decisions, lessons, specs, validation results, and task outcomes must still be written back to Factory Brain first, then optionally mirrored or linked into Obsidian.
+
+Memory authority order:
+
+1. Factory Brain markdown and append-only timelines are the source of truth.
+2. Qdrant is production recall and similarity search.
+3. Neo4j is the shadow graph store.
+4. Graphiti/SAGE-style graph memory becomes authoritative only after the activation and rollback gates in `docs/runbooks/MEMORY_EVOLUTION_RUNBOOK.md` pass.
+5. Obsidian/Kartpathy-Wiki is the operator knowledge UI and should never silently fork facts away from Factory Brain.
 
 ## Spec Kit Workflow
 
@@ -691,7 +714,7 @@ Artifact root:
 The operator starts at:
 
 ```text
-http://localhost:28588/factory
+http://localhost:28589/factory
 ```
 
 The Factory UI writes:
@@ -703,8 +726,24 @@ The Factory UI writes:
 
 Spec Kit owns the context-engineering shape. RuFlo/Queen owns orchestration. OpenHands owns execution after the relevant gate is approved.
 
-## Jarvis + Full Lifecycle (Research → Dev → Release)
-Jarvis is the unified verbal front-end (evolves FactoryPanel + Hermes surfaces). Verbal goal → Planning Agent (clarification dialogue) → Jarvis Input Matrix (spec-kit superset with threat model, platforms, security properties, evidence needs) → project item.
+## J.A.R.V.I.S. + Full Lifecycle (Research -> Dev -> Release)
+
+J.A.R.V.I.S. is the Windows-native verbal/operator front-end using the Mark XLVII runtime. It is not a model server and it is not a second memory system. It should capture rough ideas, resolve the current FactoryGrid model route through `bin\jarvis-model-self-heal.ps1`, consult Factory Brain plus the Obsidian/Kartpathy-Wiki mirror, and then create a Spec Kit/Jarvis Input Matrix project item for RuFlo/Queen/Hermes.
+
+Implemented now:
+
+- Windows launcher and startup task.
+- Fabric monitoring node labelled `J.A.R.V.I.S.`.
+- Model self-heal contract that resolves LiteLLM/vLLM before FactoryGrid agent dispatch.
+- Knowledge path environment variables exported by `bin\start-mark-xlvii.ps1`.
+
+Critical gap not yet implemented:
+
+- The first-pass direct command bridge from J.A.R.V.I.S. voice/chat into RuFloUI Spec Kit intake is implemented through the Mark XLVII `factorygrid` tool.
+- A dedicated RuFloUI J.A.R.V.I.S. panel, visible origin badges, and end-to-end spoken-command smoke tests are still pending.
+- Hermes `revelations-ruflo` MCP registration is not currently a reliable bridge after the recent update; use tested RuFloUI/FactoryGrid HTTP APIs or direct Factory Brain artifacts until MCP health passes.
+
+Target flow: verbal goal -> Planning Agent clarification dialogue -> Jarvis Input Matrix (spec-kit superset with threat model, platforms, security properties, evidence needs) -> project item.
 
 Phases with agent propose/review/gates (see docs/jarvis/STACK_LIFECYCLE_CHECKLIST.md):
 - Research: deep research + provenance + propose (researcher) / review loops + gate.
